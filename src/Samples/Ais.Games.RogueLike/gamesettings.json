@@ -1,0 +1,46 @@
+﻿{
+  "GameEngineSettings": {
+    "TargetFrameRate": 30,
+    "FixedDeltaTime": 0.013
+  },
+  "GameWindowSettings": {
+    "Title": "Змейка",
+    "Width": 30,
+    "Height": 30
+  },
+
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "System": "Warning",
+        "Microsoft": "Debug"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Async",
+        "Args": {
+          "Configure": [
+            {
+              "Name": "File",
+              "Args": {
+                "path": "./log/app-.log",
+                "rollingInterval": "Day",
+                "fileSizeLimitBytes": 10485760,
+                "retainedFileCountLimit": 30,
+                "rollOnFileSizeLimit": false,
+                "formatter": "Serilog.Formatting.Json.JsonFormatter, Serilog"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "Enrich": [ "WithMachineName", "WithThreadId", "FromLogContext" ],
+    "Using": [ "Serilog.Sinks.Async", "Serilog.Sinks.File" ],
+    "Properties": {
+      "Application": "Snake"
+    }
+  }
+}
