@@ -35,7 +35,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _configuration = configuration;
         _context = new GameEngineBuilderContext(_configuration);
 
-        InitializeModulesLoading(out var moduleLoader, out var enrichers);
+        InitializeModulesLoading(_services, _configuration, out var moduleLoader, out var enrichers);
         _moduleLoader = moduleLoader;
         _enrichers = enrichers;
     }
@@ -96,7 +96,10 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         return gameEngine;
     }
     
-    private static void Initialize(GameEngineBuilderSettings settings, out IServiceCollection services, out IConfigurationManager configuration)
+    private static void Initialize(
+        GameEngineBuilderSettings settings, 
+        out IServiceCollection services, 
+        out IConfigurationManager configuration)
     {
         configuration = new ConfigurationManager();
         services = new ServiceCollection();
@@ -137,15 +140,19 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         }
     }
 
-    private void InitializeModulesLoading(out ModuleLoader moduleLoader, out List<IModuleEnricher> enrichers)
+    private static void InitializeModulesLoading(
+        in IServiceCollection services, 
+        in IConfiguration configuration, 
+        out ModuleLoader moduleLoader, 
+        out List<IModuleEnricher> enrichers)
     {
         moduleLoader = new ModuleLoader();
         enrichers =
         [
-            new ModuleEnricher(_configuration, _moduleLoader)
+            new ModuleEnricher(configuration, moduleLoader)
         ];
 
-        _services.AddSingleton<IModuleLoader>(_moduleLoader);
-        _services.AddSingleton<IKeyedModuleLoader>(_moduleLoader);
+        services.AddSingleton<IModuleLoader>(moduleLoader);
+        services.AddSingleton<IKeyedModuleLoader>(moduleLoader);
     }
 }
