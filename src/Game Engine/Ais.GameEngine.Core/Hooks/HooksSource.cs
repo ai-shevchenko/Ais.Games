@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-
 using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Hooks.Abstractions;
 
@@ -7,10 +6,10 @@ namespace Ais.GameEngine.Core.Hooks;
 
 internal sealed class HooksSource : IHooksSource
 {
-    private bool _disposed;
+    private readonly IHookFactory _hookFactory;
 
     private readonly ConcurrentDictionary<Type, (IHook Hook, int Order)> _hooks = [];
-    private readonly IHookFactory _hookFactory;
+    private bool _disposed;
 
     public HooksSource(IHookFactory hookFactory)
     {
@@ -44,6 +43,7 @@ internal sealed class HooksSource : IHooksSource
         {
             return (T)item.Hook;
         }
+
         throw new InvalidOperationException($"The hook {typeof(T).Name} not found");
     }
 
@@ -67,7 +67,10 @@ internal sealed class HooksSource : IHooksSource
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
 
         _disposed = true;
 
@@ -78,6 +81,7 @@ internal sealed class HooksSource : IHooksSource
                 disposable.Dispose();
             }
         }
+
         _hooks.Clear();
     }
 }

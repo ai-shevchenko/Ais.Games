@@ -1,43 +1,43 @@
 namespace Ais.GameEngine.TimeSystem.Abstractions;
 
 /// <summary>
-/// Таймер, для измерения времени внутри кадра
+///     Таймер, для измерения времени внутри кадра
 /// </summary>
 public interface IFrameTimer : IDisposable
 {
     /// <summary>
-    /// Игровой таймер
+    ///     Игровой таймер
     /// </summary>
     IGameTimer GameTimer { get; }
-    
+
     /// <summary>
-    /// Целевая частота кадров
+    ///     Целевая частота кадров
     /// </summary>
     float TargetFrameRate { get; }
-    
+
     /// <summary>
-    /// Частота кадров
+    ///     Частота кадров
     /// </summary>
     float FrameRate { get; }
 
     /// <summary>
-    /// Время кадра
+    ///     Время кадра
     /// </summary>
     float FrameTime { get; }
 
     /// <summary>
-    /// Прошедшее время
+    ///     Прошедшее время
     /// </summary>
     float Elapsed { get; }
-    
+
     /// <summary>
-    /// Получить время, необходимое до полного достижения целевой частоты кадров
+    ///     Получить время, необходимое до полного достижения целевой частоты кадров
     /// </summary>
     /// <returns>Время сна</returns>
     float GetSleepTime();
-    
+
     /// <summary>
-    /// Сбросить таймер
+    ///     Сбросить таймер
     /// </summary>
     void Restart();
 }

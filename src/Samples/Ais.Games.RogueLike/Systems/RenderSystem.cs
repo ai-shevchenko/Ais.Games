@@ -1,10 +1,7 @@
-﻿using Ais.ECS.Abstractions;
-using Ais.ECS.Abstractions.Worlds;
-using Ais.ECS.Extensions;
+﻿using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.GameEngine.Hooks.Abstractions;
 using Ais.Games.SnakeGame.Components;
-
 using Microsoft.Extensions.Options;
 
 namespace Ais.Games.SnakeGame.Systems;
@@ -28,7 +25,7 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
             Console.SetWindowSize(_settings.Width + 2, _settings.Height + 2);
         }
     }
-    
+
     public void Render(float alpha)
     {
         var result = World.CreateQuery()

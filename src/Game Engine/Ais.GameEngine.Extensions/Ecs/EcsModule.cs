@@ -1,7 +1,6 @@
 ﻿using Ais.ECS;
 using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,7 +12,7 @@ public sealed class EcsModule : GameEngineModule
     public override void ConfigureGameServices(IServiceCollection gameServices, IConfiguration configuration)
     {
         gameServices.Configure<EcsSettings>(_ => { });
-        
+
         gameServices.TryAddSingleton<IEcsWorldBuilder>(EcsWorldBuilder.Instance);
         gameServices.AddScoped(sp =>
         {

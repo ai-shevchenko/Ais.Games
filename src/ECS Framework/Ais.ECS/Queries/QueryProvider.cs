@@ -9,7 +9,7 @@ namespace Ais.ECS.Queries;
 internal sealed class QueryProvider : IQueryProvider
 {
     private readonly IWorld _world;
-    
+
     public QueryProvider(IWorld world)
     {
         _world = world;
@@ -22,7 +22,7 @@ internal sealed class QueryProvider : IQueryProvider
     {
         var with = new ComponentMask(query.WithComponents);
         var without = new ComponentMask(query.WithoutComponents);
-        
+
         var entities = new List<IEntity>();
         foreach (var entity in _world.GetAllEntities())
         {
@@ -38,19 +38,15 @@ internal sealed class QueryProvider : IQueryProvider
             {
                 continue;
             }
-            
+
             entities.Add(entity);
         }
 
         var result = new IEntity[entities.Count];
         entities.CopyTo(result);
         entities.Clear();
-        
-        return new QueryResult
-        {
-            Entities = result.AsSpan(),
-            Count = result.Length
-        };
+
+        return new QueryResult { Entities = result.AsSpan(), Count = result.Length };
     }
 
     private readonly struct ComponentMask : IEquatable<ComponentMask>
@@ -67,7 +63,7 @@ internal sealed class QueryProvider : IQueryProvider
             }
 
             var max = bits.Count > 0 ? bits.Max() : 0;
-            _bits = new ulong[(max / 64) + 1];
+            _bits = new ulong[max / 64 + 1];
 
             foreach (var bit in bits)
             {
@@ -81,6 +77,7 @@ internal sealed class QueryProvider : IQueryProvider
             {
                 hash = hash * 31 + bit.GetHashCode();
             }
+
             _hash = hash;
         }
 
@@ -98,6 +95,7 @@ internal sealed class QueryProvider : IQueryProvider
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -111,9 +109,10 @@ internal sealed class QueryProvider : IQueryProvider
                     return true;
                 }
             }
+
             return false;
         }
-        
+
         public override int GetHashCode()
         {
             return _hash;

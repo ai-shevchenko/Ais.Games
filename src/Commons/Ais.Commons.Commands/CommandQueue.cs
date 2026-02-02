@@ -4,9 +4,9 @@ namespace Ais.Commons.Commands;
 
 public sealed class CommandQueue : ICommandQueue, ICommandExecutor
 {
-    private readonly Stack<ICommand> _undo = [];
-    private readonly Stack<ICommand> _redo = [];
     private readonly Stack<ICommand> _commands = [];
+    private readonly Stack<ICommand> _redo = [];
+    private readonly Stack<ICommand> _undo = [];
 
     public void AddCommand(ICommand command)
     {
@@ -36,7 +36,7 @@ public sealed class CommandQueue : ICommandQueue, ICommandExecutor
     {
         if (_redo.Count == 0)
         {
-            return; 
+            return;
         }
 
         var redo = _redo.Pop();

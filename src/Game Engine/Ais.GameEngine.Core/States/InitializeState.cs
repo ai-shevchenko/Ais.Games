@@ -1,14 +1,13 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Hooks.Abstractions;
-
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core.States;
 
 public sealed class InitializeState : GameLoopState
 {
-    private readonly IGameLoopStateMachine _stateMachine;
     private readonly ILogger<InitializeState> _logger;
+    private readonly IGameLoopStateMachine _stateMachine;
 
     public InitializeState(IGameLoopStateMachine stateMachine, ILogger<InitializeState> logger)
     {
@@ -46,7 +45,7 @@ public sealed class InitializeState : GameLoopState
         {
             _logger.LogDebug("Initializing of game loop {@LoopName} finished", context.LoopName);
         }
-        
+
         return base.ExitAsync(context, stoppingToken);
     }
 }

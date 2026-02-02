@@ -1,19 +1,17 @@
 using System.Collections.Concurrent;
-
-using Ais.GameEngine.TimeSystem.Abstractions;
 using Ais.GameEngine.Core.Settings;
-
+using Ais.GameEngine.TimeSystem.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace Ais.GameEngine.Core.TimeSystem;
 
 public sealed class TimerController : ITimerController, IDisposable
 {
-    private bool _disposed;
+    private readonly ConcurrentDictionary<string, IGameTimer> _namedTimers = [];
+    private readonly IOptionsMonitor<GameEngineSettings> _optionsMonitor;
 
     private readonly List<IGameTimer> _timers = [];
-    private readonly ConcurrentDictionary<string, IGameTimer>  _namedTimers = [];
-    private readonly IOptionsMonitor<GameEngineSettings> _optionsMonitor;
+    private bool _disposed;
 
     public TimerController(IOptionsMonitor<GameEngineSettings> settings)
     {
@@ -35,6 +33,7 @@ public sealed class TimerController : ITimerController, IDisposable
         {
             timer.Start();
         }
+
         foreach (var timer in _namedTimers.Values)
         {
             timer.Start();
@@ -52,6 +51,7 @@ public sealed class TimerController : ITimerController, IDisposable
         {
             timer.Stop();
         }
+
         foreach (var timer in _namedTimers.Values)
         {
             timer.Stop();
@@ -69,6 +69,7 @@ public sealed class TimerController : ITimerController, IDisposable
         {
             timer.Restart();
         }
+
         foreach (var timer in _namedTimers.Values)
         {
             timer.Restart();
@@ -86,6 +87,7 @@ public sealed class TimerController : ITimerController, IDisposable
         {
             timer.SetScale(scale);
         }
+
         foreach (var timer in _namedTimers.Values)
         {
             timer.SetScale(scale);
@@ -101,6 +103,7 @@ public sealed class TimerController : ITimerController, IDisposable
         {
             timer.ResetScale();
         }
+
         foreach (var timer in _namedTimers.Values)
         {
             timer.ResetScale();
@@ -122,8 +125,8 @@ public sealed class TimerController : ITimerController, IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        var timer =  new GameTimer(this, _optionsMonitor.CurrentValue.TimerSettings);
-        return _namedTimers.TryAdd(name, timer) 
+        var timer = new GameTimer(this, _optionsMonitor.CurrentValue.TimerSettings);
+        return _namedTimers.TryAdd(name, timer)
             ? timer
             : throw new ArgumentException($"Cannot add timer with name {name}");
     }
@@ -133,8 +136,8 @@ public sealed class TimerController : ITimerController, IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        return _namedTimers.TryGetValue(name, out var timer) 
-            ? timer 
+        return _namedTimers.TryGetValue(name, out var timer)
+            ? timer
             : throw new ArgumentException($"Cannot find timer with name {name}");
     }
 
@@ -143,7 +146,7 @@ public sealed class TimerController : ITimerController, IDisposable
     {
         if (_disposed)
         {
-            return; 
+            return;
         }
 
         _disposed = true;
@@ -152,6 +155,7 @@ public sealed class TimerController : ITimerController, IDisposable
         {
             timer.Dispose();
         }
+
         foreach (var timer in _namedTimers.Values)
         {
             timer.Dispose();

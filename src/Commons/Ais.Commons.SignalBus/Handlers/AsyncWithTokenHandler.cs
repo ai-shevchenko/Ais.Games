@@ -9,7 +9,8 @@ internal sealed class AsyncWithTokenHandler : HandlerBase
             .GetResult();
     }
 
-    public override Task HandleAsync<TSignal>(TSignal signal, Delegate signalHandler, CancellationToken cancellationToken = default)
+    public override Task HandleAsync<TSignal>(TSignal signal, Delegate signalHandler,
+        CancellationToken cancellationToken = default)
     {
         return ((Func<TSignal, CancellationToken, Task>)signalHandler)(signal, cancellationToken);
     }

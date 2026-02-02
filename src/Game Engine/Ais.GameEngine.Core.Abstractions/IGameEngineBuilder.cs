@@ -5,30 +5,30 @@ using Microsoft.Extensions.Logging;
 namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-/// Конфигуратор игрового движка
+///     Конфигуратор игрового движка
 /// </summary>
 public interface IGameEngineBuilder
 {
     /// <summary>
-    /// Сконфигурировать игровые сервисы
+    ///     Сконфигурировать игровые сервисы
     /// </summary>
     /// <param name="configure">Функция конфигурации</param>
     void ConfigureGameServices(Action<GameEngineBuilderContext, IServiceCollection> configure);
 
     /// <summary>
-    /// Сконфигурировать игровые настройки
+    ///     Сконфигурировать игровые настройки
     /// </summary>
     /// <param name="configure">Функция конфигурации</param>
     void ConfigureGameConfiguration(Action<IConfigurationBuilder> configure);
 
     /// <summary>
-    /// Сконфигурировать логирование игры
+    ///     Сконфигурировать логирование игры
     /// </summary>
     /// <param name="configure">Функция конфигурации</param>
     void ConfigureGameLogging(Action<GameEngineBuilderContext, ILoggingBuilder> configure);
-    
+
     /// <summary>
-    /// Собрать игровой движок
+    ///     Собрать игровой движок
     /// </summary>
     /// <returns>Игровой движок</returns>
     IGameEngine Build();

@@ -1,17 +1,13 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-
-using System.Collections.Concurrent;
-
-using Ais.GameEngine.Modules.Abstractions;
+﻿using System.Collections.Concurrent;
+using Ais.GameEngine.Core.Abstractions;
 
 namespace Ais.GameEngine.Core;
 
 public sealed class GameEngine : IGameEngine, IDisposable
 {
-    private bool _disposed;
-    
     private readonly ConcurrentDictionary<string, IGameLoop> _cachedLoops = [];
     private readonly IGameLoopFactory _gameLoopFactory;
+    private bool _disposed;
 
     public GameEngine(IGameLoopFactory factory)
     {
@@ -26,7 +22,7 @@ public sealed class GameEngine : IGameEngine, IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        
+
         return _cachedLoops.TryGetValue(name, out var item)
             ? item
             : throw new KeyNotFoundException(name);
@@ -61,7 +57,7 @@ public sealed class GameEngine : IGameEngine, IDisposable
 
         foreach (var loop in _cachedLoops.Values)
         {
-            loop.Start(stoppingToken);  
+            loop.Start(stoppingToken);
         }
     }
 
@@ -77,10 +73,13 @@ public sealed class GameEngine : IGameEngine, IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
 
         _disposed = true;
-        
+
         Stop();
 
         foreach (var loop in _cachedLoops.Values)

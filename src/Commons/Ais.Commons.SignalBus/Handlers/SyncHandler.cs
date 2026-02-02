@@ -7,7 +7,8 @@ internal sealed class SyncHandler : HandlerBase
         ((Action<TSignal>)signalHandler)(signal);
     }
 
-    public override Task HandleAsync<TSignal>(TSignal signal, Delegate signalHandler, CancellationToken cancellationToken = default)
+    public override Task HandleAsync<TSignal>(TSignal signal, Delegate signalHandler,
+        CancellationToken cancellationToken = default)
     {
         return Task.Run(() => Handle(signal, signalHandler), cancellationToken);
     }

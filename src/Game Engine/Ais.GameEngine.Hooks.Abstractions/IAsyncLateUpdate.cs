@@ -4,4 +4,3 @@ public interface IAsyncLateUpdate : IAsyncHook
 {
     Task LateUpdateAsync(float deltaTime, CancellationToken cancellationToken);
 }
-

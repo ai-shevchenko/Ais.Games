@@ -4,18 +4,18 @@ namespace Ais.ECS.Entities;
 
 internal sealed class EntityBuffer : IEntityFactory, IEntityRegistry
 {
-    private readonly int[] _versions;
     private readonly Stack<EntityId> _free = [];
     private readonly Lock _sync = new();
+    private readonly int[] _versions;
 
     private int _capacity;
-    
+
     public EntityBuffer(int initialCapacity = 1024)
     {
         _capacity = initialCapacity;
         _versions = new int[initialCapacity];
 
-        for (int i = initialCapacity - 1; i >= 0; i--)
+        for (var i = initialCapacity - 1; i >= 0; i--)
         {
             var id = new EntityId(i);
             _free.Push(id);
@@ -41,7 +41,7 @@ internal sealed class EntityBuffer : IEntityFactory, IEntityRegistry
 
     public void DestroyEntity(IEntity entity)
     {
-        lock ( _sync)
+        lock (_sync)
         {
             _free.Push(entity.Id);
             _versions[entity.Id.Value]--;
@@ -58,7 +58,7 @@ internal sealed class EntityBuffer : IEntityFactory, IEntityRegistry
             {
                 return [];
             }
-            
+
             var cursor = 1;
             var entities = new IEntity[nextId.Value];
             for (var i = 0; i < nextId.Value; i++)
@@ -75,7 +75,7 @@ internal sealed class EntityBuffer : IEntityFactory, IEntityRegistry
                 {
                     Array.Resize(ref entities, entities.Length + version);
                 }
-                
+
                 var currentVersion = version;
                 while (currentVersion > 0)
                 {
@@ -101,15 +101,15 @@ internal sealed class EntityBuffer : IEntityFactory, IEntityRegistry
             }
 
             var entities = new IEntity[_versions[entityId.Value]];
-            for (var i = 1;  i <= _versions[entityId.Value];  i++)
+            for (var i = 1; i <= _versions[entityId.Value]; i++)
             {
                 entities[i - 1] = new Entity(entityId, i);
             }
-            
+
             return entities.AsSpan();
         }
     }
-    
+
     private void Expand()
     {
         var newCapacity = _capacity * 2;

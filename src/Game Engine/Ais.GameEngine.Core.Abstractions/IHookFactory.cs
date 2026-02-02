@@ -3,12 +3,12 @@
 namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-/// Фабрика хуков игрового цикла
+///     Фабрика хуков игрового цикла
 /// </summary>
 public interface IHookFactory
 {
     /// <summary>
-    /// Создать хук
+    ///     Создать хук
     /// </summary>
     /// <typeparam name="T">Тип хука</typeparam>
     /// <returns>Хук</returns>
@@ -16,7 +16,7 @@ public interface IHookFactory
         where T : class, IHook;
 
     /// <summary>
-    /// Создать хук
+    ///     Создать хук
     /// </summary>
     /// <param name="hookType">Тип хука</param>
     /// <returns>Хук</returns>

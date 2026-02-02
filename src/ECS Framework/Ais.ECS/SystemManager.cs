@@ -5,10 +5,10 @@ namespace Ais.ECS;
 
 public sealed class SystemManager : ISystemManager
 {
+    private readonly SystemContext _context;
     private readonly Lock _sync = new();
     private readonly List<ISystem> _systems = [];
     private readonly Dictionary<Type, ISystem> _typedSystems = [];
-    private readonly SystemContext _context;
 
     public SystemManager(IWorld world)
     {
@@ -48,7 +48,7 @@ public sealed class SystemManager : ISystemManager
         }
     }
 
-    public TSystem GetSystem<TSystem>() 
+    public TSystem GetSystem<TSystem>()
         where TSystem : class, ISystem
     {
         lock (_sync)

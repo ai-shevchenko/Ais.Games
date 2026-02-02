@@ -3,7 +3,7 @@
 namespace Ais.ECS.Abstractions.Systems;
 
 /// <summary>
-/// Контекст системы
+///     Контекст системы
 /// </summary>
 /// <param name="World">Мир</param>
 public record SystemContext(

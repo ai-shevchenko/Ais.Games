@@ -1,6 +1,5 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
-
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core;
@@ -9,7 +8,7 @@ internal sealed class GameLoopFactory : IGameLoopFactory
 {
     private readonly IServiceProvider _gameServices;
     private readonly IKeyedModuleLoader _moduleLoader;
-    
+
     public GameLoopFactory(IServiceProvider gameServices, IKeyedModuleLoader moduleLoader)
     {
         _gameServices = gameServices;
@@ -29,7 +28,7 @@ internal sealed class GameLoopFactory : IGameLoopFactory
         ConfigureContext(name, settings, contextAccessor);
 
         configure(settings);
-        
+
         // TODO: Вынести ключ в константу
         LoadModules("Default", settings);
         LoadModules(name, settings);
@@ -51,10 +50,10 @@ internal sealed class GameLoopFactory : IGameLoopFactory
         // TODO: Вынести ключ в константу
         LoadModules("Default", settings);
         LoadModules(name, settings);
-        
+
         return ActivatorUtilities.CreateInstance<GameLoop>(loopScope.ServiceProvider, loopScope);
     }
-    
+
     private void LoadModules(string name, GameLoopBuilderSettings settings)
     {
         foreach (var module in _moduleLoader.GetLoadedModules(name))
@@ -62,14 +61,11 @@ internal sealed class GameLoopFactory : IGameLoopFactory
             module.ConfigureGameLoop(settings);
         }
     }
-    
-    private static void ConfigureContext(string name, GameLoopBuilderSettings settings, IGameLoopContextAccessor contextAccessor)
+
+    private static void ConfigureContext(string name, GameLoopBuilderSettings settings,
+        IGameLoopContextAccessor contextAccessor)
     {
-        var context = new GameLoopContext
-        {
-            Hooks = settings.Hooks,
-            LoopName = name
-        };
+        var context = new GameLoopContext { Hooks = settings.Hooks, LoopName = name };
 
         contextAccessor.CurrentContext = context;
     }

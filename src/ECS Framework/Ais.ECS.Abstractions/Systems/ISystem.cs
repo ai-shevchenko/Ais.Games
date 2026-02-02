@@ -1,24 +1,24 @@
 ﻿namespace Ais.ECS.Abstractions.Systems;
 
 /// <summary>
-/// Система
+///     Система
 /// </summary>
 public interface ISystem
 {
     /// <summary>
-    /// Инициализировать систему
+    ///     Инициализировать систему
     /// </summary>
     /// <param name="context">Контекст</param>
     void Initialize(SystemContext context);
 
     /// <summary>
-    /// Обновить систему
+    ///     Обновить систему
     /// </summary>
     /// <param name="deltaTime">Разница времени между кадрами</param>
     void Update(float deltaTime);
 
     /// <summary>
-    /// Выключить систему
+    ///     Выключить систему
     /// </summary>
     void Shutdown();
 }

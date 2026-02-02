@@ -4,4 +4,3 @@ public interface ILateUpdate : IHook
 {
     void LateUpdate(float deltaTime);
 }
-

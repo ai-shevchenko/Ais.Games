@@ -1,12 +1,12 @@
 namespace Ais.GameEngine.Modules.Abstractions;
 
 /// <summary>
-/// Обогатитель модулей
+///     Обогатитель модулей
 /// </summary>
 public interface IModuleEnricher
 {
     /// <summary>
-    /// Обогатить систему модулями
+    ///     Обогатить систему модулями
     /// </summary>
     void Enrich();
 }

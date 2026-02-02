@@ -7,10 +7,10 @@ namespace Ais.GameEngine.Core.States;
 
 public sealed class RunningState : GameLoopState, IDisposable
 {
-    private readonly IGameTimer _gameTimer;
     private readonly IFrameTimer _frameTimer;
+    private readonly IGameTimer _gameTimer;
     private readonly ILogger<RunningState> _logger;
-    
+
     public RunningState(ITimerController timer, ILogger<RunningState> logger)
     {
         _logger = logger;
@@ -18,13 +18,19 @@ public sealed class RunningState : GameLoopState, IDisposable
         _frameTimer = _gameTimer.CreateFrameTimer();
     }
 
+    public void Dispose()
+    {
+        _frameTimer.Dispose();
+        _gameTimer.Dispose();
+    }
+
     public override Task EnterAsync(GameLoopContext context, CancellationToken stoppingToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.LogDebug("Running game loop {@LoopName}",  context.LoopName);
+            _logger.LogDebug("Running game loop {@LoopName}", context.LoopName);
         }
-        
+
         _gameTimer.Restart();
         return Task.CompletedTask;
     }
@@ -57,21 +63,16 @@ public sealed class RunningState : GameLoopState, IDisposable
         return Task.CompletedTask;
     }
 
-    public void Dispose()
+    private static async Task FixedUpdateAsync(GameLoopContext context, float fixedDeltaTime,
+        CancellationToken stoppingToken)
     {
-        _frameTimer.Dispose();
-        _gameTimer.Dispose();
-    }
-
-    private static async Task FixedUpdateAsync(GameLoopContext context, float fixedDeltaTime, CancellationToken stoppingToken)
-    {
-        foreach (var hook in context.Hooks.GetHooks<IFixedUpdate>(enabledOnly: true))
+        foreach (var hook in context.Hooks.GetHooks<IFixedUpdate>(true))
         {
             hook.FixedUpdate(fixedDeltaTime);
         }
 
         var asyncHooks = context.Hooks
-            .GetHooks<IAsyncFixedUpdate>(enabledOnly: true)
+            .GetHooks<IAsyncFixedUpdate>(true)
             .Select(hook => hook.FixedUpdateAsync(fixedDeltaTime, stoppingToken));
 
         await Task.WhenAll(asyncHooks);
@@ -79,13 +80,13 @@ public sealed class RunningState : GameLoopState, IDisposable
 
     private static async Task UpdateAsync(GameLoopContext context, float deltaTime, CancellationToken stoppingToken)
     {
-        foreach (var hook in context.Hooks.GetHooks<IUpdate>(enabledOnly: true))
+        foreach (var hook in context.Hooks.GetHooks<IUpdate>(true))
         {
             hook.Update(deltaTime);
         }
 
         var asyncHooks = context.Hooks
-            .GetHooks<IAsyncUpdate>(enabledOnly: true)
+            .GetHooks<IAsyncUpdate>(true)
             .Select(hook => hook.UpdateAsync(deltaTime, stoppingToken));
 
         await Task.WhenAll(asyncHooks);
@@ -93,13 +94,13 @@ public sealed class RunningState : GameLoopState, IDisposable
 
     private static async Task LateUpdateAsync(GameLoopContext context, float deltaTime, CancellationToken stoppingToken)
     {
-        foreach (var hook in context.Hooks.GetHooks<ILateUpdate>(enabledOnly: true))
+        foreach (var hook in context.Hooks.GetHooks<ILateUpdate>(true))
         {
             hook.LateUpdate(deltaTime);
         }
 
         var asyncHooks = context.Hooks
-            .GetHooks<IAsyncLateUpdate>(enabledOnly: true)
+            .GetHooks<IAsyncLateUpdate>(true)
             .Select(hook => hook.LateUpdateAsync(deltaTime, stoppingToken));
 
         await Task.WhenAll(asyncHooks);
@@ -107,13 +108,13 @@ public sealed class RunningState : GameLoopState, IDisposable
 
     private static async Task RenderAsync(GameLoopContext context, float alpha, CancellationToken stoppingToken)
     {
-        foreach (var hook in context.Hooks.GetHooks<IRender>(enabledOnly: true))
+        foreach (var hook in context.Hooks.GetHooks<IRender>(true))
         {
             hook.Render(alpha);
         }
 
         var asyncHooks = context.Hooks
-            .GetHooks<IAsyncRender>(enabledOnly: true)
+            .GetHooks<IAsyncRender>(true)
             .Select(hook => hook.RenderAsync(alpha, stoppingToken));
 
         await Task.WhenAll(asyncHooks);

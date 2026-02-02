@@ -1,38 +1,38 @@
 namespace Ais.GameEngine.TimeSystem.Abstractions;
 
 /// <summary>
-/// Управление временем
+///     Управление временем
 /// </summary>
 public interface IGameTimerController
 {
     /// <summary>
-    /// Состояние таймера вкл/выкл
+    ///     Состояние таймера вкл/выкл
     /// </summary>
     bool IsRunning { get; }
-    
+
     /// <summary>
-    /// Запустить таймер
+    ///     Запустить таймер
     /// </summary>
     void Start();
-    
+
     /// <summary>
-    /// Остановить таймер
+    ///     Остановить таймер
     /// </summary>
     void Stop();
-    
+
     /// <summary>
-    /// Сбросить таймер
+    ///     Сбросить таймер
     /// </summary>
     void Restart();
-    
+
     /// <summary>
-    /// Установить масштаб времени
+    ///     Установить масштаб времени
     /// </summary>
     /// <param name="scale">Масштаб времени</param>
     void SetScale(float scale);
-    
+
     /// <summary>
-    /// Сбросить масштаб времени
+    ///     Сбросить масштаб времени
     /// </summary>
     void ResetScale();
 }

@@ -17,11 +17,11 @@ public sealed class EcsWorldBuilder : IEcsWorldBuilder
         {
             lock (_sync)
             {
-                return field ??= new EcsWorldBuilder(); 
+                return field ??= new EcsWorldBuilder();
             }
         }
     }
-    
+
     public IEcsWorldBuilder WithSystem<T>()
         where T : class, ISystem
     {
@@ -36,7 +36,7 @@ public sealed class EcsWorldBuilder : IEcsWorldBuilder
 
         foreach (var systemType in _systems)
         {
-            var system = (ISystem) ActivatorUtilities.CreateInstance(gameServices, systemType);
+            var system = (ISystem)ActivatorUtilities.CreateInstance(gameServices, systemType);
             world.AddSystem(system);
         }
 

@@ -1,33 +1,32 @@
 using System.ComponentModel.DataAnnotations;
 
-
 namespace Ais.GameEngine.Core.TimeSystem;
 
 /// <summary>
-/// Настройки игрового таймера
+///     пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 /// </summary>
 public class GameTimerSettings
 {
     /// <summary>
-    /// Фиксированный шаг времени 
+    ///     пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     /// </summary>
     [Range(0, 1f)]
     public float FixedDeltaTime { get; set; } = 0.016f;
 
     /// <summary>
-    /// Максимальный размер кадра
+    ///     пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     /// </summary>
     [Range(0, 1f)]
     public float MaxFrameTime { get; set; } = 0.25f;
 
     /// <summary>
-    /// Целевая частота кадров
+    ///     пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     /// </summary>
     [Range(24, float.MaxValue)]
     public float TargetFrameRate { get; set; } = 60;
 
     /// <summary>
-    /// Максимальное кол-во фиксированных обновлений за кадр
+    ///     пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
     /// </summary>
     [Range(1, int.MaxValue)]
     public int MaxFixedUpdateIteration { get; set; } = 10;

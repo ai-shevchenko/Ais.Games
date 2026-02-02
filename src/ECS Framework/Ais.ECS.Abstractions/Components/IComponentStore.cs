@@ -5,11 +5,11 @@ namespace Ais.ECS.Abstractions.Components;
 public interface IComponentStore
 {
     Type ComponentType { get; }
-    
+
     int Count { get; }
-    
+
     IComponent GetBoxed(IEntity entity);
-    
+
     bool Contains(IEntity entity);
     bool Remove(IEntity entity);
 }

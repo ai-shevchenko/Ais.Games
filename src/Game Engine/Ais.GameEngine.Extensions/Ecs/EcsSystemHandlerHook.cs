@@ -3,7 +3,8 @@ using Ais.GameEngine.Hooks.Abstractions;
 
 namespace Ais.GameEngine.Extensions.Ecs;
 
-internal sealed class EcsSystemHandlerHook : BaseHook, IInitialize, IUpdate, IFixedUpdate, ILateUpdate, IRender, IDestroy
+internal sealed class EcsSystemHandlerHook : BaseHook, IInitialize, IUpdate, IFixedUpdate, ILateUpdate, IRender,
+    IDestroy
 {
     private readonly IWorld _world;
 
@@ -12,19 +13,11 @@ internal sealed class EcsSystemHandlerHook : BaseHook, IInitialize, IUpdate, IFi
         _world = world;
     }
 
-    public void Initialize()
+    public void OnDestroy()
     {
-        foreach (var hook in _world.Systems.OfType<IInitialize>())
+        foreach (var hook in _world.Systems.OfType<IDestroy>())
         {
-            hook.Initialize();
-        }
-    }
-
-    public void Update(float deltaTime)
-    {
-        foreach (var hook in _world.Systems)
-        {
-            hook.Update(deltaTime);
+            hook.OnDestroy();
         }
     }
 
@@ -33,6 +26,14 @@ internal sealed class EcsSystemHandlerHook : BaseHook, IInitialize, IUpdate, IFi
         foreach (var hook in _world.Systems.OfType<IFixedUpdate>())
         {
             hook.FixedUpdate(fixedDeltaTime);
+        }
+    }
+
+    public void Initialize()
+    {
+        foreach (var hook in _world.Systems.OfType<IInitialize>())
+        {
+            hook.Initialize();
         }
     }
 
@@ -51,12 +52,12 @@ internal sealed class EcsSystemHandlerHook : BaseHook, IInitialize, IUpdate, IFi
             hook.Render(alpha);
         }
     }
-    
-    public void OnDestroy()
+
+    public void Update(float deltaTime)
     {
-        foreach (var hook in _world.Systems.OfType<IDestroy>())
+        foreach (var hook in _world.Systems)
         {
-            hook.OnDestroy();
+            hook.Update(deltaTime);
         }
     }
 }

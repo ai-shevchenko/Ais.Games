@@ -9,8 +9,8 @@ public sealed class PauseState : GameLoopState
     private readonly ILogger<PauseState> _logger;
     private readonly ITimerController _time;
     private float _gameScale;
-    
-    
+
+
     public PauseState(ITimerController time, ILogger<PauseState> logger)
     {
         _time = time;
@@ -35,7 +35,7 @@ public sealed class PauseState : GameLoopState
         {
             _logger.LogDebug("Exit pause for game loop {@LoopName}", context.LoopName);
         }
-        
+
         _time.SetScale(_gameScale);
         return base.ExitAsync(context, stoppingToken);
     }

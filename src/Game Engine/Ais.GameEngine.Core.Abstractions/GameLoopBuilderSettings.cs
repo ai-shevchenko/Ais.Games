@@ -3,7 +3,7 @@
 namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-/// Настройки игрового цикла
+///     Настройки игрового цикла
 /// </summary>
 /// <param name="GameServices">Игровые сервисы</param>
 /// <param name="GameConfiguration">Игровая конфигурация</param>

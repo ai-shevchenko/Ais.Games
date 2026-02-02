@@ -4,4 +4,3 @@ public interface IAsyncFixedUpdate : IAsyncHook
 {
     Task FixedUpdateAsync(float fixedDeltaTime, CancellationToken cancellationToken);
 }
-

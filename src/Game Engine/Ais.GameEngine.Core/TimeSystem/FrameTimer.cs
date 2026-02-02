@@ -1,14 +1,12 @@
 using System.Diagnostics;
-
 using Ais.GameEngine.TimeSystem.Abstractions;
 
 namespace Ais.GameEngine.Core.TimeSystem;
 
 internal sealed class FrameTimer : IFrameTimer, IDisposable
 {
-    private bool _disposed;
-
     private readonly Stopwatch _timer = new();
+    private bool _disposed;
 
     public FrameTimer(IGameTimer timer, GameTimerSettings settings)
     {

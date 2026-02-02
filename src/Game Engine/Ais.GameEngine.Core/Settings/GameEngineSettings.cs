@@ -3,7 +3,7 @@ using Ais.GameEngine.Core.TimeSystem;
 namespace Ais.GameEngine.Core.Settings;
 
 /// <summary>
-/// Игровые настройки
+///     Игровые настройки
 /// </summary>
 public class GameEngineSettings
 {

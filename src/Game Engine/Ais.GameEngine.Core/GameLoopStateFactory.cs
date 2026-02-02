@@ -1,5 +1,4 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
-
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core;
@@ -13,7 +12,7 @@ internal sealed class GameLoopStateFactory : IGameLoopStateFactory
         _gameServices = gameServices;
     }
 
-    public T CreateState<T>() 
+    public T CreateState<T>()
         where T : IGameLoopState
     {
         return ActivatorUtilities.CreateInstance<T>(_gameServices);

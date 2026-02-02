@@ -1,18 +1,16 @@
 using System.Diagnostics;
-
 using Ais.GameEngine.TimeSystem.Abstractions;
 
 namespace Ais.GameEngine.Core.TimeSystem;
 
 internal sealed class GameTimer : IGameTimer
 {
-    private bool _disposed;
-    private float _accumulator;
-    private long _previousTicks;
-
     private readonly List<IFrameTimer> _frameTimers = [];
     private readonly GameTimerSettings _settings;
     private readonly Stopwatch _timer = new();
+    private float _accumulator;
+    private bool _disposed;
+    private long _previousTicks;
 
     public GameTimer(ITimerController parent, GameTimerSettings settings)
     {
@@ -154,6 +152,7 @@ internal sealed class GameTimer : IGameTimer
         {
             timer.Dispose();
         }
+
         _frameTimers.Clear();
         _frameTimers.TrimExcess();
 

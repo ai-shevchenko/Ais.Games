@@ -16,17 +16,17 @@ internal sealed class Query : IQuery
     }
 
     public IReadOnlyList<Type> WithComponents => _withComponents;
-    
+
     public IReadOnlyList<Type> WithoutComponents => _withoutComponents;
 
-    public IQuery With<T>() 
+    public IQuery With<T>()
         where T : IComponent
     {
         _withComponents.Add(typeof(T));
         return this;
     }
 
-    public IQuery Without<T>() 
+    public IQuery Without<T>()
         where T : IComponent
     {
         _withoutComponents.Add(typeof(T));

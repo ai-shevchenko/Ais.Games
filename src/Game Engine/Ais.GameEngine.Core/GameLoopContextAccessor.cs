@@ -6,13 +6,10 @@ internal sealed class GameLoopContextAccessor : IGameLoopContextAccessor
 {
     private static readonly AsyncLocal<ContextHolder> _gameLoopContextCurrent = new();
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public GameLoopContext? CurrentContext
     {
-        get
-        {
-            return _gameLoopContextCurrent.Value?.Context;
-        }
+        get => _gameLoopContextCurrent.Value?.Context;
         set
         {
             _gameLoopContextCurrent.Value?.Context = null;

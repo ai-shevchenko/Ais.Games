@@ -1,6 +1,5 @@
 ﻿using Ais.ECS.Abstractions.Worlds;
 using Ais.GameEngine.Core.Abstractions;
-
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Extensions.Ecs;
@@ -11,7 +10,7 @@ public static class EcsExtensions
     {
         return EcsWorldBuilder.Instance;
     }
-    
+
     public static GameLoopBuilderSettings InitializeEcsLoop(this GameLoopBuilderSettings gameLoopSettings,
         Action<IServiceProvider, IWorld> configure)
     {

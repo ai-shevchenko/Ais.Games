@@ -1,22 +1,21 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Core.Extensions;
 using Ais.GameEngine.Core.States;
-
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoop : IGameLoop, IDisposable
 {
-    private bool _disposed;
-    private bool _isPaused;
-    private Task? _gameLoopTask;
-    private CancellationTokenSource? _gameLoopCts;
+    private readonly IDisposable _innerScope;
+    private readonly ILogger<GameLoop> _logger;
+    private readonly IGameLoopStateMachine _stateMachine;
 
     private readonly Lock _sync = new();
-    private readonly IGameLoopStateMachine _stateMachine;
-    private readonly ILogger<GameLoop> _logger;
-    private readonly IDisposable _innerScope;
+    private bool _disposed;
+    private CancellationTokenSource? _gameLoopCts;
+    private Task? _gameLoopTask;
+    private bool _isPaused;
 
     public GameLoop(IGameLoopStateMachine stateMachine, ILogger<GameLoop> logger, IDisposable innerScope)
     {
@@ -28,7 +27,7 @@ internal sealed class GameLoop : IGameLoop, IDisposable
     public void Start(CancellationToken stoppingToken = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, true);
-        
+
         lock (_sync)
         {
             if (_gameLoopTask is { IsCompleted: true })
@@ -56,7 +55,7 @@ internal sealed class GameLoop : IGameLoop, IDisposable
     public void Pause()
     {
         ObjectDisposedException.ThrowIf(_disposed, true);
-        
+
         lock (_sync)
         {
             if (_isPaused || _gameLoopTask is { IsCompleted: true } or null)
@@ -72,11 +71,13 @@ internal sealed class GameLoop : IGameLoop, IDisposable
     public void Resume()
     {
         ObjectDisposedException.ThrowIf(_disposed, true);
-        
+
         lock (_sync)
         {
             if (!_isPaused || _gameLoopTask == null || _gameLoopTask.IsCompleted)
+            {
                 return;
+            }
 
             _isPaused = false;
 
@@ -87,7 +88,7 @@ internal sealed class GameLoop : IGameLoop, IDisposable
     public void Stop()
     {
         ObjectDisposedException.ThrowIf(_disposed, true);
-        
+
         lock (_sync)
         {
             if (_gameLoopTask is { IsCompleted: true } or null)
@@ -114,7 +115,10 @@ internal sealed class GameLoop : IGameLoop, IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
 
         Stop();
 

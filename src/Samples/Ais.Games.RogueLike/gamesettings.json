@@ -13,7 +13,6 @@
     "Width": 30,
     "Height": 30
   },
-
   "Serilog": {
     "MinimumLevel": {
       "Default": "Debug",
@@ -42,8 +41,15 @@
         }
       }
     ],
-    "Enrich": [ "WithMachineName", "WithThreadId", "FromLogContext" ],
-    "Using": [ "Serilog.Sinks.Async", "Serilog.Sinks.File" ],
+    "Enrich": [
+      "WithMachineName",
+      "WithThreadId",
+      "FromLogContext"
+    ],
+    "Using": [
+      "Serilog.Sinks.Async",
+      "Serilog.Sinks.File"
+    ],
     "Properties": {
       "Application": "Snake"
     }

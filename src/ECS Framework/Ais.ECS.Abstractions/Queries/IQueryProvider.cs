@@ -1,17 +1,17 @@
 namespace Ais.ECS.Abstractions.Queries;
 
 /// <summary>
-/// Поставщик запросов
+///     Поставщик запросов
 /// </summary>
 public interface IQueryProvider
 {
     /// <summary>
-    /// Фабрика запросов
+    ///     Фабрика запросов
     /// </summary>
     IQueryBuilder QueryBuilder { get; }
 
     /// <summary>
-    /// Выпонить запрос
+    ///     Выпонить запрос
     /// </summary>
     /// <param name="query">Запрос</param>
     /// <returns>Результат выполнения запроса</returns>

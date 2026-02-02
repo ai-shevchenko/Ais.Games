@@ -34,7 +34,7 @@ public static class EcsExtensions
             var component = Activator.CreateInstance<T>();
             init(component);
             store.Add(entity, component);
-            
+
             return entity;
         }
 
@@ -43,12 +43,15 @@ public static class EcsExtensions
         {
             return ref world.GetStore<T>().Get(entity);
         }
-        
+
         public IReadOnlyList<IComponent> GetComponents(IWorld world)
         {
-            return [.. world.ComponentStores
-                .Where(store => store.Contains(entity))
-                .Select(store => store.GetBoxed(entity))];
+            return
+            [
+                .. world.ComponentStores
+                    .Where(store => store.Contains(entity))
+                    .Select(store => store.GetBoxed(entity))
+            ];
         }
     }
 }

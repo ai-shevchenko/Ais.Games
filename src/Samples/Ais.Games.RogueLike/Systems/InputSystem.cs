@@ -7,9 +7,9 @@ namespace Ais.Games.SnakeGame.Systems;
 
 internal sealed class InputSystem : EcsSystem, IInitialize
 {
-    private Task _inputTask;
     private CancellationTokenSource _cancellationTokenSource;
-    
+    private Task _inputTask;
+
     public void Initialize()
     {
         _cancellationTokenSource = new CancellationTokenSource();
@@ -30,7 +30,7 @@ internal sealed class InputSystem : EcsSystem, IInitialize
 
         while (true)
         {
-            var key = Console.ReadKey(intercept: true).Key;
+            var key = Console.ReadKey(true).Key;
 
             foreach (var entity in result.Entities)
             {

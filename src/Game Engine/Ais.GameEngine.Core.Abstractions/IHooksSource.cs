@@ -3,12 +3,12 @@
 namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-/// Источник хуков игрового цикла
+///     Источник хуков игрового цикла
 /// </summary>
 public interface IHooksSource : IDisposable
 {
     /// <summary>
-    /// Получить список хуков
+    ///     Получить список хуков
     /// </summary>
     /// <typeparam name="T">Тип хука</typeparam>
     /// <param name="enabledOnly">Получить только включенные хуки</param>
@@ -17,7 +17,7 @@ public interface IHooksSource : IDisposable
         where T : class, IHook;
 
     /// <summary>
-    /// Получить хук
+    ///     Получить хук
     /// </summary>
     /// <typeparam name="T">Тип хука</typeparam>
     /// <returns>Хук</returns>
@@ -25,14 +25,14 @@ public interface IHooksSource : IDisposable
         where T : class, IHook;
 
     /// <summary>
-    /// Добавить хук
+    ///     Добавить хук
     /// </summary>
     /// <typeparam name="T">Тип хука</typeparam>
     void AddHook<T>()
         where T : class, IHook;
 
     /// <summary>
-    /// Добавить хук
+    ///     Добавить хук
     /// </summary>
     /// <typeparam name="T">Тип хука</typeparam>
     /// <param name="order">Порядок хука</param>

@@ -1,18 +1,17 @@
 namespace Ais.ECS.Abstractions.Entities;
 
-
 /// <summary>
-/// Сущность
+///     Сущность
 /// </summary>
 public interface IEntity
 {
     /// <summary>
-    /// Идентификатор сущности
+    ///     Идентификатор сущности
     /// </summary>
     EntityId Id { get; }
 
     /// <summary>
-    /// Версия сущности
+    ///     Версия сущности
     /// </summary>
     int Version { get; }
 }

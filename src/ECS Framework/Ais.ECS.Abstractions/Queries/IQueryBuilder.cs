@@ -1,12 +1,12 @@
 namespace Ais.ECS.Abstractions.Queries;
 
 /// <summary>
-/// Фабрика запросов
+///     Фабрика запросов
 /// </summary>
 public interface IQueryBuilder
 {
     /// <summary>
-    /// Создать запрос
+    ///     Создать запрос
     /// </summary>
     /// <returns>Запрос</returns>
     IQuery CreateQuery();

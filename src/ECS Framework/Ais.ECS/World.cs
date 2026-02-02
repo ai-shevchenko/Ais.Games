@@ -12,11 +12,11 @@ namespace Ais.ECS;
 
 public sealed class World : IWorld
 {
+    private readonly IComponentRegistry _componentRegistry;
     private readonly IEntityFactory _entityFactory;
     private readonly IEntityRegistry _entityRegistry;
-    private readonly IComponentRegistry _componentRegistry;
-    private readonly ISystemManager _systemManager;
     private readonly IQueryProvider _queryProvider;
+    private readonly ISystemManager _systemManager;
 
     public World(EcsSettings settings)
     {
@@ -25,13 +25,13 @@ public sealed class World : IWorld
         _entityRegistry = entityBuffer;
         _componentRegistry = new ComponentRegistry(settings.ComponentBufferSize);
         _systemManager = new SystemManager(this);
-        _queryProvider =  new QueryProvider(this);
+        _queryProvider = new QueryProvider(this);
     }
 
     public IReadOnlyList<ISystem> Systems => _systemManager.Systems;
-    
+
     public IReadOnlyList<IComponentStore> ComponentStores => _componentRegistry.ComponentStores;
-    
+
     public ReadOnlySpan<IEntity> GetAllEntities()
     {
         return _entityRegistry.GetAllEntities();
@@ -48,16 +48,16 @@ public sealed class World : IWorld
     }
 
     public void DestroyEntity(IEntity entity)
-    {   
+    {
         _entityFactory.DestroyEntity(entity);
     }
-    
+
     public bool HasStore(Type type)
     {
         return _componentRegistry.HasStore(type);
     }
 
-    public bool HasStore<T>() 
+    public bool HasStore<T>()
         where T : IComponent
     {
         return _componentRegistry.HasStore<T>();
@@ -72,7 +72,7 @@ public sealed class World : IWorld
     {
         return _componentRegistry.GetStore<T>();
     }
-    
+
     public void AddSystem(ISystem system)
     {
         _systemManager.AddSystem(system);
@@ -88,12 +88,12 @@ public sealed class World : IWorld
         _systemManager.UpdateSystems(deltaTime);
     }
 
-    public TSystem GetSystem<TSystem>() 
+    public TSystem GetSystem<TSystem>()
         where TSystem : class, ISystem
     {
         return _systemManager.GetSystem<TSystem>();
     }
-    
+
     public IQuery CreateQuery()
     {
         return _queryProvider.QueryBuilder.CreateQuery();

@@ -1,5 +1,4 @@
 using Ais.GameEngine.Modules.Abstractions;
-
 using Microsoft.Extensions.Configuration;
 
 namespace Ais.GameEngine.Core.Modules;
@@ -7,9 +6,9 @@ namespace Ais.GameEngine.Core.Modules;
 public class ModuleEnricher : IModuleEnricher
 {
     private const string SectionName = "GameEngineModules";
-    
-    private readonly IKeyedModuleLoader _loader;
     private readonly IConfiguration _configuration;
+
+    private readonly IKeyedModuleLoader _loader;
 
     public ModuleEnricher(IConfiguration configuration, IKeyedModuleLoader loader)
     {
@@ -28,7 +27,7 @@ public class ModuleEnricher : IModuleEnricher
         foreach (var configList in section.GetChildren())
         {
             foreach (var configSection in configList.GetChildren())
-            {   
+            {
                 var moduleValue = configSection.Get<string>();
                 if (string.IsNullOrWhiteSpace(moduleValue))
                 {
@@ -40,13 +39,13 @@ public class ModuleEnricher : IModuleEnricher
                     _loader.LoadFromDirectory(configList.Key, moduleValue);
                     continue;
                 }
-            
+
                 if (File.Exists(moduleValue) && Path.GetExtension(moduleValue) == ".dll")
                 {
                     _loader.LoadDll(configList.Key, moduleValue);
                     continue;
                 }
-                
+
                 _loader.LoadAssembly(configList.Key, moduleValue);
             }
         }

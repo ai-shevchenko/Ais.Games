@@ -10,7 +10,7 @@ internal static class HandlersManager<TSignal>
     {
         { typeof(Action<TSignal>), () => new SyncHandler() },
         { typeof(Func<TSignal, Task>), () => new AsyncHandler() },
-        { typeof(Func<TSignal, CancellationToken, Task>), () => new AsyncWithTokenHandler() },
+        { typeof(Func<TSignal, CancellationToken, Task>), () => new AsyncWithTokenHandler() }
     };
 
     public static void Handle(TSignal signal, Delegate signalHandler)
@@ -18,7 +18,8 @@ internal static class HandlersManager<TSignal>
         GetTriggerHandler(signalHandler.GetType()).Handle(signal, signalHandler);
     }
 
-    public static Task HandleAsync(TSignal signal, Delegate signalHandler, CancellationToken cancellationToken = default)
+    public static Task HandleAsync(TSignal signal, Delegate signalHandler,
+        CancellationToken cancellationToken = default)
     {
         return GetTriggerHandler(signalHandler.GetType()).HandleAsync(signal, signalHandler, cancellationToken);
     }
@@ -29,6 +30,7 @@ internal static class HandlersManager<TSignal>
         {
             throw new ArgumentOutOfRangeException(nameof(handlerType));
         }
+
         return triggerHandlerFactory();
     }
 }

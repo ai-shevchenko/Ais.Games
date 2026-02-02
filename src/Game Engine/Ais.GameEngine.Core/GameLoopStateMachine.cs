@@ -1,34 +1,33 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-
+﻿using System.Collections.Concurrent;
+using Ais.GameEngine.Core.Abstractions;
 using Microsoft.Extensions.Logging;
-
-using System.Collections.Concurrent;
 
 namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
 {
-    private bool _disposed;
-    private Task? _executionTask;
-    private CancellationTokenSource? _executionCts;
-    private bool _isRunning;
-
-    private readonly IGameLoopStateFactory _stateFactory;
-    private readonly Lazy<GameLoopContext> _context;
     private readonly ConcurrentDictionary<Type, IGameLoopState> _cachedStates = [];
+    private readonly Lazy<GameLoopContext> _context;
     private readonly ILogger<GameLoopStateMachine> _logger;
 
-    public IGameLoopState? CurrentState => _context.Value.CurrentState;
+    private readonly IGameLoopStateFactory _stateFactory;
+    private bool _disposed;
+    private CancellationTokenSource? _executionCts;
+    private Task? _executionTask;
+    private bool _isRunning;
 
     public GameLoopStateMachine(
-        IGameLoopStateFactory stateFactory, 
-        IGameLoopContextAccessor contextAccessor, 
+        IGameLoopStateFactory stateFactory,
+        IGameLoopContextAccessor contextAccessor,
         ILogger<GameLoopStateMachine> logger)
     {
         _stateFactory = stateFactory;
-        _context = new Lazy<GameLoopContext>(() => contextAccessor.CurrentContext ?? throw new InvalidOperationException());
+        _context = new Lazy<GameLoopContext>(() =>
+            contextAccessor.CurrentContext ?? throw new InvalidOperationException());
         _logger = logger;
     }
+
+    public IGameLoopState? CurrentState => _context.Value.CurrentState;
 
     public void RegisterState<T>()
         where T : IGameLoopState
@@ -40,7 +39,7 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
         }
     }
 
-    public async Task ChangeStateAsync<T>(CancellationToken stoppingToken = default) 
+    public async Task ChangeStateAsync<T>(CancellationToken stoppingToken = default)
         where T : IGameLoopState
     {
         if (!_cachedStates.TryGetValue(typeof(T), out var newState))
@@ -68,7 +67,7 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
         }
     }
 
-    public async Task StartAsync<T>(CancellationToken stoppingToken = default) 
+    public async Task StartAsync<T>(CancellationToken stoppingToken = default)
         where T : IGameLoopState
     {
         if (_isRunning)
@@ -93,12 +92,14 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
                 }
                 catch (OperationCanceledException ex) when (ex.CancellationToken.IsCancellationRequested)
                 {
-                    _logger.LogError(ex, "State machine for {@GameLoop} was canceled cause {@Reason}", _context.Value.LoopName, ex.Message);
+                    _logger.LogError(ex, "State machine for {@GameLoop} was canceled cause {@Reason}",
+                        _context.Value.LoopName, ex.Message);
                     throw;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "State machine for {@GameLoop} was failed cause {@Reason}", _context.Value.LoopName, ex.Message);
+                    _logger.LogError(ex, "State machine for {@GameLoop} was failed cause {@Reason}",
+                        _context.Value.LoopName, ex.Message);
                     throw;
                 }
             }
@@ -109,7 +110,6 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
 
     public async Task StopAsync()
     {
-
         if (!_isRunning)
         {
             return;
@@ -133,7 +133,7 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
     {
         if (_disposed)
         {
-            return; 
+            return;
         }
 
         StopAsync().Wait();

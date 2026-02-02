@@ -1,5 +1,4 @@
 using System.Reflection;
-
 using Ais.GameEngine.Modules.Abstractions;
 
 namespace Ais.GameEngine.Core.Modules;
@@ -7,9 +6,9 @@ namespace Ais.GameEngine.Core.Modules;
 public sealed class ModuleLoader : IKeyedModuleLoader
 {
     private const string DefaultName = "Default";
-    
-    private readonly List<Type> _types = [];
     private readonly Dictionary<string, List<GameEngineModule>> _modules = [];
+
+    private readonly List<Type> _types = [];
 
     public IReadOnlyList<Type> LoadModules => _types.AsReadOnly();
 
@@ -52,15 +51,16 @@ public sealed class ModuleLoader : IKeyedModuleLoader
             {
                 continue;
             }
-            
+
             var module = (GameEngineModule)Activator.CreateInstance(type)!;
             if (!_modules.TryGetValue(key, out var modules))
             {
                 modules = [];
                 _modules.Add(key, modules);
             }
+
             modules.Add(module);
-            
+
             _types.Add(type);
         }
     }
@@ -82,7 +82,7 @@ public sealed class ModuleLoader : IKeyedModuleLoader
         {
             throw new FileLoadException($"The file {path} was not DLL.");
         }
-        
+
         var assembly = Assembly.LoadFrom(path);
         LoadAssembly(key, assembly);
     }
@@ -93,7 +93,7 @@ public sealed class ModuleLoader : IKeyedModuleLoader
         {
             return;
         }
-        
+
         var files = Directory.GetFiles(path, "*.dll");
         foreach (var file in files)
         {

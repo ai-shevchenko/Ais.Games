@@ -6,13 +6,12 @@ namespace Ais.ECS.Components;
 internal sealed class ComponentStore<T> : IComponentStore<T>
     where T : IComponent
 {
+    private readonly Lock _sync = new();
+    private int _capacity;
     private T[] _components;
     private int[] _entityToIndex;
     private int[] _indexToEntity;
-    private int _capacity;
 
-    private readonly Lock _sync = new();
-    
     public ComponentStore(int initialCapacity = 1024)
     {
         _capacity = initialCapacity;
@@ -25,12 +24,12 @@ internal sealed class ComponentStore<T> : IComponentStore<T>
     public Type ComponentType => typeof(T);
 
     public int Count { get; private set; }
-    
+
     public IComponent GetBoxed(IEntity entity)
     {
         return Get(entity);
     }
-    
+
     public ref T Add(IEntity entity, in T component)
     {
         lock (_sync)
@@ -45,7 +44,7 @@ internal sealed class ComponentStore<T> : IComponentStore<T>
             _indexToEntity[index] = entity.Id.Value;
             _components[index] = component;
 
-            return ref _components[index];   
+            return ref _components[index];
         }
     }
 
@@ -53,7 +52,7 @@ internal sealed class ComponentStore<T> : IComponentStore<T>
     {
         lock (_sync)
         {
-            return entity.Id.Value < _capacity 
+            return entity.Id.Value < _capacity
                    && _entityToIndex[entity.Id.Value] >= 0;
         }
     }
@@ -69,7 +68,7 @@ internal sealed class ComponentStore<T> : IComponentStore<T>
                 throw new InvalidOperationException($"Component {typeof(T).Name} not found");
             }
 
-            return ref _components[index];   
+            return ref _components[index];
         }
     }
 
@@ -83,7 +82,7 @@ internal sealed class ComponentStore<T> : IComponentStore<T>
                 return false;
             }
 
-            int lastEntityId = _indexToEntity[Count - 1];
+            var lastEntityId = _indexToEntity[Count - 1];
             if (index != Count - 1)
             {
                 _components[index] = _components[Count - 1];
@@ -94,7 +93,7 @@ internal sealed class ComponentStore<T> : IComponentStore<T>
             _entityToIndex[entity.Id.Value] = -1;
             Count--;
 
-            return true;   
+            return true;
         }
     }
 

@@ -1,6 +1,5 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Hooks.Abstractions;
-
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core.States;
@@ -20,14 +19,14 @@ public sealed class StoppingState : GameLoopState
         {
             _logger.LogDebug("Stopping game loop {@LoopName}", context.LoopName);
         }
-        
-        foreach (var destroy in context.Hooks.GetHooks<IDestroy>(enabledOnly: true))
+
+        foreach (var destroy in context.Hooks.GetHooks<IDestroy>(true))
         {
             destroy.OnDestroy();
         }
 
         var asyncDestroy = context.Hooks
-            .GetHooks<IAsyncDestroy>(enabledOnly: true)
+            .GetHooks<IAsyncDestroy>(true)
             .Select(h => h.OnDestroyAsync(stoppingToken));
 
         await Task.WhenAll(asyncDestroy);
@@ -39,7 +38,7 @@ public sealed class StoppingState : GameLoopState
         {
             _logger.LogDebug("The game loop {@LoopName} wa stopped", context.LoopName);
         }
-        
+
         return base.ExitAsync(context, stoppingToken);
     }
 }

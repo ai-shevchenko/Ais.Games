@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using Ais.Commons.SignalBus.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Ais.Commons.SignalBus;
 
@@ -17,27 +16,27 @@ public sealed class SignalBus : ISignalBus
         _logger = logger;
     }
 
-    public IDisposable Subscribe<TSignal>(Func<TSignal, Task> handler) 
+    public IDisposable Subscribe<TSignal>(Func<TSignal, Task> handler)
         where TSignal : ISignal
-    { 
+    {
         RegisterInternal(typeof(TSignal), handler);
         return new Subscription<TSignal>(this, handler);
     }
 
-    public IDisposable Subscribe<TSignal>(Func<TSignal, CancellationToken, Task> handler) 
+    public IDisposable Subscribe<TSignal>(Func<TSignal, CancellationToken, Task> handler)
         where TSignal : ISignal
-    { 
+    {
         RegisterInternal(typeof(TSignal), handler);
         return new Subscription<TSignal>(this, handler);
     }
 
     public IDisposable Subscribe<TSignal>(Action<TSignal> handler) where TSignal : ISignal
-    { 
+    {
         RegisterInternal(typeof(TSignal), handler);
         return new Subscription<TSignal>(this, handler);
     }
 
-    public async Task PublishAsync<TSignal>(TSignal signal, CancellationToken cancellationToken = default) 
+    public async Task PublishAsync<TSignal>(TSignal signal, CancellationToken cancellationToken = default)
         where TSignal : ISignal
     {
         var handlersToInvoke = FindSignalHandlers<TSignal>();
@@ -49,7 +48,7 @@ public sealed class SignalBus : ISignalBus
 
         var tasks = handlersToInvoke
             .Select(handler => HandlersManager<TSignal>.HandleAsync(signal, handler, cancellationToken));
-        
+
         try
         {
             await Task.WhenAll(tasks);
@@ -60,7 +59,7 @@ public sealed class SignalBus : ISignalBus
         }
     }
 
-    public void Publish<TSignal>(TSignal signal) 
+    public void Publish<TSignal>(TSignal signal)
         where TSignal : ISignal
     {
         var handlersToInvoke = FindSignalHandlers<TSignal>();
@@ -89,7 +88,7 @@ public sealed class SignalBus : ISignalBus
     }
 
     public void Unsubscribe<TSignal>(Func<TSignal, Task> asyncSignalHandler)
-    where TSignal : ISignal
+        where TSignal : ISignal
     {
         UnregisterInternal(typeof(TSignal), asyncSignalHandler);
     }
@@ -97,6 +96,20 @@ public sealed class SignalBus : ISignalBus
     public void Unsubscribe<TSignal>(Func<TSignal, CancellationToken, Task> asyncSignalHandler) where TSignal : ISignal
     {
         UnregisterInternal(typeof(TSignal), asyncSignalHandler);
+    }
+
+    public void Dispose()
+    {
+        _lock.EnterWriteLock();
+        try
+        {
+            _handlers.Clear();
+        }
+        finally
+        {
+            _lock.ExitWriteLock();
+            _lock.Dispose();
+        }
     }
 
     private void UnregisterInternal(Type signalType, Delegate signalHandler)
@@ -110,7 +123,7 @@ public sealed class SignalBus : ISignalBus
             {
                 return;
             }
-            
+
             for (var i = entries.Count - 1; i >= 0; i--)
             {
                 if (entries[i].HashCode == hashCode ||
@@ -149,7 +162,7 @@ public sealed class SignalBus : ISignalBus
         }
     }
 
-    private List<Delegate> FindSignalHandlers<TSignal>() 
+    private List<Delegate> FindSignalHandlers<TSignal>()
         where TSignal : ISignal
     {
         List<Delegate> handlersToInvoke = [];
@@ -176,38 +189,24 @@ public sealed class SignalBus : ISignalBus
         return handlersToInvoke;
     }
 
-    public void Dispose()
-    {
-        _lock.EnterWriteLock();
-        try
-        {
-            _handlers.Clear();
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
-            _lock.Dispose();
-        }
-    }
-
     private sealed class HandlerEntry
     {
-        public WeakReference<Delegate> Reference { get; }
-        public int HashCode { get; }
-
         public HandlerEntry(Delegate handler)
         {
             Reference = new WeakReference<Delegate>(handler);
             HashCode = RuntimeHelpers.GetHashCode(handler);
         }
+
+        public WeakReference<Delegate> Reference { get; }
+        public int HashCode { get; }
     }
-    
+
     private sealed class Subscription<T> : IDisposable
         where T : ISignal
     {
         private readonly ISignalBus _bus;
         private readonly Delegate _handler;
-        
+
         public Subscription(ISignalBus bus, Delegate handler)
         {
             _bus = bus;

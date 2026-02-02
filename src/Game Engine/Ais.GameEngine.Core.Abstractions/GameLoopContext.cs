@@ -1,27 +1,27 @@
 ﻿namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-/// Контекст игрового цикла
+///     Контекст игрового цикла
 /// </summary>
 public class GameLoopContext
 {
     /// <summary>
-    /// Наименование игрового цикла
+    ///     Наименование игрового цикла
     /// </summary>
     public required string LoopName { get; init; }
 
     /// <summary>
-    /// Источник хуков
+    ///     Источник хуков
     /// </summary>
     public required IHooksSource Hooks { get; init; }
 
     /// <summary>
-    /// Текущее состояние
+    ///     Текущее состояние
     /// </summary>
     public IGameLoopState? CurrentState { get; set; }
 
     /// <summary>
-    /// Игровые данные
+    ///     Игровые данные
     /// </summary>
     public Dictionary<string, object?> GameData { get; } = [];
-};
+}

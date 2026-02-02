@@ -1,6 +1,6 @@
 namespace Ais.ECS.Abstractions.Components;
 
 /// <summary>
-/// Компонент
+///     Компонент
 /// </summary>
 public interface IComponent;
