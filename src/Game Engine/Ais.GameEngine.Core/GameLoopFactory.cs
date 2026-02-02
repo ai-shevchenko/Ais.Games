@@ -9,13 +9,13 @@ namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoopFactory : IGameLoopFactory
 {
-    private readonly GameLoopFactorySettings _settings;
     private readonly IServiceProvider _gameServices;
-
-    public GameLoopFactory(IServiceProvider gameServices, GameLoopFactorySettings settings)
+    private readonly IKeyedModuleLoader _moduleLoader;
+    
+    public GameLoopFactory(IServiceProvider gameServices, IKeyedModuleLoader moduleLoader)
     {
         _gameServices = gameServices;
-        _settings = settings;
+        _moduleLoader = moduleLoader;
     }
 
     public IGameLoop CreateGameLoop(string name, Action<GameLoopBuilderSettings> configure)
@@ -31,8 +31,10 @@ internal sealed class GameLoopFactory : IGameLoopFactory
         ConfigureContext(name, settings, contextAccessor);
 
         configure(settings);
-
-        ConfigureGameLoopModules(name, settings);
+        
+        // TODO: Вынести ключ в константу
+        LoadModules("Default", settings);
+        LoadModules(name, settings);
 
         return ActivatorUtilities.CreateInstance<GameLoop>(loopScope.ServiceProvider, loopScope);
     }
@@ -48,38 +50,17 @@ internal sealed class GameLoopFactory : IGameLoopFactory
 
         ConfigureContext(name, settings, contextAccessor);
 
-        ConfigureGameLoopModules(name, settings);
+        // TODO: Вынести ключ в константу
+        LoadModules("Default", settings);
+        LoadModules(name, settings);
         
         return ActivatorUtilities.CreateInstance<GameLoop>(loopScope.ServiceProvider, loopScope);
     }
-
-    private void ConfigureGameLoopModules(string name, GameLoopBuilderSettings settings)
-    {
-        if (_settings.AssemblyModules.TryGetValue(name, out var assemblies))
-        {
-            foreach (var assembly in assemblies)
-            {
-                ConfigureGameLoopFromAssembly(assembly, settings);
-            }
-        }
-
-        if (_settings.DllModules.TryGetValue(name, out var dlls))
-        {
-            foreach (var dll in dlls)
-            {
-                ConfigureGameLoopFromAssembly(Assembly.LoadFrom(dll), settings);
-            }
-        }
-    }
     
-    private static void ConfigureGameLoopFromAssembly(Assembly assembly, GameLoopBuilderSettings settings)
+    private void LoadModules(string name, GameLoopBuilderSettings settings)
     {
-        var typeEnumerator = assembly.GetTypes()
-            .Where(t => typeof(GameEngineModule).IsAssignableFrom(t));
-
-        foreach (var type in typeEnumerator)
+        foreach (var module in _moduleLoader.GetLoadedModules(name))
         {
-            var module =  (GameEngineModule)Activator.CreateInstance(type)!;
             module.ConfigureGameLoop(settings);
         }
     }

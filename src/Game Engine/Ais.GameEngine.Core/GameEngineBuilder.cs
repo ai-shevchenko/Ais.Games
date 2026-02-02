@@ -14,6 +14,9 @@ namespace Ais.GameEngine.Core;
 
 public sealed class GameEngineBuilder : IGameEngineBuilder
 {
+    private readonly ModuleLoader _moduleLoader;
+    private readonly List<IModuleEnricher> _enrichers;
+    
     private readonly IConfigurationManager _configuration;
     private readonly IServiceCollection _services;
     private readonly GameEngineBuilderContext _context;
@@ -30,7 +33,15 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _setting = settings;
         _services = services;
         _configuration = configuration;
-        _context = new(_configuration);
+        _context = new GameEngineBuilderContext(_configuration);
+        
+        _moduleLoader = new ModuleLoader();
+        _enrichers =
+        [
+            new ModuleEnricher(_configuration, _moduleLoader)
+        ];
+        _services.AddSingleton<IModuleLoader>(_moduleLoader);
+        _services.AddSingleton<IKeyedModuleLoader>(_moduleLoader);
     }
 
     public static GameEngineBuilder Create(params string[] args)
@@ -41,6 +52,14 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
     
     public static GameEngineBuilder Create(GameEngineBuilderSettings settings)
     {
+        var builder = new GameEngineBuilder(settings);
+        return builder;
+    }
+    
+    public static GameEngineBuilder Create(Action<GameEngineBuilderSettings> configure)
+    {
+        var settings = new GameEngineBuilderSettings();
+        configure(settings);
         var builder = new GameEngineBuilder(settings);
         return builder;
     }
@@ -62,20 +81,14 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
     public IGameEngine Build()
     {
-        foreach (var assemblies in _setting.AssemblyModules.Values)
+        foreach (var enricher in _enrichers)
         {
-            foreach (var assembly in assemblies)
-            {
-                LoadGameEngineModules(assembly);
-            }
+            enricher.Enrich();
         }
-
-        foreach (var paths in _setting.DllModules.Values)
+        
+        foreach (var module in _moduleLoader.GetLoadedModules())
         {
-            foreach (var path in paths)
-            {
-                LoadGameEngineModules(Assembly.LoadFrom(path));
-            }
+            module.ConfigureGameServices(_services, _configuration);
         }
         
         var gameServices = _setting.ServiceProviderOptions is null 
@@ -98,7 +111,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             module.ConfigureGameServices(_services, _configuration);   
         }
     }
-
+    
     private static void Initialize(GameEngineBuilderSettings settings, out IServiceCollection services, out IConfigurationManager configuration)
     {
         configuration = new ConfigurationManager();
@@ -119,11 +132,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         services.AddSingleton<ITimerController, MainTimerController>();
 
         services.AddScoped<IGameLoopStateFactory, GameLoopStateFactory>();
-        services.AddScoped<IGameLoopFactory>(sp => new GameLoopFactory(sp, new GameLoopFactorySettings
-        {
-            AssemblyModules = settings.AssemblyModules,
-            DllModules = settings.DllModules
-        }));
+        services.AddScoped<IGameLoopFactory, GameLoopFactory>();
         services.AddScoped<IHookFactory, HookFactory>();
         
         services.AddScoped<IGameLoopContextAccessor, GameLoopContextAccessor>();

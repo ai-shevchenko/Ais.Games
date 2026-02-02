@@ -13,15 +13,7 @@ using Microsoft.Extensions.Options;
 
 using Serilog;
 
-var builder = GameEngineBuilder.Create(
-    new GameEngineBuilderSettings
-    {
-        Args = args,
-        DllModules = 
-        {
-            { "main", [ "./Ais.GameEngine.Extensions.dll" ] }
-        }
-    });
+var builder = GameEngineBuilder.Create(args);
 
 builder.ConfigureGameServices((context, services) =>
 {

@@ -14,16 +14,6 @@ public sealed class GameEngineBuilderSettings
     /// Аргументы командной строки
     /// </summary>
     public string[] Args { get; init; } = [];
-
-    /// <summary>
-    /// Список сборок, содержащих доп модули
-    /// </summary>
-    public Dictionary<string, Assembly[]> AssemblyModules { get; init; } = [];
-    
-    /// <summary>
-    /// Список DLL содержащих доп модули
-    /// </summary>
-    public Dictionary<string, string[]> DllModules { get; init; } = [];
     
     /// <summary>
     /// Настройки поставщика сервисов
