@@ -1,7 +1,6 @@
 ﻿using Ais.Commons.Commands.Abstractions;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Core;
-using Ais.GameEngine.Extensions.Commands;
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.Games.SnakeGame;
 using Ais.Games.SnakeGame.Commands;
@@ -14,16 +13,22 @@ using Microsoft.Extensions.Options;
 
 using Serilog;
 
-var builder = GameEngineBuilder.Create(args);
+var builder = GameEngineBuilder.Create(
+    new GameEngineBuilderSettings
+    {
+        Args = args,
+        DllModules = 
+        {
+            { "main", [ "./Ais.GameEngine.Extensions.dll" ] }
+        }
+    });
 
 builder.ConfigureGameServices((context, services) =>
 {
     var settings = context.Configuration.GetRequiredSection(nameof(GameWindowSettings));
     services.Configure<GameWindowSettings>(settings);
-
-    services.AddCommands(context.Configuration);
     
-    services.AddEcsServices(context.Configuration)
+    services.AddEcs()
         .WithSystem<InputSystem>()
         .WithSystem<MovementSystem>()
         .WithSystem<RenderSystem>();

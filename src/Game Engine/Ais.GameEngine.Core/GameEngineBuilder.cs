@@ -1,7 +1,10 @@
-﻿using Ais.GameEngine.Core.Abstractions;
+﻿using System.Reflection;
+
+using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
 using Ais.GameEngine.Core.Settings;
 using Ais.GameEngine.Core.TimeSystem;
+using Ais.GameEngine.Modules.Abstractions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +38,12 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         var builder = new GameEngineBuilder(args);
         return builder;
     }
+    
+    public static GameEngineBuilder Create(GameEngineBuilderSettings settings)
+    {
+        var builder = new GameEngineBuilder(settings);
+        return builder;
+    }
 
     public void ConfigureGameConfiguration(Action<IConfigurationBuilder> configure)
     {
@@ -53,6 +62,22 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
     public IGameEngine Build()
     {
+        foreach (var assemblies in _setting.AssemblyModules.Values)
+        {
+            foreach (var assembly in assemblies)
+            {
+                LoadGameEngineModules(assembly);
+            }
+        }
+
+        foreach (var paths in _setting.DllModules.Values)
+        {
+            foreach (var path in paths)
+            {
+                LoadGameEngineModules(Assembly.LoadFrom(path));
+            }
+        }
+        
         var gameServices = _setting.ServiceProviderOptions is null 
             ? _services.BuildServiceProvider() 
             : _services.BuildServiceProvider(_setting.ServiceProviderOptions);
@@ -62,7 +87,19 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         return gameEngine;
     }
 
-    private void Initialize(GameEngineBuilderSettings settings, out IServiceCollection services, out IConfigurationManager configuration)
+    private void LoadGameEngineModules(Assembly assembly)
+    {
+        var typeEnumerator = assembly.GetTypes()
+            .Where(t => typeof(GameEngineModule).IsAssignableFrom(t));
+
+        foreach (var moduleType in typeEnumerator)
+        {
+            var module = (GameEngineModule) Activator.CreateInstance(moduleType)!;
+            module.ConfigureGameServices(_services, _configuration);   
+        }
+    }
+
+    private static void Initialize(GameEngineBuilderSettings settings, out IServiceCollection services, out IConfigurationManager configuration)
     {
         configuration = new ConfigurationManager();
         services = new ServiceCollection();
@@ -82,7 +119,11 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         services.AddSingleton<ITimerController, MainTimerController>();
 
         services.AddScoped<IGameLoopStateFactory, GameLoopStateFactory>();
-        services.AddScoped<IGameLoopFactory, GameLoopFactory>();
+        services.AddScoped<IGameLoopFactory>(sp => new GameLoopFactory(sp, new GameLoopFactorySettings
+        {
+            AssemblyModules = settings.AssemblyModules,
+            DllModules = settings.DllModules
+        }));
         services.AddScoped<IHookFactory, HookFactory>();
         
         services.AddScoped<IGameLoopContextAccessor, GameLoopContextAccessor>();
@@ -102,5 +143,4 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             services.Configure<GameEngineSettings>(_ => { });
         }
     }
-
 }

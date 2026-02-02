@@ -2,18 +2,20 @@
 
 using System.Collections.Concurrent;
 
+using Ais.GameEngine.Modules.Abstractions;
+
 namespace Ais.GameEngine.Core;
 
-internal sealed class GameEngine : IGameEngine, IDisposable
+public sealed class GameEngine : IGameEngine, IDisposable
 {
     private bool _disposed;
-
+    
     private readonly ConcurrentDictionary<string, IGameLoop> _cachedLoops = [];
-    private readonly IGameLoopFactory _gameLoopfactory;
+    private readonly IGameLoopFactory _gameLoopFactory;
 
     public GameEngine(IGameLoopFactory factory)
     {
-        _gameLoopfactory = factory;
+        _gameLoopFactory = factory;
     }
 
     public IReadOnlyList<IGameLoop> GameLoops => _cachedLoops.Values
@@ -40,7 +42,7 @@ internal sealed class GameEngine : IGameEngine, IDisposable
             return item;
         }
 
-        var gameLoop = _gameLoopfactory.CreateGameLoop(name, configure);
+        var gameLoop = _gameLoopFactory.CreateGameLoop(name, configure);
         _cachedLoops.TryAdd(name, gameLoop);
 
         return gameLoop;

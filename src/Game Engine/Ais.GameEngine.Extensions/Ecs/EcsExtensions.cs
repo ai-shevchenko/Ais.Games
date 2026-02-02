@@ -1,22 +1,15 @@
-﻿using Ais.Commons.Modules;
-using Ais.ECS.Abstractions.Worlds;
+﻿using Ais.ECS.Abstractions.Worlds;
 using Ais.GameEngine.Core.Abstractions;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Extensions.Ecs;
 
 public static class EcsExtensions
 {
-    public static IEcsWorldBuilder AddEcsServices(this IServiceCollection services, IConfiguration configuration)
+    public static IEcsWorldBuilder AddEcs(this IServiceCollection services)
     {
-        services.AddModule<EcsModule>(configuration);
-        
-        var builder = new EcsWorldBuilder();
-        services.AddSingleton<IEcsWorldBuilder>(builder);
-
-        return builder;
+        return EcsWorldBuilder.Instance;
     }
     
     public static GameLoopBuilderSettings InitializeEcsLoop(this GameLoopBuilderSettings gameLoopSettings,
@@ -24,9 +17,6 @@ public static class EcsExtensions
     {
         var world = gameLoopSettings.GameServices.GetRequiredService<IWorld>();
         configure(gameLoopSettings.GameServices, world);
-
-        gameLoopSettings.Hooks.AddHook<EcsSystemHandlerHook>();
-        gameLoopSettings.Hooks.AddHook<EcsSystemAsyncHandlerHook>();
 
         return gameLoopSettings;
     }

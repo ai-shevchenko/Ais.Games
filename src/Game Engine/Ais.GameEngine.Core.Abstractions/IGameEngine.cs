@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-namespace Ais.GameEngine.Core.Abstractions;
+﻿namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
 /// Игровой движок

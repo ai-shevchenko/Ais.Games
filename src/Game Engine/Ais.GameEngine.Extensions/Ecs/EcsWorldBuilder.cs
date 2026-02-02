@@ -8,8 +8,20 @@ namespace Ais.GameEngine.Extensions.Ecs;
 
 public sealed class EcsWorldBuilder : IEcsWorldBuilder
 {
+    private static readonly Lock _sync = new();
     private readonly List<Type> _systems = [];
 
+    public static EcsWorldBuilder Instance
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return field ??= new EcsWorldBuilder(); 
+            }
+        }
+    }
+    
     public IEcsWorldBuilder WithSystem<T>()
         where T : class, ISystem
     {

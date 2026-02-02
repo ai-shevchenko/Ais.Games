@@ -1,20 +1,30 @@
-﻿using Ais.Commons.Modules;
-using Ais.ECS;
+﻿using Ais.ECS;
+using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Modules.Abstractions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Ais.GameEngine.Extensions.Ecs;
 
-internal sealed class EcsModule : IModule
+public sealed class EcsModule : GameEngineModule
 {
-    public void Configure(IServiceCollection services, IConfiguration configuration)
+    public override void ConfigureGameServices(IServiceCollection gameServices, IConfiguration configuration)
     {
-        services.Configure<EcsSettings>(_ => { });
-        services.AddScoped(sp =>
+        gameServices.Configure<EcsSettings>(_ => { });
+        
+        gameServices.TryAddSingleton<IEcsWorldBuilder>(EcsWorldBuilder.Instance);
+        gameServices.AddScoped(sp =>
         {
             var builder = sp.GetRequiredService<IEcsWorldBuilder>();
             return builder.Build(sp);
         });
+    }
+
+    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
+    {
+        settings.Hooks.AddHook<EcsSystemHandlerHook>();
+        settings.Hooks.AddHook<EcsSystemAsyncHandlerHook>();
     }
 }

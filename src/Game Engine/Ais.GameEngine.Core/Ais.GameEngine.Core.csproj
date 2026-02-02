@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Commons\Ais.Commons.SignalBus\Ais.Commons.SignalBus.csproj" />
     <ProjectReference Include="..\Ais.GameEngine.Core.Abstractions\Ais.GameEngine.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\Ais.GameEngine.Modules.Abstractions\Ais.GameEngine.Modules.Abstractions.csproj" />
     <ProjectReference Include="..\Ais.GameEngine.TimeSystem.Abstractions\Ais.GameEngine.TimeSystem.Abstractions.csproj" />
   </ItemGroup>
 

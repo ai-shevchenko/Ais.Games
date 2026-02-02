@@ -1,17 +1,22 @@
-﻿using Ais.Commons.Modules;
-using Ais.Commons.SignalBus.Abstractions;
+﻿using Ais.Commons.SignalBus.Abstractions;
+using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Modules.Abstractions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Extensions.SignalBus;
 
-public sealed class SignalBusModule : IModule
+public sealed class SignalBusModule : GameEngineModule
 {
-    public void Configure(IServiceCollection services, IConfiguration configuration)
+    public override void ConfigureGameServices(IServiceCollection gameServices, IConfiguration configuration)
     {
-        services.AddSingleton<ISignalBus, Commons.SignalBus.SignalBus>();
-        services.AddScoped<ISignalSubscriber>(sp => sp.GetRequiredService<ISignalBus>());
-        services.AddScoped<ISignalPublisher>(sp => sp.GetRequiredService<ISignalBus>());
+        gameServices.AddSingleton<ISignalBus, Commons.SignalBus.SignalBus>();
+        gameServices.AddScoped<ISignalSubscriber>(sp => sp.GetRequiredService<ISignalBus>());
+        gameServices.AddScoped<ISignalPublisher>(sp => sp.GetRequiredService<ISignalBus>());
+    }
+
+    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
+    {
     }
 }

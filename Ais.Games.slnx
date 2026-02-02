@@ -2,7 +2,6 @@
   <Folder Name="/src/" />
   <Folder Name="/src/Commons/">
     <Project Path="src/Commons/Ais.Commons.Commands/Ais.Commons.Commands.csproj" />
-    <Project Path="src/Commons/Ais.Commons.Modules/Ais.Commons.Modules.csproj" />
     <Project Path="src/Commons/Ais.Commons.SignalBus/Ais.Commons.SignalBus.csproj" />
   </Folder>
   <Folder Name="/src/ECS Framework/">
@@ -15,6 +14,7 @@
     <Project Path="src/Game Engine/Ais.GameEngine.Extensions/Ais.GameEngine.Extensions.csproj" />
     <Project Path="src/Game Engine/Ais.GameEngine.Hooks.Abstractions/Ais.GameEngine.Hooks.Abstractions.csproj" />
     <Project Path="src/Game Engine/Ais.GameEngine.InputSystem.Abstractions/Ais.GameEngine.InputSystem.Abstractions.csproj" />
+    <Project Path="src/Game Engine/Ais.GameEngine.Modules.Abstractions/Ais.GameEngine.Modules.Abstractions.csproj" />
     <Project Path="src/Game Engine/Ais.GameEngine.TimeSystem.Abstractions/Ais.GameEngine.TimeSystem.Abstractions.csproj" />
   </Folder>
   <Folder Name="/src/Samples/">

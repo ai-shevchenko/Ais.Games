@@ -8,11 +8,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Commons\Ais.Commons.Commands\Ais.Commons.Commands.csproj" />
-      <ProjectReference Include="..\..\Commons\Ais.Commons.Modules\Ais.Commons.Modules.csproj" />
       <ProjectReference Include="..\..\Commons\Ais.Commons.SignalBus\Ais.Commons.SignalBus.csproj" />
       <ProjectReference Include="..\..\ECS Framework\Ais.ECS\Ais.ECS.csproj" />
       <ProjectReference Include="..\Ais.GameEngine.Core.Abstractions\Ais.GameEngine.Core.Abstractions.csproj" />
       <ProjectReference Include="..\Ais.GameEngine.Hooks.Abstractions\Ais.GameEngine.Hooks.Abstractions.csproj" />
+      <ProjectReference Include="..\Ais.GameEngine.Modules.Abstractions\Ais.GameEngine.Modules.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>
