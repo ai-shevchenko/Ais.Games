@@ -1,5 +1,3 @@
-using System;
-
 namespace Ais.GameEngine.TimeSystem.Abstractions;
 
 /// <summary>

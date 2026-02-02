@@ -1,5 +1,4 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
-using System.Threading;
 
 namespace Ais.GameEngine.Core.Extensions;
 

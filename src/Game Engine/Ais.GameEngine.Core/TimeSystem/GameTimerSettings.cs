@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 
-namespace Ais.GameEngine.TimeSystem.Abstractions;
+namespace Ais.GameEngine.Core.TimeSystem;
 
 /// <summary>
 /// Настройки игрового таймера

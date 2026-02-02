@@ -3,7 +3,7 @@
 using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Hooks.Abstractions;
 
-namespace Ais.GameEngine.Core;
+namespace Ais.GameEngine.Core.Hooks;
 
 internal sealed class HooksSource : IHooksSource
 {

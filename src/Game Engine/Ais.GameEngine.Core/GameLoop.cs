@@ -7,17 +7,16 @@ using Microsoft.Extensions.Logging;
 namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoop : IGameLoop, IDisposable
-{    
+{
+    private bool _disposed;
+    private bool _isPaused;
+    private Task? _gameLoopTask;
+    private CancellationTokenSource? _gameLoopCts;
+
     private readonly Lock _sync = new();
     private readonly IGameLoopStateMachine _stateMachine;
     private readonly ILogger<GameLoop> _logger;
     private readonly IDisposable _innerScope;
-
-    private Task? _gameLoopTask;
-    private CancellationTokenSource? _gameLoopCts;
-
-    private bool _disposed;
-    private bool _isPaused;
 
     public GameLoop(IGameLoopStateMachine stateMachine, ILogger<GameLoop> logger, IDisposable innerScope)
     {
@@ -98,7 +97,7 @@ internal sealed class GameLoop : IGameLoop, IDisposable
 
             try
             {
-                _stateMachine.Stop().Wait();
+                _stateMachine.Stop(_gameLoopCts!.Token).Wait();
             }
             catch (AggregateException ex)
             {
@@ -106,6 +105,10 @@ internal sealed class GameLoop : IGameLoop, IDisposable
             }
 
             _gameLoopCts?.Cancel();
+            if (_gameLoopTask is not null)
+            {
+                Task.WhenAny(_gameLoopTask).Wait();
+            }
         }
     }
 
@@ -116,11 +119,10 @@ internal sealed class GameLoop : IGameLoop, IDisposable
         Stop();
 
         _disposed = true;
-        
-        _gameLoopCts?.Dispose();
-        _gameLoopTask?.Dispose();
 
         _stateMachine.Dispose();
         _innerScope.Dispose();
+
+        _gameLoopCts?.Dispose();
     }
 }

@@ -3,7 +3,7 @@ using Ais.GameEngine.Hooks.Abstractions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Ais.GameEngine.Core;
+namespace Ais.GameEngine.Core.Hooks;
 
 internal sealed class HookFactory : IHookFactory
 {

@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
 using Ais.GameEngine.Core.Settings;
 using Ais.GameEngine.Core.TimeSystem;
@@ -9,6 +7,8 @@ using Ais.GameEngine.Modules.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Ais.GameEngine.Core.Modules;
+using Ais.GameEngine.Core.Hooks;
 
 namespace Ais.GameEngine.Core;
 
@@ -34,14 +34,10 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _services = services;
         _configuration = configuration;
         _context = new GameEngineBuilderContext(_configuration);
-        
-        _moduleLoader = new ModuleLoader();
-        _enrichers =
-        [
-            new ModuleEnricher(_configuration, _moduleLoader)
-        ];
-        _services.AddSingleton<IModuleLoader>(_moduleLoader);
-        _services.AddSingleton<IKeyedModuleLoader>(_moduleLoader);
+
+        InitializeModulesLoading(out var moduleLoader, out var enrichers);
+        _moduleLoader = moduleLoader;
+        _enrichers = enrichers;
     }
 
     public static GameEngineBuilder Create(params string[] args)
@@ -99,18 +95,6 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
         return gameEngine;
     }
-
-    private void LoadGameEngineModules(Assembly assembly)
-    {
-        var typeEnumerator = assembly.GetTypes()
-            .Where(t => typeof(GameEngineModule).IsAssignableFrom(t));
-
-        foreach (var moduleType in typeEnumerator)
-        {
-            var module = (GameEngineModule) Activator.CreateInstance(moduleType)!;
-            module.ConfigureGameServices(_services, _configuration);   
-        }
-    }
     
     private static void Initialize(GameEngineBuilderSettings settings, out IServiceCollection services, out IConfigurationManager configuration)
     {
@@ -129,7 +113,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         services.AddSingleton<IConfiguration>(configuration);
         services.AddOptions();
         
-        services.AddSingleton<ITimerController, MainTimerController>();
+        services.AddSingleton<ITimerController, TimerController>();
 
         services.AddScoped<IGameLoopStateFactory, GameLoopStateFactory>();
         services.AddScoped<IGameLoopFactory, GameLoopFactory>();
@@ -151,5 +135,17 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         {
             services.Configure<GameEngineSettings>(_ => { });
         }
+    }
+
+    private void InitializeModulesLoading(out ModuleLoader moduleLoader, out List<IModuleEnricher> enrichers)
+    {
+        moduleLoader = new ModuleLoader();
+        enrichers =
+        [
+            new ModuleEnricher(_configuration, _moduleLoader)
+        ];
+
+        _services.AddSingleton<IModuleLoader>(_moduleLoader);
+        _services.AddSingleton<IKeyedModuleLoader>(_moduleLoader);
     }
 }

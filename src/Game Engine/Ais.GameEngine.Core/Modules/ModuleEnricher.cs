@@ -1,10 +1,8 @@
-using System.Reflection;
-
 using Ais.GameEngine.Modules.Abstractions;
 
 using Microsoft.Extensions.Configuration;
 
-namespace Ais.GameEngine.Core;
+namespace Ais.GameEngine.Core.Modules;
 
 public class ModuleEnricher : IModuleEnricher
 {

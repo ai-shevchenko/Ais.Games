@@ -1,4 +1,4 @@
-using Ais.GameEngine.TimeSystem.Abstractions;
+using Ais.GameEngine.Core.TimeSystem;
 
 namespace Ais.GameEngine.Core.Settings;
 

@@ -2,7 +2,7 @@ using System.Reflection;
 
 using Ais.GameEngine.Modules.Abstractions;
 
-namespace Ais.GameEngine.Core;
+namespace Ais.GameEngine.Core.Modules;
 
 public sealed class ModuleLoader : IKeyedModuleLoader
 {

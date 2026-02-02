@@ -1,5 +1,4 @@
-﻿
-using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.Core.Abstractions;
 
 using Microsoft.Extensions.Logging;
 
@@ -9,15 +8,15 @@ namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
 {
+    private bool _disposed;
+    private Task? _executionTask;
+    private CancellationTokenSource? _executionCts;
+    private bool _isRunning;
+
     private readonly IGameLoopStateFactory _stateFactory;
     private readonly Lazy<GameLoopContext> _context;
     private readonly ConcurrentDictionary<Type, IGameLoopState> _cachedStates = [];
     private readonly ILogger<GameLoopStateMachine> _logger;
-
-    private Task? _executionTask;
-    private CancellationTokenSource? _executionCts;
-    private bool _isRunning;
-    private bool _disposed;
 
     public IGameLoopState? CurrentState => _context.Value.CurrentState;
 
@@ -110,31 +109,36 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
 
     public async Task StopAsync()
     {
+
         if (!_isRunning)
         {
             return;
         }
 
         _isRunning = false;
-
         _executionCts!.Cancel();
-        await _executionTask!.ContinueWith(task =>
-        {
-            if (task.IsCanceled)
-            {
-                _logger.LogInformation("Execution of state machine was canceled!");
-            }
-        });
 
         if (CurrentState is not null)
         {
             await CurrentState.ExitAsync(_context.Value);
         }
+
+        if (_executionTask is not null)
+        {
+            await Task.WhenAny(_executionTask);
+        }
     }
 
     public void Dispose()
     {
-        _ = StopAsync();
+        if (_disposed)
+        {
+            return; 
+        }
+
+        StopAsync().Wait();
+
+        _disposed = true;
 
         foreach (var state in _cachedStates.Values)
         {
