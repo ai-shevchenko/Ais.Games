@@ -13,7 +13,6 @@
     <Project Path="src/Game Engine/Ais.GameEngine.Core/Ais.GameEngine.Core.csproj" />
     <Project Path="src/Game Engine/Ais.GameEngine.Extensions/Ais.GameEngine.Extensions.csproj" />
     <Project Path="src/Game Engine/Ais.GameEngine.Hooks.Abstractions/Ais.GameEngine.Hooks.Abstractions.csproj" />
-    <Project Path="src/Game Engine/Ais.GameEngine.InputSystem.Abstractions/Ais.GameEngine.InputSystem.Abstractions.csproj" />
     <Project Path="src/Game Engine/Ais.GameEngine.Modules.Abstractions/Ais.GameEngine.Modules.Abstractions.csproj" />
     <Project Path="src/Game Engine/Ais.GameEngine.TimeSystem.Abstractions/Ais.GameEngine.TimeSystem.Abstractions.csproj" />
   </Folder>
