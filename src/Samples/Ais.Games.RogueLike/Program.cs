@@ -36,7 +36,7 @@ builder.ConfigureGameLogging((context, logging) =>
 var stoppingTokenSource = new CancellationTokenSource();
 
 using var gameEngine = builder.Build();
-using var mainLoop = gameEngine.GetOrCreateGameLoop("main", settings =>
+using var mainLoop = gameEngine.CreateGameLoop("main", settings =>
 {
     settings.InitializeEcsLoop((services, world) =>
     {

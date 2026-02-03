@@ -7,8 +7,8 @@ namespace Ais.Games.SnakeGame.Systems;
 
 internal sealed class InputSystem : EcsSystem, IInitialize
 {
-    private CancellationTokenSource _cancellationTokenSource;
-    private Task _inputTask;
+    private CancellationTokenSource? _cancellationTokenSource;
+    private Task? _inputTask;
 
     public void Initialize()
     {
@@ -19,6 +19,10 @@ internal sealed class InputSystem : EcsSystem, IInitialize
     public override void Shutdown()
     {
         _cancellationTokenSource?.Cancel();
+        if (_inputTask is not null)
+        {
+            Task.WhenAny(_inputTask).Wait();
+        }
     }
 
     private void ReadInput()

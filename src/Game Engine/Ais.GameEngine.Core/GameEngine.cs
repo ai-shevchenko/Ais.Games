@@ -3,7 +3,7 @@ using Ais.GameEngine.Core.Abstractions;
 
 namespace Ais.GameEngine.Core;
 
-public sealed class GameEngine : IGameEngine, IDisposable
+public sealed class GameEngine : IGameEngine
 {
     private readonly ConcurrentDictionary<string, IGameLoop> _cachedLoops = [];
     private readonly IGameLoopFactory _gameLoopFactory;
@@ -28,14 +28,14 @@ public sealed class GameEngine : IGameEngine, IDisposable
             : throw new KeyNotFoundException(name);
     }
 
-    public IGameLoop GetOrCreateGameLoop(string name, Action<GameLoopBuilderSettings> configure)
+    public IGameLoop CreateGameLoop(string name, Action<GameLoopBuilderSettings> configure)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        if (_cachedLoops.TryGetValue(name, out var item))
+        if (_cachedLoops.TryGetValue(name, out _))
         {
-            return item;
+            throw new InvalidOperationException($"Loop already exists with name {name}");
         }
 
         var gameLoop = _gameLoopFactory.CreateGameLoop(name, configure);
@@ -78,9 +78,9 @@ public sealed class GameEngine : IGameEngine, IDisposable
             return;
         }
 
-        _disposed = true;
-
         Stop();
+
+        _disposed = true;
 
         foreach (var loop in _cachedLoops.Values)
         {

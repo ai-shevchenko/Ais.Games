@@ -1,10 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Core.States;
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core;
 
-internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
+internal sealed class GameLoopStateMachine : IGameLoopStateMachine
 {
     private readonly ConcurrentDictionary<Type, IGameLoopState> _cachedStates = [];
     private readonly Lazy<GameLoopContext> _context;
@@ -32,6 +33,8 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
     public void RegisterState<T>()
         where T : IGameLoopState
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (!_cachedStates.TryGetValue(typeof(T), out var state))
         {
             state = _stateFactory.CreateState<T>();
@@ -42,6 +45,8 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
     public async Task ChangeStateAsync<T>(CancellationToken stoppingToken = default)
         where T : IGameLoopState
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (!_cachedStates.TryGetValue(typeof(T), out var newState))
         {
             RegisterState<T>();
@@ -70,6 +75,8 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
     public async Task StartAsync<T>(CancellationToken stoppingToken = default)
         where T : IGameLoopState
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (_isRunning)
         {
             return;
@@ -110,13 +117,15 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine, IDisposable
 
     public async Task StopAsync()
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (!_isRunning)
         {
             return;
         }
 
         _isRunning = false;
-        _executionCts!.Cancel();
+        _executionCts?.CancelAsync();
 
         if (CurrentState is not null)
         {

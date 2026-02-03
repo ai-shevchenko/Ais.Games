@@ -6,7 +6,7 @@
 public interface IGameLoopStateSource
 {
     /// <summary>
-    ///     Добавить новое состяние
+    ///     Добавить новое состояние
     /// </summary>
     /// <typeparam name="T">Тип состояния</typeparam>
     void RegisterState<T>()

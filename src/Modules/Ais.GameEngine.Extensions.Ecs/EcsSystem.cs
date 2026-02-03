@@ -7,7 +7,8 @@ namespace Ais.GameEngine.Extensions.Ecs;
 
 public abstract class EcsSystem : BaseHook, ISystem, IUpdate
 {
-    [NotNull] protected IWorld? World;
+    [NotNull]
+    protected IWorld World = null!;
 
     public virtual void Initialize(SystemContext context)
     {

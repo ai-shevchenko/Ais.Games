@@ -1,16 +1,3 @@
-; EditorConfig to support per-solution formatting.
-; Use the EditorConfig VS add-in to make this work.
-; http://editorconfig.org/
-;
-; Here are some resources for what's supported for .NET/C#
-; https://kent-boogaart.com/blog/editorconfig-reference-for-c-developers
-; https://learn.microsoft.com/visualstudio/ide/editorconfig-code-style-settings-reference
-;
-; Be **careful** editing this because some of the rules don't support adding a severity level
-; For instance if you change to `dotnet_sort_system_directives_first = true:warning` (adding `:warning`)
-; then the rule will be silently ignored.
-
-; This is the default for the codeline.
 root = true
 
 [*]
@@ -231,7 +218,7 @@ dotnet_diagnostic.CA1857.severity = warning
 dotnet_diagnostic.CA1858.severity = warning
 
 # CA2007: Consider calling ConfigureAwait on the awaited task
-dotnet_diagnostic.CA2007.severity = warning
+dotnet_diagnostic.CA2007.severity = suggestion
 
 # CA2008: Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2008.severity = warning
