@@ -1,6 +1,6 @@
-﻿using Ais.Commons.Commands.Abstractions;
+﻿using Ais.GameEngine.Extensions.Commands.Abstractions;
 
-namespace Ais.Commons.Commands;
+namespace Ais.GameEngine.Extensions.Commands;
 
 public sealed class CommandQueue : ICommandQueue, ICommandExecutor
 {

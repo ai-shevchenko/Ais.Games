@@ -1,4 +1,4 @@
-namespace Ais.Commons.SignalBus.Abstractions;
+namespace Ais.GameEngine.Extensions.SignalBus.Abstractions;
 
 public interface ISignalSubscriber
 {

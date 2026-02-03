@@ -1,5 +1,5 @@
-﻿using Ais.Commons.SignalBus.Abstractions;
-using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Extensions.SignalBus.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +10,7 @@ public sealed class SignalBusModule : GameEngineModule
 {
     public override void ConfigureGameServices(IServiceCollection gameServices, IConfiguration configuration)
     {
-        gameServices.AddSingleton<ISignalBus, Commons.SignalBus.SignalBus>();
+        gameServices.AddSingleton<ISignalBus, SignalBus>();
         gameServices.AddScoped<ISignalSubscriber>(sp => sp.GetRequiredService<ISignalBus>());
         gameServices.AddScoped<ISignalPublisher>(sp => sp.GetRequiredService<ISignalBus>());
     }

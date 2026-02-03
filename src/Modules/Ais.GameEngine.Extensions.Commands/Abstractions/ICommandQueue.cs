@@ -1,4 +1,4 @@
-﻿namespace Ais.Commons.Commands.Abstractions;
+﻿namespace Ais.GameEngine.Extensions.Commands.Abstractions;
 
 public interface ICommandQueue : ICommandExecutor
 {

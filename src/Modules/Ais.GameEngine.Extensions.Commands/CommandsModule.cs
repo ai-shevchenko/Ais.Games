@@ -1,6 +1,5 @@
-﻿using Ais.Commons.Commands;
-using Ais.Commons.Commands.Abstractions;
-using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

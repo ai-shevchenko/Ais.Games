@@ -1,6 +1,6 @@
-﻿using Ais.Commons.Commands.Abstractions;
-using Ais.ECS.Abstractions.Worlds;
+﻿using Ais.ECS.Abstractions.Worlds;
 using Ais.ECS.Extensions;
+using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.Games.SnakeGame.Components;
 
 namespace Ais.Games.SnakeGame.Commands;

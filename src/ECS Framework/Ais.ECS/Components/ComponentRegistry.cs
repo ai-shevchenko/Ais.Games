@@ -26,7 +26,7 @@ internal sealed class ComponentRegistry : IComponentRegistry
 
         if (!_stores.TryGetValue(type, out var store))
         {
-            store = Activator.CreateInstance(typeof(ComponentStore<>).MakeGenericType(type), [_capacity])!;
+            store = Activator.CreateInstance(typeof(ComponentStore<>).MakeGenericType(type), _capacity)!;
             _stores.TryAdd(type, store);
         }
 

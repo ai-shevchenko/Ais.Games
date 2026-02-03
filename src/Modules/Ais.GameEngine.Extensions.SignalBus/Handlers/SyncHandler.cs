@@ -1,4 +1,4 @@
-﻿namespace Ais.Commons.SignalBus.Handlers;
+﻿namespace Ais.GameEngine.Extensions.SignalBus.Handlers;
 
 internal sealed class SyncHandler : HandlerBase
 {

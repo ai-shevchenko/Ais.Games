@@ -1,6 +1,6 @@
-﻿namespace Ais.Commons.SignalBus.Handlers;
+﻿namespace Ais.GameEngine.Extensions.SignalBus.Handlers;
 
-internal sealed class AsyncHandler : HandlerBase
+internal sealed class AsyncWithTokenHandler : HandlerBase
 {
     public override void Handle<TSignal>(TSignal signal, Delegate signalHandler)
     {
@@ -12,11 +12,6 @@ internal sealed class AsyncHandler : HandlerBase
     public override Task HandleAsync<TSignal>(TSignal signal, Delegate signalHandler,
         CancellationToken cancellationToken = default)
     {
-        if (cancellationToken.IsCancellationRequested)
-        {
-            return Task.FromCanceled(cancellationToken);
-        }
-
-        return ((Func<TSignal, Task>)signalHandler)(signal);
+        return ((Func<TSignal, CancellationToken, Task>)signalHandler)(signal, cancellationToken);
     }
 }

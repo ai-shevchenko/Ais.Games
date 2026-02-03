@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using Ais.Commons.SignalBus.Abstractions;
+using Ais.GameEngine.Extensions.SignalBus.Abstractions;
 using Microsoft.Extensions.Logging;
 
-namespace Ais.Commons.SignalBus;
+namespace Ais.GameEngine.Extensions.SignalBus;
 
 public sealed class SignalBus : ISignalBus
 {

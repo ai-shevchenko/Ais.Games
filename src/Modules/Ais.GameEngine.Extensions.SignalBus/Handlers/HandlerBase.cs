@@ -1,6 +1,6 @@
-using Ais.Commons.SignalBus.Abstractions;
+using Ais.GameEngine.Extensions.SignalBus.Abstractions;
 
-namespace Ais.Commons.SignalBus.Handlers;
+namespace Ais.GameEngine.Extensions.SignalBus.Handlers;
 
 internal abstract class HandlerBase
 {

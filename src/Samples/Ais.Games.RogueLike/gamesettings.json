@@ -1,7 +1,8 @@
 ﻿{
   "GameEngineModules": {
     "Default": [
-      "Ais.GameEngine.Extensions"
+      "Ais.GameEngine.Extensions.Commands",
+      "Ais.GameEngine.Extensions.Ecs"
     ]
   },
   "GameEngineSettings": {

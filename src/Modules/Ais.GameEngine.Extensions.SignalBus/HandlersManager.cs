@@ -1,7 +1,7 @@
-﻿using Ais.Commons.SignalBus.Abstractions;
-using Ais.Commons.SignalBus.Handlers;
+﻿using Ais.GameEngine.Extensions.SignalBus.Abstractions;
+using Ais.GameEngine.Extensions.SignalBus.Handlers;
 
-namespace Ais.Commons.SignalBus;
+namespace Ais.GameEngine.Extensions.SignalBus;
 
 internal static class HandlersManager<TSignal>
     where TSignal : ISignal
