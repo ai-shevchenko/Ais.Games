@@ -1,7 +1,10 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Core.Extensions;
 using Ais.GameEngine.Core.Hooks;
+using Ais.GameEngine.Core.Interceptors;
 using Ais.GameEngine.Core.Modules;
 using Ais.GameEngine.Core.Settings;
+using Ais.GameEngine.Core.States;
 using Ais.GameEngine.Core.TimeSystem;
 using Ais.GameEngine.Modules.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
@@ -116,16 +119,22 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
         services.AddSingleton<ITimerController, TimerController>();
 
-        services.AddScoped<IGameLoopStateFactory, GameLoopStateFactory>();
+        services.AddScoped<IGameLoopStateProvider, GameLoopStateProvider>();
         services.AddScoped<IGameLoopFactory, GameLoopFactory>();
         services.AddScoped<IHookFactory, HookFactory>();
 
         services.AddScoped<IGameLoopContextAccessor, GameLoopContextAccessor>();
         services.AddScoped<IGameLoopStateMachine, GameLoopStateMachine>();
-        services.AddScoped<IGameLoopStateSource>(sp => sp.GetRequiredService<IGameLoopStateMachine>());
         services.AddScoped<IHooksSource, HooksSource>();
 
         services.AddTransient(sp => sp.GetRequiredService<ITimerController>().CreateChildTimer());
+
+        services.AddState<InitializeState>();
+        services.AddState<RunningState>();
+        services.AddState<PauseState>();
+        services.AddState<StoppingState>();
+
+        services.AddStateInterceptor<LoggingInterceptor>();
 
         var engineSettings = configuration.GetSection(nameof(GameEngineSettings));
         if (engineSettings.Exists())

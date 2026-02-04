@@ -3,28 +3,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core;
 
-internal sealed class GameLoopStateFactory : IGameLoopStateFactory
+internal sealed class GameLoopStateProvider : IGameLoopStateProvider
 {
     private readonly IServiceProvider _gameServices;
 
-    public GameLoopStateFactory(IServiceProvider gameServices)
+    public GameLoopStateProvider(IServiceProvider gameServices)
     {
         _gameServices = gameServices;
     }
 
-    public T CreateState<T>()
+    public T GetState<T>()
         where T : IGameLoopState
     {
-        return ActivatorUtilities.CreateInstance<T>(_gameServices);
+        return _gameServices.GetRequiredService<T>();
     }
 
-    public IGameLoopState CreateState(Type stateType)
+    public IGameLoopState GetState(Type stateType)
     {
         if (!typeof(IGameLoopState).IsAssignableFrom(stateType))
         {
             throw new ArgumentException($"Type must implement {nameof(IGameLoopState)}", nameof(stateType));
         }
 
-        return (IGameLoopState)ActivatorUtilities.CreateInstance(_gameServices, stateType);
+        return (IGameLoopState)_gameServices.GetRequiredService(stateType);
     }
 }

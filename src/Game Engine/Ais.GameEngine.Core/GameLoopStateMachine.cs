@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Core.Interceptors;
 using Ais.GameEngine.Core.States;
 using Microsoft.Extensions.Logging;
 
@@ -7,51 +8,37 @@ namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoopStateMachine : IGameLoopStateMachine
 {
-    private readonly ConcurrentDictionary<Type, IGameLoopState> _cachedStates = [];
     private readonly Lazy<GameLoopContext> _context;
     private readonly ILogger<GameLoopStateMachine> _logger;
+    private readonly IGameLoopStateProvider _stateProvider;
+    private readonly IEnumerable<IGameLoopStateInterceptor> _interceptors;
 
-    private readonly IGameLoopStateFactory _stateFactory;
     private bool _disposed;
     private CancellationTokenSource? _executionCts;
     private Task? _executionTask;
     private bool _isRunning;
 
     public GameLoopStateMachine(
-        IGameLoopStateFactory stateFactory,
+        IGameLoopStateProvider stateProvider,
         IGameLoopContextAccessor contextAccessor,
-        ILogger<GameLoopStateMachine> logger)
+        ILogger<GameLoopStateMachine> logger,
+        IEnumerable<IGameLoopStateInterceptor> interceptors)
     {
-        _stateFactory = stateFactory;
+        _stateProvider = stateProvider;
         _context = new Lazy<GameLoopContext>(() =>
-            contextAccessor.CurrentContext ?? throw new InvalidOperationException());
+            contextAccessor.CurrentContext ?? throw new InvalidOperationException("Context was not initialized"));
         _logger = logger;
+        _interceptors = interceptors;
     }
 
     public IGameLoopState? CurrentState => _context.Value.CurrentState;
-
-    public void RegisterState<T>()
-        where T : IGameLoopState
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-
-        if (!_cachedStates.TryGetValue(typeof(T), out var state))
-        {
-            state = _stateFactory.CreateState<T>();
-            _cachedStates.TryAdd(typeof(T), state);
-        }
-    }
 
     public async Task ChangeStateAsync<T>(CancellationToken stoppingToken = default)
         where T : IGameLoopState
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        if (!_cachedStates.TryGetValue(typeof(T), out var newState))
-        {
-            RegisterState<T>();
-            newState = _cachedStates[typeof(T)];
-        }
+        var newState = GetState<T>();
 
         if (_context.Value.CurrentState is not null)
         {
@@ -138,6 +125,17 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
         }
     }
 
+    private IGameLoopState GetState<T>() where T : IGameLoopState
+    {
+        if (_interceptors.Any())
+        {
+            return _stateProvider.GetState<T>();
+        }
+
+        var innerState = _stateProvider.GetState<T>();
+        return new InterceptingGameLoopState(innerState, new CompositeInterceptor(_interceptors));
+    }
+
     public void Dispose()
     {
         if (_disposed)
@@ -148,15 +146,5 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
         StopAsync().Wait();
 
         _disposed = true;
-
-        foreach (var state in _cachedStates.Values)
-        {
-            if (state is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
-
-        _cachedStates.Clear();
     }
 }

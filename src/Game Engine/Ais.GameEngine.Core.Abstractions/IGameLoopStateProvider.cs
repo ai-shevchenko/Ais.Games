@@ -1,22 +1,22 @@
 ﻿namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-///     Фабрика состояний игрового цикла
+///     Поставщик состояний игрового цикла
 /// </summary>
-public interface IGameLoopStateFactory
+public interface IGameLoopStateProvider
 {
     /// <summary>
-    ///     Создать состояние
+    ///     Получить состояние
     /// </summary>
     /// <typeparam name="T">Тип состояния</typeparam>
     /// <returns>Состояние игрового цикла</returns>
-    T CreateState<T>()
+    T GetState<T>()
         where T : IGameLoopState;
 
     /// <summary>
-    ///     Создать состояние
+    ///     Получить состояние
     /// </summary>
     /// <param name="stateType">Тип состояния</param>
     /// <returns>Состояние игрового цикла</returns>
-    IGameLoopState CreateState(Type stateType);
+    IGameLoopState GetState(Type stateType);
 }

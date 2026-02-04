@@ -3,7 +3,7 @@
 /// <summary>
 ///     Машина состояний для управления игровым циклом
 /// </summary>
-public interface IGameLoopStateMachine : IGameLoopStateSource, IDisposable
+public interface IGameLoopStateMachine : IDisposable
 {
     /// <summary>
     ///     Текущее состояние
@@ -20,7 +20,7 @@ public interface IGameLoopStateMachine : IGameLoopStateSource, IDisposable
         where T : IGameLoopState;
 
     /// <summary>
-    ///     Запустить мсашину состояний с указанного статуса
+    ///     Запустить машину состояний с указанного статуса
     /// </summary>
     /// <typeparam name="T">Тип статус</typeparam>
     /// <param name="stoppingToken">Токен отмены</param>

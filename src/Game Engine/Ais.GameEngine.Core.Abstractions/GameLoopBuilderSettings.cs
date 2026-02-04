@@ -8,9 +8,7 @@ namespace Ais.GameEngine.Core.Abstractions;
 /// <param name="GameServices">Игровые сервисы</param>
 /// <param name="GameConfiguration">Игровая конфигурация</param>
 /// <param name="Hooks">Источник хуков</param>
-/// <param name="States">Источник состояний</param>
 public sealed record GameLoopBuilderSettings(
     IServiceProvider GameServices,
     IConfiguration GameConfiguration,
-    IHooksSource Hooks,
-    IGameLoopStateSource States);
+    IHooksSource Hooks);
