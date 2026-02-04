@@ -1,12 +1,14 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.Extensions;
 using Ais.GameEngine.Core.Hooks;
 using Ais.GameEngine.Core.Interceptors;
+using Ais.GameEngine.Core.Modules;
 using Ais.GameEngine.Core.Settings;
 using Ais.GameEngine.Core.States;
 using Ais.GameEngine.Core.TimeSystem;
+using Ais.GameEngine.Modules.Abstractions;
+using Ais.GameEngine.Modules.Abstractions.Extensions;
+using Ais.GameEngine.StateMachine.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,6 +19,8 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 {
     private readonly IConfigurationManager _configuration;
     private readonly GameEngineBuilderContext _context;
+    private readonly List<IModuleEnricher> _enrichers = [];
+    private readonly IKeyedModuleLoader _moduleLoader;
     private readonly IServiceCollection _services;
     private readonly GameEngineBuilderSettings _setting;
 
@@ -32,6 +36,9 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _services = services;
         _configuration = configuration;
         _context = new GameEngineBuilderContext(_configuration);
+
+        _moduleLoader = new ModuleLoader();
+        _enrichers.Add(new ConfigurationModuleEnricher(_configuration));
     }
 
     public void ConfigureGameConfiguration(Action<IConfigurationBuilder> configure)
@@ -44,6 +51,11 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _services.AddLogging(builder => configure(_context, builder));
     }
 
+    public void AddModuleEnricher(IModuleEnricher enricher)
+    {
+        _enrichers.Add(enricher);
+    }
+
     public void ConfigureGameServices(Action<GameEngineBuilderContext, IServiceCollection> configure)
     {
         configure(_context, _services);
@@ -51,13 +63,17 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
     public IGameEngine Build()
     {
-        var provider = _setting.ServiceProviderOptions is null
-            ? _services.BuildServiceProvider()
-            : _services.BuildServiceProvider(_setting.ServiceProviderOptions);
+        foreach (var enricher in _enrichers)
+        {
+            enricher.Enrich(_moduleLoader);
+        }
 
-        var engine = new GameEngine(provider);
-        _services.AddSingleton<IGameEngine>(engine);
+        foreach (var module in _moduleLoader.GetLoadedModules())
+        {
+            module.ConfigureGameServices(_services, _configuration);
+        }
 
+        var engine = new GameEngine(_services, _moduleLoader, _configuration);
         return engine;
     }
 

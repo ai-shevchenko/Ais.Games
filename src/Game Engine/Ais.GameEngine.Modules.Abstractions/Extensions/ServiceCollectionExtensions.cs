@@ -1,9 +1,9 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Hooks.Abstractions;
+﻿using Ais.GameEngine.Hooks.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Ais.GameEngine.Core.Extensions;
+namespace Ais.GameEngine.Modules.Abstractions.Extensions;
 
 public static class ServiceCollectionExtensions
 {

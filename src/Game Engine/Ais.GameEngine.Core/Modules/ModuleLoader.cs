@@ -6,6 +6,7 @@ namespace Ais.GameEngine.Core.Modules;
 public sealed class ModuleLoader : IKeyedModuleLoader
 {
     private const string DefaultName = "Default";
+
     private readonly Dictionary<string, List<GameEngineModule>> _modules = [];
 
     private readonly List<Type> _types = [];
@@ -34,10 +35,7 @@ public sealed class ModuleLoader : IKeyedModuleLoader
 
     public IReadOnlyList<GameEngineModule> GetLoadedModules()
     {
-        return _modules.Values
-            .SelectMany(m => m)
-            .ToList()
-            .AsReadOnly();
+        return GetLoadedModules(DefaultName);
     }
 
     public void LoadAssembly(string key, Assembly assembly)

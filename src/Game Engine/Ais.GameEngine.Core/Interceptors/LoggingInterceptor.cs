@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.StateMachine.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core.Interceptors;
@@ -19,6 +19,7 @@ public sealed class LoggingInterceptor : IGameLoopStateInterceptor
             var name = GetType().Name;
             _logger.LogDebug("Entering state {LoopName}::{StateName}", context.LoopName, name);
         }
+
         return Task.CompletedTask;
     }
 
@@ -29,6 +30,7 @@ public sealed class LoggingInterceptor : IGameLoopStateInterceptor
             var name = GetType().Name;
             _logger.LogDebug("Entered state {LoopName}::{StateName}", context.LoopName, name);
         }
+
         return Task.CompletedTask;
     }
 
@@ -39,6 +41,7 @@ public sealed class LoggingInterceptor : IGameLoopStateInterceptor
             var name = GetType().Name;
             _logger.LogDebug("Executing state {LoopName}::{StateName}", context.LoopName, name);
         }
+
         return Task.CompletedTask;
     }
 
@@ -49,6 +52,7 @@ public sealed class LoggingInterceptor : IGameLoopStateInterceptor
             var name = GetType().Name;
             _logger.LogDebug("Executed state {LoopName}::{StateName}", context.LoopName, name);
         }
+
         return Task.CompletedTask;
     }
 
@@ -59,6 +63,7 @@ public sealed class LoggingInterceptor : IGameLoopStateInterceptor
             var name = GetType().Name;
             _logger.LogDebug("Exiting state {LoopName}::{StateName}", context.LoopName, name);
         }
+
         return Task.CompletedTask;
     }
 
@@ -69,6 +74,7 @@ public sealed class LoggingInterceptor : IGameLoopStateInterceptor
             var name = GetType().Name;
             _logger.LogDebug("Exited state {LoopName}::{StateName}", context.LoopName, name);
         }
+
         return Task.CompletedTask;
     }
 }

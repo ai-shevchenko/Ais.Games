@@ -8,5 +8,6 @@ public interface IModuleEnricher
     /// <summary>
     ///     Обогатить систему модулями
     /// </summary>
-    void Enrich();
+    /// <param name="moduleLoader">Загрузчик модуля</param>
+    void Enrich(IKeyedModuleLoader moduleLoader);
 }

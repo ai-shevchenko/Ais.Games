@@ -1,4 +1,3 @@
-using Ais.GameEngine.Core.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,5 +14,4 @@ public abstract class GameEngineModule
     /// <param name="gameServices">Список игровых сервисов</param>
     /// <param name="configuration">Конфигурация игры</param>
     public abstract void ConfigureGameServices(IServiceCollection gameServices, IConfiguration configuration);
-    
 }

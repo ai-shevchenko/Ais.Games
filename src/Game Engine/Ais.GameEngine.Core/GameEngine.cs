@@ -1,5 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Modules.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -7,17 +10,24 @@ namespace Ais.GameEngine.Core;
 
 internal sealed class GameEngine : IGameEngine
 {
-    private readonly ConcurrentDictionary<string, GameLoopScope> _cachedLoops = [];
-    private readonly IServiceProvider _rootProvider;
-
+    private readonly ConcurrentDictionary<string, GameLoopScope> _cachedScopes = [];
+    private readonly IConfiguration _configuration;
+    private readonly IKeyedModuleLoader _moduleLoader;
+    private readonly IServiceCollection _services;
     private bool _disposed;
 
-    public GameEngine(IServiceProvider rootProvider)
+    public GameEngine(
+        IServiceCollection services,
+        IKeyedModuleLoader moduleLoader,
+        IConfiguration configuration)
     {
-        _rootProvider = rootProvider;
+        _services = services;
+        _moduleLoader = moduleLoader;
+        _configuration = configuration;
     }
 
-    public IReadOnlyList<IGameLoop> GameLoops => _cachedLoops.Values
+    public IReadOnlyList<IGameLoop> GameLoops => _cachedScopes.Values
+        .Select(x => x.Loop)
         .ToList()
         .AsReadOnly();
 
@@ -26,8 +36,8 @@ internal sealed class GameEngine : IGameEngine
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        return _cachedLoops.TryGetValue(name, out var item)
-            ? item
+        return _cachedScopes.TryGetValue(name, out var item)
+            ? item.Loop
             : throw new KeyNotFoundException(name);
     }
 
@@ -36,51 +46,53 @@ internal sealed class GameEngine : IGameEngine
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        if (_cachedLoops.ContainsKey(name))
+        if (_cachedScopes.ContainsKey(name))
         {
             throw new InvalidOperationException($"Loop already exists with name {name}");
         }
 
-        var settings = new GameLoopBuilderSettings(loopServices);
-
-        foreach (var serviceDescriptor in _services)
+        var loopServices = new ServiceCollection { _services };
+        foreach (var module in _moduleLoader.GetLoadedModules(name))
         {
-            loopServices.Add(serviceDescriptor);
+            module.ConfigureGameServices(loopServices, _configuration);
         }
+
+        var settings = new GameLoopBuilderSettings(loopServices);
 
         configure?.Invoke(settings);
 
-        loopServices.AddKeyedSingleton<IGameLoop, GameLoop>(name);
-        var gameServices = loopServices.BuildServiceProvider();
-        var gameLoop = gameServices.GetRequiredService<IGameLoop>();
+        loopServices.AddSingleton<IGameLoop, GameLoop>();
+        var provider = loopServices.BuildServiceProvider();
 
-        var accessor = gameServices.GetRequiredService<IGameLoopContextAccessor>();
-        accessor.CurrentContext = new GameLoopContext
-        {
-            LoopName = name,
-            Hooks = gameServices.GetRequiredService<IHooksProvider>(),
-            StatesProvider = gameServices.GetRequiredService<IGameLoopStateProvider>()
-        };
+        var scope = provider.CreateScope();
 
-        _cachedLoops.TryAdd(name, gameLoop);
+        var loop = scope.ServiceProvider.GetRequiredService<IGameLoop>();
+        var loopScope = new GameLoopScope(name, loop, scope);
 
-        return gameLoop;
+        var accessor = scope.ServiceProvider
+            .GetRequiredService<IGameLoopContextAccessor>();
+
+        accessor.CurrentContext = new GameLoopContext { LoopName = name };
+
+        _cachedScopes.TryAdd(name, loopScope);
+
+        return loop;
     }
 
     public bool HasGameLoop(string name)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        return _cachedLoops.ContainsKey(name);
+        return _cachedScopes.ContainsKey(name);
     }
 
     public void Start(CancellationToken stoppingToken = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var loop in _cachedLoops.Values)
+        foreach (var item in _cachedScopes.Values)
         {
-            loop.Start(stoppingToken);
+            item.Loop.Start(stoppingToken);
         }
     }
 
@@ -88,9 +100,9 @@ internal sealed class GameEngine : IGameEngine
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var loop in _cachedLoops.Values)
+        foreach (var item in _cachedScopes.Values)
         {
-            loop.Stop();
+            item.Loop.Stop();
         }
     }
 
@@ -105,24 +117,24 @@ internal sealed class GameEngine : IGameEngine
 
         _disposed = true;
 
-        foreach (var loop in _cachedLoops.Values)
+        foreach (var item in _cachedScopes.Values)
         {
-            loop.Dispose();
+            item.Dispose();
         }
     }
 
-    private class GameLoopScope : IDisposable
+    private sealed class GameLoopScope : IDisposable
     {
-        public IGameLoop Loop { get; }
-        public IServiceScope Scope { get; }
-        public string Name { get; }
-
         public GameLoopScope(string name, IGameLoop loop, IServiceScope scope)
         {
             Name = name;
             Loop = loop;
             Scope = scope;
         }
+
+        public IGameLoop Loop { get; }
+        public IServiceScope Scope { get; }
+        public string Name { get; }
 
         public void Dispose()
         {

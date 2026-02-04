@@ -12,7 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ais.GameEngine.Core.Abstractions\Ais.GameEngine.Core.Abstractions.csproj"/>
+    <ProjectReference Include="..\Ais.GameEngine.Hooks.Abstractions\Ais.GameEngine.Hooks.Abstractions.csproj"/>
+    <ProjectReference Include="..\Ais.GameEngine.StateMachine.Abstractions\Ais.GameEngine.StateMachine.Abstractions.csproj"/>
   </ItemGroup>
 
 </Project>

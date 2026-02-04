@@ -33,6 +33,6 @@ internal sealed class HooksProvider : IHooksProvider
         where T : class, IHook
     {
         return _gameServices.GetService<T>()
-            ?? throw new InvalidOperationException($"The hook {typeof(T).Name} not found");
+               ?? throw new InvalidOperationException($"The hook {typeof(T).Name} not found");
     }
 }

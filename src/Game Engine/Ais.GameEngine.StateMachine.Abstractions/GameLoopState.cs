@@ -1,4 +1,4 @@
-﻿namespace Ais.GameEngine.Core.Abstractions;
+﻿namespace Ais.GameEngine.StateMachine.Abstractions;
 
 public abstract class GameLoopState : IGameLoopState
 {

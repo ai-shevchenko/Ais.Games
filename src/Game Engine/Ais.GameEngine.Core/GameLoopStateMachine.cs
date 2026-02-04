@@ -1,6 +1,6 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.Interceptors;
+﻿using Ais.GameEngine.Core.Interceptors;
 using Ais.GameEngine.Core.States;
+using Ais.GameEngine.StateMachine.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core;
@@ -8,9 +8,9 @@ namespace Ais.GameEngine.Core;
 internal sealed class GameLoopStateMachine : IGameLoopStateMachine
 {
     private readonly IGameLoopContextAccessor _contextAccessor;
+    private readonly IEnumerable<IGameLoopStateInterceptor> _interceptors;
     private readonly ILogger<GameLoopStateMachine> _logger;
     private readonly IGameLoopStateProvider _stateProvider;
-    private readonly IEnumerable<IGameLoopStateInterceptor> _interceptors;
 
     private bool _disposed;
     private CancellationTokenSource? _executionCts;
@@ -35,24 +35,26 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
         where T : IGameLoopState
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(_contextAccessor.CurrentContext);
 
         var newState = GetState<T>();
 
         if (_contextAccessor.CurrentContext is { CurrentState: not null })
         {
-            await _contextAccessor.CurrentContext.CurrentState.ExitAsync(_contextAccessor.CurrentContext, stoppingToken);
+            await _contextAccessor.CurrentContext.CurrentState
+                .ExitAsync(_contextAccessor.CurrentContext, stoppingToken);
         }
 
-        var previousState = _contextAccessor.CurrentState;
-        _contextAccessor.CurrentState = newState;
+        var previousState = _contextAccessor.CurrentContext.CurrentState;
+        _contextAccessor.CurrentContext.CurrentState = newState;
 
         try
         {
-            await newState.EnterAsync(_contextAccessor, stoppingToken);
+            await newState.EnterAsync(_contextAccessor.CurrentContext, stoppingToken);
         }
         catch (Exception ex)
         {
-            _contextAccessor.CurrentState = previousState;
+            _contextAccessor.CurrentContext.CurrentState = previousState;
             throw new StateTransitionException($"Failed to enter state {typeof(T).Name}", ex);
         }
     }
@@ -61,6 +63,7 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
         where T : IGameLoopState
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(_contextAccessor.CurrentContext);
 
         if (_isRunning)
         {
@@ -79,19 +82,19 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
                 {
                     if (CurrentState is not null)
                     {
-                        await CurrentState.ExecuteAsync(_contextAccessor, stoppingToken);
+                        await CurrentState.ExecuteAsync(_contextAccessor.CurrentContext, stoppingToken);
                     }
                 }
                 catch (OperationCanceledException ex) when (ex.CancellationToken.IsCancellationRequested)
                 {
                     _logger.LogError(ex, "State machine for {@GameLoop} was canceled cause {@Reason}",
-                        _contextAccessor.LoopName, ex.Message);
+                        _contextAccessor.CurrentContext.LoopName, ex.Message);
                     throw;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "State machine for {@GameLoop} was failed cause {@Reason}",
-                        _contextAccessor.LoopName, ex.Message);
+                        _contextAccessor.CurrentContext.LoopName, ex.Message);
                     throw;
                 }
             }
@@ -103,6 +106,7 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
     public async Task StopAsync()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(_contextAccessor.CurrentContext);
 
         if (!_isRunning)
         {
@@ -114,24 +118,13 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
 
         if (CurrentState is not null)
         {
-            await CurrentState.ExitAsync(_contextAccessor);
+            await CurrentState.ExitAsync(_contextAccessor.CurrentContext);
         }
 
         if (_executionTask is not null)
         {
             await Task.WhenAny(_executionTask);
         }
-    }
-
-    private IGameLoopState GetState<T>() where T : IGameLoopState
-    {
-        if (!_interceptors.Any())
-        {
-            return _stateProvider.GetState<T>();
-        }
-
-        var innerState = _stateProvider.GetState<T>();
-        return new InterceptingGameLoopState(innerState, new CompositeInterceptor(_interceptors));
     }
 
     public void Dispose()
@@ -144,5 +137,16 @@ internal sealed class GameLoopStateMachine : IGameLoopStateMachine
         StopAsync().Wait();
 
         _disposed = true;
+    }
+
+    private IGameLoopState GetState<T>() where T : IGameLoopState
+    {
+        if (!_interceptors.Any())
+        {
+            return _stateProvider.GetState<T>();
+        }
+
+        var innerState = _stateProvider.GetState<T>();
+        return new InterceptingGameLoopState(innerState, new CompositeInterceptor(_interceptors));
     }
 }

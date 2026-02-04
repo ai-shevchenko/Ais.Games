@@ -1,7 +1,7 @@
 ﻿// Licensed to the.NET Foundation under one or more agreements.
 // The.NET Foundation licenses this file to you under the MIT license.
 
-namespace Ais.GameEngine.Core.Abstractions;
+namespace Ais.GameEngine.StateMachine.Abstractions;
 
 /// <summary>
 ///     Перехватчик состояния игрового цикла
@@ -9,7 +9,6 @@ namespace Ais.GameEngine.Core.Abstractions;
 public interface IGameLoopStateInterceptor
 {
     /// <summary>
-    ///
     /// </summary>
     /// <param name="context"></param>
     /// <param name="stoppingToken"></param>
@@ -17,7 +16,6 @@ public interface IGameLoopStateInterceptor
     Task BeforeEnterAsync(GameLoopContext context, CancellationToken stoppingToken);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="context"></param>
     /// <param name="stoppingToken"></param>
@@ -25,7 +23,6 @@ public interface IGameLoopStateInterceptor
     Task AfterEnterAsync(GameLoopContext context, CancellationToken stoppingToken);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="context"></param>
     /// <param name="stoppingToken"></param>
@@ -33,7 +30,6 @@ public interface IGameLoopStateInterceptor
     Task BeforeExecuteAsync(GameLoopContext context, CancellationToken stoppingToken);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="context"></param>
     /// <param name="stoppingToken"></param>
@@ -41,7 +37,6 @@ public interface IGameLoopStateInterceptor
     Task AfterExecuteAsync(GameLoopContext context, CancellationToken stoppingToken);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="context"></param>
     /// <param name="stoppingToken"></param>
@@ -49,7 +44,6 @@ public interface IGameLoopStateInterceptor
     Task BeforeExitAsync(GameLoopContext context, CancellationToken stoppingToken);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="context"></param>
     /// <param name="stoppingToken"></param>

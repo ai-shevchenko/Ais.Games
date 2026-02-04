@@ -1,6 +1,6 @@
 ﻿using Ais.ECS;
-using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
+using Ais.GameEngine.Modules.Abstractions.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

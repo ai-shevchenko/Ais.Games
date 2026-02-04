@@ -3,20 +3,17 @@ using Microsoft.Extensions.Configuration;
 
 namespace Ais.GameEngine.Core.Modules;
 
-public class ModuleEnricher : IModuleEnricher
+public class ConfigurationModuleEnricher : IModuleEnricher
 {
     private const string SectionName = "GameEngineModules";
     private readonly IConfiguration _configuration;
 
-    private readonly IKeyedModuleLoader _loader;
-
-    public ModuleEnricher(IConfiguration configuration, IKeyedModuleLoader loader)
+    public ConfigurationModuleEnricher(IConfiguration configuration)
     {
         _configuration = configuration;
-        _loader = loader;
     }
 
-    public void Enrich()
+    public void Enrich(IKeyedModuleLoader loader)
     {
         var section = _configuration.GetSection(SectionName);
         if (!section.Exists())
@@ -36,17 +33,17 @@ public class ModuleEnricher : IModuleEnricher
 
                 if (Directory.Exists(moduleValue))
                 {
-                    _loader.LoadFromDirectory(configList.Key, moduleValue);
+                    loader.LoadFromDirectory(configList.Key, moduleValue);
                     continue;
                 }
 
                 if (File.Exists(moduleValue) && Path.GetExtension(moduleValue) == ".dll")
                 {
-                    _loader.LoadDll(configList.Key, moduleValue);
+                    loader.LoadDll(configList.Key, moduleValue);
                     continue;
                 }
 
-                _loader.LoadAssembly(configList.Key, moduleValue);
+                loader.LoadAssembly(configList.Key, moduleValue);
             }
         }
     }
