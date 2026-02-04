@@ -18,9 +18,7 @@ internal sealed class HooksProvider : IHooksProvider
         where T : class, IHook
     {
         var query = _gameServices.GetServices<IHook>()
-            .OfType<OrderedHook<T>>()
-            .OrderBy(x => x.Order)
-            .Select(x => x.Hook);
+            .OfType<T>();
 
         if (enabledOnly)
         {

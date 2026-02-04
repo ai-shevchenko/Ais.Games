@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 
         services.TryAdd(new ServiceDescriptor(
             typeof(IGameLoopState),
-            typeof(TState),
+            sp => sp.GetRequiredService<TState>(),
             lifetime));
 
         return services;
@@ -52,7 +52,7 @@ public static class ServiceCollectionExtensions
 
         services.TryAdd(new ServiceDescriptor(
             typeof(IGameLoopStateInterceptor),
-            typeof(TInterceptor),
+            sp => sp.GetRequiredService<TInterceptor>(),
             lifetime));
 
         return services;
@@ -63,21 +63,21 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">Список сервисов</param>
     /// <param name="lifetime"></param>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="THook"></typeparam>
     /// <returns></returns>
-    public static IServiceCollection AddHook<T>(
+    public static IServiceCollection AddHook<THook>(
         this IServiceCollection services,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
-        where T : class, IHook
+        where THook : class, IHook
     {
         services.TryAdd(new ServiceDescriptor(
-            typeof(T),
-            typeof(T),
+            typeof(THook),
+            typeof(THook),
             lifetime));
 
-        services.TryAdd(new ServiceDescriptor(
+        services.Add(new ServiceDescriptor(
             typeof(IHook),
-            typeof(T),
+            sp => sp.GetRequiredService<THook>(),
             lifetime));
 
         return services;
