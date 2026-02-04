@@ -1,72 +1,54 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoopFactory : IGameLoopFactory
 {
-    private readonly IServiceProvider _gameServices;
+    private readonly IConfiguration _configuration;
     private readonly IKeyedModuleLoader _moduleLoader;
+    private readonly IServiceCollection _rootServices;
 
-    public GameLoopFactory(IServiceProvider gameServices, IKeyedModuleLoader moduleLoader)
+    public GameLoopFactory(
+        IServiceCollection rootServices,
+        IConfiguration configuration,
+        IKeyedModuleLoader moduleLoader)
     {
-        _gameServices = gameServices;
+        _rootServices = rootServices;
+        _configuration = configuration;
         _moduleLoader = moduleLoader;
     }
 
-    public IGameLoop CreateGameLoop(string name, Action<GameLoopBuilderSettings> configure)
+    public IGameLoop Create(string name, Action<GameLoopBuilderSettings>? configure = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        var loopServices = new ServiceCollection();
+        foreach (var service in _rootServices)
+        {
+            loopServices.Add(service);
+        }
 
-        var loopScope = _gameServices.CreateScope();
-
-        var contextAccessor = loopScope.ServiceProvider
-            .GetRequiredService<IGameLoopContextAccessor>();
-
-        var settings = ActivatorUtilities.CreateInstance<GameLoopBuilderSettings>(loopScope.ServiceProvider);
-        ConfigureContext(name, settings, contextAccessor);
-
-        configure(settings);
-
-        // TODO: Вынести ключ в константу
-        LoadModules("Default", settings);
-        LoadModules(name, settings);
-
-        return ActivatorUtilities.CreateInstance<GameLoop>(loopScope.ServiceProvider, loopScope);
-    }
-
-    public IGameLoop CreateGameLoop(string name, GameLoopBuilderSettings settings)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        var loopScope = _gameServices.CreateScope();
-
-        var contextAccessor = loopScope.ServiceProvider
-            .GetRequiredService<IGameLoopContextAccessor>();
-
-        ConfigureContext(name, settings, contextAccessor);
-
-        // TODO: Вынести ключ в константу
-        LoadModules("Default", settings);
-        LoadModules(name, settings);
-
-        return ActivatorUtilities.CreateInstance<GameLoop>(loopScope.ServiceProvider, loopScope);
-    }
-
-    private void LoadModules(string name, GameLoopBuilderSettings settings)
-    {
         foreach (var module in _moduleLoader.GetLoadedModules(name))
         {
-            module.ConfigureGameLoop(settings);
+            module.ConfigureGameServices(loopServices, _configuration);
         }
-    }
 
-    private static void ConfigureContext(string name, GameLoopBuilderSettings settings,
-        IGameLoopContextAccessor contextAccessor)
-    {
-        var context = new GameLoopContext { Hooks = settings.Hooks, LoopName = name };
+        var settings = new GameLoopBuilderSettings(loopServices);
+        configure?.Invoke(settings);
 
-        contextAccessor.CurrentContext = context;
+        loopServices.AddSingleton<IGameLoop, GameLoop>();
+        var provider = loopServices.BuildServiceProvider();
+
+        using var scope = provider.CreateScope();
+        var loop = scope.ServiceProvider.GetRequiredService<IGameLoop>();
+
+        var accessor = scope.ServiceProvider.GetRequiredService<IGameLoopContextAccessor>();
+        accessor.CurrentContext = new GameLoopContext { LoopName = name };
+
+        return loop;
     }
 }

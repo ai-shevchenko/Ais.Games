@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Ais.GameEngine.Modules.Abstractions;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -26,6 +28,12 @@ public interface IGameEngineBuilder
     /// </summary>
     /// <param name="configure">Функция конфигурации</param>
     void ConfigureGameLogging(Action<GameEngineBuilderContext, ILoggingBuilder> configure);
+
+    /// <summary>
+    ///     Добавить обогатитель модулей
+    /// </summary>
+    /// <param name="enricher">Экземпляр обогатителя</param>
+    void AddModuleEnricher(IModuleEnricher enricher);
 
     /// <summary>
     ///     Собрать игровой движок

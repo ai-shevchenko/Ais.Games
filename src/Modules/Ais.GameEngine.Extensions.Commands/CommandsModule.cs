@@ -1,6 +1,6 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Extensions.Commands.Abstractions;
+﻿using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,9 +13,5 @@ public sealed class CommandsModule : GameEngineModule
     {
         gameServices.TryAddScoped<ICommandQueue, CommandQueue>();
         gameServices.TryAddScoped<ICommandExecutor>(sp => sp.GetRequiredService<ICommandQueue>());
-    }
-
-    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
-    {
     }
 }

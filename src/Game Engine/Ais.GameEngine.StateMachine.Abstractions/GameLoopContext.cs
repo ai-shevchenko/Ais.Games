@@ -1,4 +1,4 @@
-﻿namespace Ais.GameEngine.Core.Abstractions;
+﻿namespace Ais.GameEngine.StateMachine.Abstractions;
 
 /// <summary>
 ///     Контекст игрового цикла
@@ -9,11 +9,6 @@ public class GameLoopContext
     ///     Наименование игрового цикла
     /// </summary>
     public required string LoopName { get; init; }
-
-    /// <summary>
-    ///     Источник хуков
-    /// </summary>
-    public required IHooksSource Hooks { get; init; }
 
     /// <summary>
     ///     Текущее состояние

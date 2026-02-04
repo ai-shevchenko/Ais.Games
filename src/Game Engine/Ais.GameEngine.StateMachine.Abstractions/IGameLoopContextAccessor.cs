@@ -1,4 +1,4 @@
-namespace Ais.GameEngine.Core.Abstractions;
+namespace Ais.GameEngine.StateMachine.Abstractions;
 
 /// <summary>
 ///     Механизм получения контекста игрового цикла, в рамках игровых систем запущенных внутри захваченного игрового цикла

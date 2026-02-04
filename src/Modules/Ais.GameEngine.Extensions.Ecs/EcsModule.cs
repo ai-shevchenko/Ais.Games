@@ -1,6 +1,7 @@
 ﻿using Ais.ECS;
-using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
+using Ais.GameEngine.Modules.Abstractions.Extensions;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -19,11 +20,8 @@ public sealed class EcsModule : GameEngineModule
             var builder = sp.GetRequiredService<IEcsWorldBuilder>();
             return builder.Build(sp);
         });
-    }
 
-    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
-    {
-        settings.Hooks.AddHook<EcsSystemHandlerHook>();
-        settings.Hooks.AddHook<EcsSystemAsyncHandlerHook>();
+        gameServices.AddHook<EcsSystemHandlerHook>();
+        gameServices.AddHook<EcsSystemAsyncHandlerHook>();
     }
 }

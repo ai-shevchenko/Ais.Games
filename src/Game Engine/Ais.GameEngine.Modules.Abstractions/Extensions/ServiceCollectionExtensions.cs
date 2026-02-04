@@ -1,8 +1,10 @@
-﻿using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.Hooks.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Ais.GameEngine.Core.Extensions;
+namespace Ais.GameEngine.Modules.Abstractions.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -25,7 +27,7 @@ public static class ServiceCollectionExtensions
 
         services.TryAdd(new ServiceDescriptor(
             typeof(IGameLoopState),
-            typeof(TState),
+            sp => sp.GetRequiredService<TState>(),
             lifetime));
 
         return services;
@@ -50,7 +52,32 @@ public static class ServiceCollectionExtensions
 
         services.TryAdd(new ServiceDescriptor(
             typeof(IGameLoopStateInterceptor),
-            typeof(TInterceptor),
+            sp => sp.GetRequiredService<TInterceptor>(),
+            lifetime));
+
+        return services;
+    }
+
+    /// <summary>
+    ///     Добавить хук жизненного цикла
+    /// </summary>
+    /// <param name="services">Список сервисов</param>
+    /// <param name="lifetime"></param>
+    /// <typeparam name="THook"></typeparam>
+    /// <returns></returns>
+    public static IServiceCollection AddHook<THook>(
+        this IServiceCollection services,
+        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        where THook : class, IHook
+    {
+        services.TryAdd(new ServiceDescriptor(
+            typeof(THook),
+            typeof(THook),
+            lifetime));
+
+        services.Add(new ServiceDescriptor(
+            typeof(IHook),
+            sp => sp.GetRequiredService<THook>(),
             lifetime));
 
         return services;

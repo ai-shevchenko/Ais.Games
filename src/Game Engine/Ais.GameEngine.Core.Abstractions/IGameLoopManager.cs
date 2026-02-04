@@ -23,7 +23,7 @@ public interface IGameLoopManager
     /// <param name="name">Наименование игрового цикла</param>
     /// <param name="configure">Настройка контекста выполнения цикла</param>
     /// <returns>Игровой цикл</returns>
-    IGameLoop CreateGameLoop(string name, Action<GameLoopBuilderSettings> configure);
+    IGameLoop CreateGameLoop(string name, Action<GameLoopBuilderSettings>? configure = null);
 
     /// <summary>
     ///     Определить наличие игрового цикла внутри системы

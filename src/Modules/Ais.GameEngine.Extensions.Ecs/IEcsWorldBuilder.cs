@@ -8,5 +8,7 @@ public interface IEcsWorldBuilder
     IEcsWorldBuilder WithSystem<T>()
         where T : class, ISystem;
 
+    IEcsWorldBuilder WithWorldSetup(Action<IServiceProvider, IWorld> configure);
+
     IWorld Build(IServiceProvider gameServices);
 }

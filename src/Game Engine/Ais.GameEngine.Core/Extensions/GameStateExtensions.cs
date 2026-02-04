@@ -1,5 +1,5 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.States;
+﻿using Ais.GameEngine.Core.States;
+using Ais.GameEngine.StateMachine.Abstractions;
 
 namespace Ais.GameEngine.Core.Extensions;
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+
 using Ais.ECS.Abstractions.Components;
 
 namespace Ais.ECS.Components;

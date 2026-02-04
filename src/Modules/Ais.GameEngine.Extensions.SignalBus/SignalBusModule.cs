@@ -1,6 +1,6 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Extensions.SignalBus.Abstractions;
+﻿using Ais.GameEngine.Extensions.SignalBus.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,9 +13,5 @@ public sealed class SignalBusModule : GameEngineModule
         gameServices.AddSingleton<ISignalBus, SignalBus>();
         gameServices.AddScoped<ISignalSubscriber>(sp => sp.GetRequiredService<ISignalBus>());
         gameServices.AddScoped<ISignalPublisher>(sp => sp.GetRequiredService<ISignalBus>());
-    }
-
-    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
-    {
     }
 }

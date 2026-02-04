@@ -1,4 +1,5 @@
 ﻿using Ais.GameEngine.Core.Settings;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core;

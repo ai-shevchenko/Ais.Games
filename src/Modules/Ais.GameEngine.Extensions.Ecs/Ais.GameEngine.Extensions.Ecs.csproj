@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\ECS Framework\Ais.ECS\Ais.ECS.csproj"/>
+    <ProjectReference Include="..\..\Game Engine\Ais.GameEngine.Core.Abstractions\Ais.GameEngine.Core.Abstractions.csproj"/>
     <ProjectReference Include="..\..\Game Engine\Ais.GameEngine.Modules.Abstractions\Ais.GameEngine.Modules.Abstractions.csproj"/>
   </ItemGroup>
 

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+
 using Ais.GameEngine.TimeSystem.Abstractions;
 
 namespace Ais.GameEngine.Core.TimeSystem;

@@ -1,4 +1,4 @@
-﻿namespace Ais.GameEngine.Core.Abstractions;
+﻿namespace Ais.GameEngine.StateMachine.Abstractions;
 
 /// <summary>
 ///     Машина состояний для управления игровым циклом

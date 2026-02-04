@@ -1,63 +1,67 @@
 ﻿using System.Collections.Concurrent;
+
 using Ais.GameEngine.Core.Abstractions;
+
+using Microsoft.Extensions.Configuration;
 
 namespace Ais.GameEngine.Core;
 
-public sealed class GameEngine : IGameEngine
+internal sealed class GameEngine : IGameEngine
 {
-    private readonly ConcurrentDictionary<string, IGameLoop> _cachedLoops = [];
-    private readonly IGameLoopFactory _gameLoopFactory;
+    private readonly ConcurrentDictionary<string, IGameLoop> _cachedScopes = [];
+    private readonly IConfiguration _configuration;
+    private readonly IGameLoopFactory _factory;
     private bool _disposed;
 
-    public GameEngine(IGameLoopFactory factory)
+    public GameEngine(IGameLoopFactory factory, IConfiguration configuration)
     {
-        _gameLoopFactory = factory;
+        _factory = factory;
+        _configuration = configuration;
     }
 
-    public IReadOnlyList<IGameLoop> GameLoops => _cachedLoops.Values
-        .ToList()
-        .AsReadOnly();
+    public IReadOnlyList<IGameLoop> GameLoops => _cachedScopes.Values
+        .ToArray();
 
     public IGameLoop GetGameLoop(string name)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        return _cachedLoops.TryGetValue(name, out var item)
+        return _cachedScopes.TryGetValue(name, out var item)
             ? item
             : throw new KeyNotFoundException(name);
     }
 
-    public IGameLoop CreateGameLoop(string name, Action<GameLoopBuilderSettings> configure)
+    public IGameLoop CreateGameLoop(string name, Action<GameLoopBuilderSettings>? configure = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        if (_cachedLoops.TryGetValue(name, out _))
+        if (_cachedScopes.ContainsKey(name))
         {
             throw new InvalidOperationException($"Loop already exists with name {name}");
         }
 
-        var gameLoop = _gameLoopFactory.CreateGameLoop(name, configure);
-        _cachedLoops.TryAdd(name, gameLoop);
+        var loop = _factory.Create(name, configure);
+        _cachedScopes.TryAdd(name, loop);
 
-        return gameLoop;
+        return loop;
     }
 
     public bool HasGameLoop(string name)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        return _cachedLoops.ContainsKey(name);
+        return _cachedScopes.ContainsKey(name);
     }
 
     public void Start(CancellationToken stoppingToken = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var loop in _cachedLoops.Values)
+        foreach (var item in _cachedScopes.Values)
         {
-            loop.Start(stoppingToken);
+            item.Start(stoppingToken);
         }
     }
 
@@ -65,9 +69,9 @@ public sealed class GameEngine : IGameEngine
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var loop in _cachedLoops.Values)
+        foreach (var item in _cachedScopes.Values)
         {
-            loop.Stop();
+            item.Stop();
         }
     }
 
@@ -82,9 +86,9 @@ public sealed class GameEngine : IGameEngine
 
         _disposed = true;
 
-        foreach (var loop in _cachedLoops.Values)
+        foreach (var item in _cachedScopes.Values)
         {
-            loop.Dispose();
+            item.Dispose();
         }
     }
 }

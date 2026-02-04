@@ -1,4 +1,5 @@
-﻿using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.StateMachine.Abstractions;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core;

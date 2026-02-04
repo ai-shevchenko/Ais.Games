@@ -1,6 +1,7 @@
 ﻿using Ais.ECS;
 using Ais.ECS.Abstractions.Systems;
 using Ais.ECS.Abstractions.Worlds;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -10,6 +11,7 @@ public sealed class EcsWorldBuilder : IEcsWorldBuilder
 {
     private static readonly Lock _sync = new();
     private readonly List<Type> _systems = [];
+    private readonly List<Action<IServiceProvider, IWorld>> _setup = [];
 
     public static EcsWorldBuilder Instance
     {
@@ -29,6 +31,12 @@ public sealed class EcsWorldBuilder : IEcsWorldBuilder
         return this;
     }
 
+    public IEcsWorldBuilder WithWorldSetup(Action<IServiceProvider, IWorld> configure)
+    {
+        _setup.Add(configure);
+        return this;
+    }
+
     public IWorld Build(IServiceProvider gameServices)
     {
         var settings = gameServices.GetRequiredService<IOptions<EcsSettings>>().Value;
@@ -38,6 +46,11 @@ public sealed class EcsWorldBuilder : IEcsWorldBuilder
         {
             var system = (ISystem)ActivatorUtilities.CreateInstance(gameServices, systemType);
             world.AddSystem(system);
+        }
+
+        foreach (var configure in _setup)
+        {
+            configure(gameServices, world);
         }
 
         return world;
