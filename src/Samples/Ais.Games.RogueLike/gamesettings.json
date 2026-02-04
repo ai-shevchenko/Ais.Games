@@ -1,10 +1,4 @@
 ﻿{
-  "GameEngineModules": {
-    "Default": [
-      "Ais.GameEngine.Extensions.Commands",
-      "Ais.GameEngine.Extensions.Ecs"
-    ]
-  },
   "GameEngineSettings": {
     "TargetFrameRate": 30,
     "FixedDeltaTime": 0.013

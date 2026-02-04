@@ -5,7 +5,7 @@ namespace Ais.GameEngine.Core.Abstractions;
 /// <summary>
 ///     Источник хуков игрового цикла
 /// </summary>
-public interface IHooksSource
+public interface IHooksProvider
 {
     /// <summary>
     ///     Получить список хуков

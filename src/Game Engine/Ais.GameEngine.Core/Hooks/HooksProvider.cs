@@ -1,35 +1,38 @@
-﻿using System.Collections.Concurrent;
-using Ais.GameEngine.Core.Abstractions;
+﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Hooks.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core.Hooks;
 
-internal sealed class HooksSource : IHooksSource
+internal sealed class HooksProvider : IHooksProvider
 {
+    private readonly IServiceProvider _gameServices;
+
+    public HooksProvider(IServiceProvider gameServices)
+    {
+        _gameServices = gameServices;
+    }
+
     public IReadOnlyList<T> GetHooks<T>(bool enabledOnly = false)
         where T : class, IHook
     {
-        var quey = _hooks.Values
+        var query = _gameServices.GetServices<IHook>()
+            .OfType<OrderedHook<T>>()
             .OrderBy(x => x.Order)
-            .Select(x => x.Hook)
-            .OfType<T>();
+            .Select(x => x.Hook);
 
         if (enabledOnly)
         {
-            quey = quey.Where(h => h.IsEnabled);
+            query = query.Where(h => h.IsEnabled);
         }
 
-        return [.. quey];
+        return [.. query];
     }
 
     public T GetHook<T>()
         where T : class, IHook
     {
-        if (_hooks.TryGetValue(typeof(T), out var item))
-        {
-            return (T)item.Hook;
-        }
-
-        throw new InvalidOperationException($"The hook {typeof(T).Name} not found");
+        return _gameServices.GetService<T>()
+            ?? throw new InvalidOperationException($"The hook {typeof(T).Name} not found");
     }
 }

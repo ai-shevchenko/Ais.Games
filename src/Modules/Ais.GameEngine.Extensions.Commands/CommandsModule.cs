@@ -14,8 +14,4 @@ public sealed class CommandsModule : GameEngineModule
         gameServices.TryAddScoped<ICommandQueue, CommandQueue>();
         gameServices.TryAddScoped<ICommandExecutor>(sp => sp.GetRequiredService<ICommandQueue>());
     }
-
-    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
-    {
-    }
 }

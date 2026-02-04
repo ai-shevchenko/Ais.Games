@@ -19,11 +19,8 @@ public sealed class EcsModule : GameEngineModule
             var builder = sp.GetRequiredService<IEcsWorldBuilder>();
             return builder.Build(sp);
         });
-    }
 
-    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
-    {
-        settings.Hooks.AddHook<EcsSystemHandlerHook>();
-        settings.Hooks.AddHook<EcsSystemAsyncHandlerHook>();
+        gameServices.AddHook<EcsSystemHandlerHook>();
+        gameServices.AddHook<EcsSystemAsyncHandlerHook>();
     }
 }

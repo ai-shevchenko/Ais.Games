@@ -5,9 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core;
 
-internal sealed class GameLoop : IGameLoop, IDisposable
+internal sealed class GameLoop : IGameLoop
 {
-    private readonly IDisposable _innerScope;
     private readonly ILogger<GameLoop> _logger;
     private readonly IGameLoopStateMachine _stateMachine;
 
@@ -17,10 +16,9 @@ internal sealed class GameLoop : IGameLoop, IDisposable
     private Task? _gameLoopTask;
     private bool _isPaused;
 
-    public GameLoop(IGameLoopStateMachine stateMachine, ILogger<GameLoop> logger, IDisposable innerScope)
+    public GameLoop(IGameLoopStateMachine stateMachine, ILogger<GameLoop> logger)
     {
         _stateMachine = stateMachine;
-        _innerScope = innerScope;
         _logger = logger;
     }
 
@@ -125,8 +123,6 @@ internal sealed class GameLoop : IGameLoop, IDisposable
         _disposed = true;
 
         _stateMachine.Dispose();
-        _innerScope.Dispose();
-
         _gameLoopCts?.Dispose();
     }
 }

@@ -11,9 +11,14 @@ public class GameLoopContext
     public required string LoopName { get; init; }
 
     /// <summary>
-    ///     Источник хуков
+    ///     Поставщик хуков
     /// </summary>
-    public required IHooksSource Hooks { get; init; }
+    public required IHooksProvider Hooks { get; init; }
+
+    /// <summary>
+    ///     Поставщик состояний
+    /// </summary>
+    public required IGameLoopStateProvider StatesProvider { get; init; }
 
     /// <summary>
     ///     Текущее состояние

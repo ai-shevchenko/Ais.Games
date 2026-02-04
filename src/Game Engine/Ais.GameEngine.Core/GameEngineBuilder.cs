@@ -2,12 +2,11 @@
 using Ais.GameEngine.Core.Extensions;
 using Ais.GameEngine.Core.Hooks;
 using Ais.GameEngine.Core.Interceptors;
-using Ais.GameEngine.Core.Modules;
 using Ais.GameEngine.Core.Settings;
 using Ais.GameEngine.Core.States;
 using Ais.GameEngine.Core.TimeSystem;
-using Ais.GameEngine.Modules.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,8 +17,6 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 {
     private readonly IConfigurationManager _configuration;
     private readonly GameEngineBuilderContext _context;
-    private readonly List<IModuleEnricher> _enrichers;
-    private readonly ModuleLoader _moduleLoader;
     private readonly IServiceCollection _services;
     private readonly GameEngineBuilderSettings _setting;
 
@@ -35,10 +32,6 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _services = services;
         _configuration = configuration;
         _context = new GameEngineBuilderContext(_configuration);
-
-        InitializeModulesLoading(_services, _configuration, out var moduleLoader, out var enrichers);
-        _moduleLoader = moduleLoader;
-        _enrichers = enrichers;
     }
 
     public void ConfigureGameConfiguration(Action<IConfigurationBuilder> configure)
@@ -58,23 +51,14 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
     public IGameEngine Build()
     {
-        foreach (var enricher in _enrichers)
-        {
-            enricher.Enrich();
-        }
-
-        foreach (var module in _moduleLoader.GetLoadedModules())
-        {
-            module.ConfigureGameServices(_services, _configuration);
-        }
-
-        var gameServices = _setting.ServiceProviderOptions is null
+        var provider = _setting.ServiceProviderOptions is null
             ? _services.BuildServiceProvider()
             : _services.BuildServiceProvider(_setting.ServiceProviderOptions);
 
-        var gameEngine = ActivatorUtilities.CreateInstance<GameEngine>(gameServices);
+        var engine = new GameEngine(provider);
+        _services.AddSingleton<IGameEngine>(engine);
 
-        return gameEngine;
+        return engine;
     }
 
     public static GameEngineBuilder Create(params string[] args)
@@ -120,12 +104,11 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         services.AddSingleton<ITimerController, TimerController>();
 
         services.AddScoped<IGameLoopStateProvider, GameLoopStateProvider>();
-        services.AddScoped<IGameLoopFactory, GameLoopFactory>();
-        services.AddScoped<IHookFactory, HookFactory>();
+        services.AddScoped<IHooksProvider, HooksProvider>();
 
         services.AddScoped<IGameLoopContextAccessor, GameLoopContextAccessor>();
         services.AddScoped<IGameLoopStateMachine, GameLoopStateMachine>();
-        services.AddScoped<IHooksSource, HooksSource>();
+        services.AddScoped<IHooksProvider, HooksProvider>();
 
         services.AddTransient(sp => sp.GetRequiredService<ITimerController>().CreateChildTimer());
 
@@ -145,21 +128,5 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         {
             services.Configure<GameEngineSettings>(_ => { });
         }
-    }
-
-    private static void InitializeModulesLoading(
-        in IServiceCollection services,
-        in IConfiguration configuration,
-        out ModuleLoader moduleLoader,
-        out List<IModuleEnricher> enrichers)
-    {
-        moduleLoader = new ModuleLoader();
-        enrichers =
-        [
-            new ModuleEnricher(configuration, moduleLoader)
-        ];
-
-        services.AddSingleton<IModuleLoader>(moduleLoader);
-        services.AddSingleton<IKeyedModuleLoader>(moduleLoader);
     }
 }

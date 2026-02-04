@@ -15,10 +15,5 @@ public abstract class GameEngineModule
     /// <param name="gameServices">Список игровых сервисов</param>
     /// <param name="configuration">Конфигурация игры</param>
     public abstract void ConfigureGameServices(IServiceCollection gameServices, IConfiguration configuration);
-
-    /// <summary>
-    ///     Конфигурация игрового цикла
-    /// </summary>
-    /// <param name="settings">Настройки фабрики игрового цикла</param>
-    public abstract void ConfigureGameLoop(GameLoopBuilderSettings settings);
+    
 }

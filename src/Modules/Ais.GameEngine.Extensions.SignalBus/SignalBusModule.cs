@@ -14,8 +14,4 @@ public sealed class SignalBusModule : GameEngineModule
         gameServices.AddScoped<ISignalSubscriber>(sp => sp.GetRequiredService<ISignalBus>());
         gameServices.AddScoped<ISignalPublisher>(sp => sp.GetRequiredService<ISignalBus>());
     }
-
-    public override void ConfigureGameLoop(GameLoopBuilderSettings settings)
-    {
-    }
 }
