@@ -5,7 +5,7 @@ namespace Ais.GameEngine.Core.Abstractions;
 /// <summary>
 ///     Источник хуков игрового цикла
 /// </summary>
-public interface IHooksSource : IDisposable
+public interface IHooksSource
 {
     /// <summary>
     ///     Получить список хуков
@@ -22,20 +22,5 @@ public interface IHooksSource : IDisposable
     /// <typeparam name="T">Тип хука</typeparam>
     /// <returns>Хук</returns>
     T GetHook<T>()
-        where T : class, IHook;
-
-    /// <summary>
-    ///     Добавить хук
-    /// </summary>
-    /// <typeparam name="T">Тип хука</typeparam>
-    void AddHook<T>()
-        where T : class, IHook;
-
-    /// <summary>
-    ///     Добавить хук
-    /// </summary>
-    /// <typeparam name="T">Тип хука</typeparam>
-    /// <param name="order">Порядок хука</param>
-    void AddHook<T>(int order)
         where T : class, IHook;
 }
