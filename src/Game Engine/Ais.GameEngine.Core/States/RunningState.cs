@@ -1,7 +1,6 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Hooks.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
-using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core.States;
 
@@ -9,11 +8,9 @@ public sealed class RunningState : GameLoopState, IDisposable
 {
     private readonly IFrameTimer _frameTimer;
     private readonly IGameTimer _gameTimer;
-    private readonly ILogger<RunningState> _logger;
 
-    public RunningState(ITimerController timer, ILogger<RunningState> logger)
+    public RunningState(ITimerController timer)
     {
-        _logger = logger;
         _gameTimer = timer.CreateChildTimer();
         _frameTimer = _gameTimer.CreateFrameTimer();
     }
@@ -26,11 +23,6 @@ public sealed class RunningState : GameLoopState, IDisposable
 
     public override Task EnterAsync(GameLoopContext context, CancellationToken stoppingToken = default)
     {
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Running game loop {@LoopName}", context.LoopName);
-        }
-
         _gameTimer.Restart();
         return Task.CompletedTask;
     }

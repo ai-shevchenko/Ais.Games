@@ -1,6 +1,6 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 
-namespace Ais.GameEngine.Core.States;
+namespace Ais.GameEngine.Core.Interceptors;
 
 public sealed class CompositeInterceptor : IGameLoopStateInterceptor
 {
