@@ -1,5 +1,6 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Ais.GameEngine.Core.Extensions;
 
@@ -17,12 +18,12 @@ public static class ServiceCollectionExtensions
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
         where TState : class, IGameLoopState
     {
-        services.Add(new ServiceDescriptor(
+        services.TryAdd(new ServiceDescriptor(
             typeof(TState),
             typeof(TState),
             lifetime));
 
-        services.Add(new ServiceDescriptor(
+        services.TryAdd(new ServiceDescriptor(
             typeof(IGameLoopState),
             typeof(TState),
             lifetime));
@@ -42,12 +43,12 @@ public static class ServiceCollectionExtensions
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
         where TInterceptor : class, IGameLoopStateInterceptor
     {
-        services.Add(new ServiceDescriptor(
+        services.TryAdd(new ServiceDescriptor(
             typeof(TInterceptor),
             typeof(TInterceptor),
             lifetime));
 
-        services.Add(new ServiceDescriptor(
+        services.TryAdd(new ServiceDescriptor(
             typeof(IGameLoopStateInterceptor),
             typeof(TInterceptor),
             lifetime));
