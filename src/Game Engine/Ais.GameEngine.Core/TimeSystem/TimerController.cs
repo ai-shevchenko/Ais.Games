@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
+
 using Ais.GameEngine.Core.Settings;
 using Ais.GameEngine.TimeSystem.Abstractions;
+
 using Microsoft.Extensions.Options;
 
 namespace Ais.GameEngine.Core.TimeSystem;

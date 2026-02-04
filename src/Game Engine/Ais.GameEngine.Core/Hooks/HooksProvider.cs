@@ -1,5 +1,6 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Hooks.Abstractions;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core.Hooks;

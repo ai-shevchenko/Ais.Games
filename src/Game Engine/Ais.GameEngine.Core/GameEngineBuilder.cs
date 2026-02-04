@@ -9,6 +9,7 @@ using Ais.GameEngine.Modules.Abstractions;
 using Ais.GameEngine.Modules.Abstractions.Extensions;
 using Ais.GameEngine.StateMachine.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -73,7 +74,8 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             module.ConfigureGameServices(_services, _configuration);
         }
 
-        var engine = new GameEngine(_services, _moduleLoader, _configuration);
+        var factory = new GameLoopFactory(_services, _configuration, _moduleLoader);
+        var engine = new GameEngine(factory, _configuration);
         return engine;
     }
 
@@ -111,29 +113,31 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             configuration.AddJsonFile($"gamesettings.{env}.json", true, true);
         }
 
-        configuration.AddEnvironmentVariables();
-        configuration.AddCommandLine(settings.Args);
+        configuration
+            .AddEnvironmentVariables()
+            .AddCommandLine(settings.Args);
 
-        services.AddSingleton<IConfiguration>(configuration);
-        services.AddOptions();
+        services
+            .AddSingleton<IConfiguration>(configuration)
+            .AddOptions();
 
-        services.AddSingleton<ITimerController, TimerController>();
+        services
+            .AddSingleton<ITimerController, TimerController>()
+            .AddTransient(sp => sp.GetRequiredService<ITimerController>().CreateChildTimer());
 
-        services.AddScoped<IGameLoopStateProvider, GameLoopStateProvider>();
-        services.AddScoped<IHooksProvider, HooksProvider>();
+        services
+            .AddScoped<IGameLoopStateProvider, GameLoopStateProvider>()
+            .AddScoped<IHooksProvider, HooksProvider>()
+            .AddScoped<IGameLoopContextAccessor, GameLoopContextAccessor>()
+            .AddScoped<IGameLoopStateMachine, GameLoopStateMachine>()
+            .AddScoped<IHooksProvider, HooksProvider>();
 
-        services.AddScoped<IGameLoopContextAccessor, GameLoopContextAccessor>();
-        services.AddScoped<IGameLoopStateMachine, GameLoopStateMachine>();
-        services.AddScoped<IHooksProvider, HooksProvider>();
-
-        services.AddTransient(sp => sp.GetRequiredService<ITimerController>().CreateChildTimer());
-
-        services.AddState<InitializeState>();
-        services.AddState<RunningState>();
-        services.AddState<PauseState>();
-        services.AddState<StoppingState>();
-
-        services.AddStateInterceptor<LoggingInterceptor>();
+        services
+            .AddState<InitializeState>()
+            .AddState<RunningState>()
+            .AddState<PauseState>()
+            .AddState<StoppingState>()
+            .AddStateInterceptor<LoggingInterceptor>();
 
         var engineSettings = configuration.GetSection(nameof(GameEngineSettings));
         if (engineSettings.Exists())

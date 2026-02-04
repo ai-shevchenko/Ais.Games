@@ -1,4 +1,5 @@
 ﻿using Ais.ECS.Abstractions.Queries;
+
 using IQueryProvider = Ais.ECS.Abstractions.Queries.IQueryProvider;
 
 namespace Ais.ECS.Queries;

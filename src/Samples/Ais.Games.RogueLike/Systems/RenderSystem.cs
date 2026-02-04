@@ -2,6 +2,7 @@
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.GameEngine.Hooks.Abstractions;
 using Ais.Games.SnakeGame.Components;
+
 using Microsoft.Extensions.Options;
 
 namespace Ais.Games.SnakeGame.Systems;

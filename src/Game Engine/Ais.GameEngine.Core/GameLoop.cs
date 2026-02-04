@@ -2,6 +2,7 @@
 using Ais.GameEngine.Core.Extensions;
 using Ais.GameEngine.Core.States;
 using Ais.GameEngine.StateMachine.Abstractions;
+
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core;
@@ -10,8 +11,8 @@ internal sealed class GameLoop : IGameLoop
 {
     private readonly ILogger<GameLoop> _logger;
     private readonly IGameLoopStateMachine _stateMachine;
-
     private readonly Lock _sync = new();
+
     private bool _disposed;
     private CancellationTokenSource? _gameLoopCts;
     private Task? _gameLoopTask;

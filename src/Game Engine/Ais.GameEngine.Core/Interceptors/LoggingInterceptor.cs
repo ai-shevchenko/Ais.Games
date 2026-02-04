@@ -1,4 +1,5 @@
 ﻿using Ais.GameEngine.StateMachine.Abstractions;
+
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core.Interceptors;

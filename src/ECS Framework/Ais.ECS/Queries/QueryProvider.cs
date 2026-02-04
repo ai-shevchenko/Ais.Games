@@ -2,6 +2,7 @@
 using Ais.ECS.Abstractions.Queries;
 using Ais.ECS.Abstractions.Worlds;
 using Ais.ECS.Extensions;
+
 using IQueryProvider = Ais.ECS.Abstractions.Queries.IQueryProvider;
 
 namespace Ais.ECS.Queries;
