@@ -4,7 +4,7 @@ namespace Ais.GameEngine.Core;
 
 internal sealed class GameLoopContextAccessor : IGameLoopContextAccessor
 {
-    private static readonly AsyncLocal<ContextHolder> _gameLoopContextCurrent = new();
+    private readonly AsyncLocal<ContextHolder> _gameLoopContextCurrent = new();
 
     /// <inheritdoc />
     public GameLoopContext? CurrentContext

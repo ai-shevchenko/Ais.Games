@@ -1,9 +1,13 @@
-﻿{
+{
   "GameEngineModules": {
     "Default": [
-      "Ais.GameEngine.Extensions.Commands"
+      "Ais.GameEngine.Extensions.Commands",
+      "Ais.GameEngine.Extensions.SignalBus"
     ],
     "main": [
+      "Ais.GameEngine.Extensions.Ecs"
+    ],
+    "menu": [
       "Ais.GameEngine.Extensions.Ecs"
     ]
   },
@@ -13,12 +17,12 @@
   },
   "GameWindowSettings": {
     "Title": "Змейка",
-    "Width": 30,
-    "Height": 30
+    "Width": 10,
+    "Height": 10
   },
   "Serilog": {
     "MinimumLevel": {
-      "Default": "Debug",
+      "Default": "Information",
       "Override": {
         "System": "Warning",
         "Microsoft": "Debug"
@@ -32,12 +36,12 @@
             {
               "Name": "File",
               "Args": {
-                "path": "./log/app-.log",
+                "path": "./logs/app-.log",
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
                 "rollingInterval": "Day",
                 "fileSizeLimitBytes": 10485760,
                 "retainedFileCountLimit": 30,
-                "rollOnFileSizeLimit": false,
-                "formatter": "Serilog.Formatting.Json.JsonFormatter, Serilog"
+                "rollOnFileSizeLimit": false
               }
             }
           ]

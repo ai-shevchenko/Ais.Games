@@ -80,7 +80,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         }
 
         var factory = new GameLoopFactory(_services, _configuration, _moduleLoader);
-        var engine = new GameEngine(factory, _configuration);
+        var engine = new GameEngine(factory);
         return engine;
     }
 
@@ -138,10 +138,10 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             .AddScoped<IHooksProvider, HooksProvider>();
 
         services
-            .AddState<InitializeState>()
-            .AddState<RunningState>()
-            .AddState<PauseState>()
-            .AddState<StoppingState>()
+            .AddScopedState<InitializeState>()
+            .AddScopedState<RunningState>()
+            .AddScopedState<PauseState>()
+            .AddScopedState<StoppingState>()
             .AddStateInterceptor<LoggingInterceptor>();
 
         var engineSettings = configuration.GetSection(nameof(GameEngineSettings));

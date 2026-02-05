@@ -8,18 +8,17 @@ namespace Ais.GameEngine.Core;
 
 internal sealed class GameEngine : IGameEngine
 {
-    private readonly ConcurrentDictionary<string, IGameLoop> _cachedScopes = [];
-    private readonly IConfiguration _configuration;
+    private readonly ConcurrentDictionary<string, GameLoopScope> _cachedScopes = [];
     private readonly IGameLoopFactory _factory;
     private bool _disposed;
 
-    public GameEngine(IGameLoopFactory factory, IConfiguration configuration)
+    public GameEngine(IGameLoopFactory factory)
     {
         _factory = factory;
-        _configuration = configuration;
     }
 
     public IReadOnlyList<IGameLoop> GameLoops => _cachedScopes.Values
+        .Select(x => x.GameLoop)
         .ToArray();
 
     public IGameLoop GetGameLoop(string name)
@@ -27,8 +26,8 @@ internal sealed class GameEngine : IGameEngine
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        return _cachedScopes.TryGetValue(name, out var item)
-            ? item
+        return _cachedScopes.TryGetValue(name, out var scope)
+            ? scope.GameLoop
             : throw new KeyNotFoundException(name);
     }
 
@@ -42,10 +41,10 @@ internal sealed class GameEngine : IGameEngine
             throw new InvalidOperationException($"Loop already exists with name {name}");
         }
 
-        var loop = _factory.Create(name, configure);
-        _cachedScopes.TryAdd(name, loop);
+        var scope = _factory.Create(name, configure);
+        _cachedScopes.TryAdd(name, scope);
 
-        return loop;
+        return scope.GameLoop;
     }
 
     public bool HasGameLoop(string name)
@@ -59,9 +58,9 @@ internal sealed class GameEngine : IGameEngine
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var item in _cachedScopes.Values)
+        foreach (var scope in _cachedScopes.Values)
         {
-            item.Start(stoppingToken);
+            scope.GameLoop.Start(stoppingToken);
         }
     }
 
@@ -69,9 +68,9 @@ internal sealed class GameEngine : IGameEngine
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var item in _cachedScopes.Values)
+        foreach (var scope in _cachedScopes.Values)
         {
-            item.Stop();
+            scope.GameLoop.Stop();
         }
     }
 
@@ -86,9 +85,9 @@ internal sealed class GameEngine : IGameEngine
 
         _disposed = true;
 
-        foreach (var item in _cachedScopes.Values)
+        foreach (var scope in _cachedScopes.Values)
         {
-            item.Dispose();
+            scope.Dispose();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Ais.ECS.Abstractions.Worlds;
+using Ais.ECS.Abstractions.Worlds;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.Games.SnakeGame.Components;
@@ -17,29 +17,26 @@ internal sealed class SpawnFoodCommand : ICommand
             .GetResult()
             .Entities;
 
+        var random = Random.Shared;
         var (newX, newY) = (0, 0);
 
-        var random = Random.Shared;
-
-        var generate = false;
         while (true)
         {
             newX = random.Next(1, WindowSettings.Width - 1);
             newY = random.Next(1, WindowSettings.Height - 1);
 
+            var occupied = false;
             foreach (var entity in entities)
             {
                 var entityPos = entity.GetComponent<Position>(World);
-                if (entityPos.X != newX || entityPos.Y != newY)
+                if (entityPos.X == newX && entityPos.Y == newY)
                 {
-                    continue;
+                    occupied = true;
+                    break;
                 }
-
-                generate = true;
-                break;
             }
 
-            if (!generate)
+            if (!occupied)
             {
                 break;
             }
@@ -47,6 +44,7 @@ internal sealed class SpawnFoodCommand : ICommand
 
         var food = World.CreateEntity();
         food.AddComponent(World, new Position { X = newX, Y = newY });
+        food.AddComponent<Food>(World);
         food.AddComponent(World, new Sprite { Symbol = '@', Color = ConsoleColor.Red });
     }
 

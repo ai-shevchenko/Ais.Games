@@ -8,29 +8,22 @@ namespace Ais.GameEngine.Modules.Abstractions.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    /// <summary>
-    ///     Добавить состояние
-    /// </summary>
-    /// <param name="services">Список сервисов</param>
-    /// <param name="lifetime">Жизненный цикл состояния</param>
-    /// <typeparam name="TState">Тип состояния</typeparam>
-    /// <returns></returns>
-    public static IServiceCollection AddState<TState>(
-        this IServiceCollection services,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddSingletonState<TState>(this IServiceCollection services)
         where TState : class, IGameLoopState
     {
-        services.TryAdd(new ServiceDescriptor(
-            typeof(TState),
-            typeof(TState),
-            lifetime));
+        return services.AddSelfService<IGameLoopState, TState>(ServiceLifetime.Singleton);
+    }
 
-        services.TryAdd(new ServiceDescriptor(
-            typeof(IGameLoopState),
-            sp => sp.GetRequiredService<TState>(),
-            lifetime));
+    public static IServiceCollection AddScopedState<TState>(this IServiceCollection services)
+        where TState : class, IGameLoopState
+    {
+        return services.AddSelfService<IGameLoopState, TState>(ServiceLifetime.Scoped);
+    }
 
-        return services;
+    public static IServiceCollection AddTransientState<TState>(this IServiceCollection services)
+        where TState : class, IGameLoopState
+    {
+        return services.AddSelfService<IGameLoopState, TState>(ServiceLifetime.Transient);
     }
 
     /// <summary>
@@ -41,44 +34,47 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TInterceptor">Тип перехватчика</typeparam>
     /// <returns></returns>
     public static IServiceCollection AddStateInterceptor<TInterceptor>(
-        this IServiceCollection services,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Transient)
         where TInterceptor : class, IGameLoopStateInterceptor
     {
-        services.TryAdd(new ServiceDescriptor(
-            typeof(TInterceptor),
-            typeof(TInterceptor),
-            lifetime));
-
-        services.TryAdd(new ServiceDescriptor(
-            typeof(IGameLoopStateInterceptor),
-            sp => sp.GetRequiredService<TInterceptor>(),
-            lifetime));
-
-        return services;
+        return services.AddSelfService<IGameLoopStateInterceptor, TInterceptor>(lifetime);
     }
 
-    /// <summary>
-    ///     Добавить хук жизненного цикла
-    /// </summary>
-    /// <param name="services">Список сервисов</param>
-    /// <param name="lifetime"></param>
-    /// <typeparam name="THook"></typeparam>
-    /// <returns></returns>
-    public static IServiceCollection AddHook<THook>(
-        this IServiceCollection services,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddSingletonHook<THook>(this IServiceCollection services)
         where THook : class, IHook
     {
-        services.TryAdd(new ServiceDescriptor(
-            typeof(THook),
-            typeof(THook),
-            lifetime));
+        return services.AddSelfService<IHook, THook>(ServiceLifetime.Singleton);
+    }
 
-        services.Add(new ServiceDescriptor(
-            typeof(IHook),
-            sp => sp.GetRequiredService<THook>(),
-            lifetime));
+    public static IServiceCollection AddScopedHook<THook>(this IServiceCollection services)
+        where THook : class, IHook
+    {
+        return services.AddSelfService<IHook, THook>(ServiceLifetime.Scoped);
+    }
+
+    public static IServiceCollection AddTransientHook<THook>(this IServiceCollection services)
+        where THook : class, IHook
+    {
+        return services.AddSelfService<IHook, THook>(ServiceLifetime.Transient);
+    }
+
+
+    public static IServiceCollection AddSelfService<TService, TImplementation>(
+        this IServiceCollection services, ServiceLifetime lifetime)
+        where TService : class
+        where TImplementation : class, TService
+    {
+        services.TryAdd(
+            new ServiceDescriptor(
+                typeof(TImplementation),
+                typeof(TImplementation),
+                lifetime));
+
+        services.TryAddEnumerable(
+            new ServiceDescriptor(
+                typeof(TService),
+                typeof(TImplementation),
+                lifetime));
 
         return services;
     }

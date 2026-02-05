@@ -2,7 +2,7 @@
 
 namespace Ais.GameEngine.Core.States;
 
-public sealed class InterceptingGameLoopState : IGameLoopState
+internal sealed class InterceptingGameLoopState : IGameLoopState
 {
     private readonly IGameLoopState _innerState;
     private readonly IGameLoopStateInterceptor _interceptor;
@@ -12,6 +12,8 @@ public sealed class InterceptingGameLoopState : IGameLoopState
         _innerState = innerState;
         _interceptor = interceptor;
     }
+
+    public IGameLoopState InnerState => _innerState;
 
     public async Task EnterAsync(GameLoopContext context, CancellationToken stoppingToken = default)
     {

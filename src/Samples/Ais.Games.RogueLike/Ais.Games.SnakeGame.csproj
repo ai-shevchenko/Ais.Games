@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\Game Engine\Ais.GameEngine.Core\Ais.GameEngine.Core.csproj"/>
     <ProjectReference Include="..\..\Modules\Ais.GameEngine.Extensions.Commands\Ais.GameEngine.Extensions.Commands.csproj"/>
     <ProjectReference Include="..\..\Modules\Ais.GameEngine.Extensions.Ecs\Ais.GameEngine.Extensions.Ecs.csproj"/>
+    <ProjectReference Include="..\..\Modules\Ais.GameEngine.Extensions.SignalBus\Ais.GameEngine.Extensions.SignalBus.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

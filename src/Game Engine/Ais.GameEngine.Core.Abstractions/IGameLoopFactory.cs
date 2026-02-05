@@ -11,5 +11,5 @@ public interface IGameLoopFactory
     /// <param name="name">Наименование игрового цикла</param>
     /// <param name="configure">Настройки игрового цикла</param>
     /// <returns>Игровой цикл</returns>
-    IGameLoop Create(string name, Action<GameLoopBuilderSettings>? configure = null);
+    GameLoopScope Create(string name, Action<GameLoopBuilderSettings>? configure = null);
 }

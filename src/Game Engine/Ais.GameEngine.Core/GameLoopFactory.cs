@@ -24,7 +24,7 @@ internal sealed class GameLoopFactory : IGameLoopFactory
         _moduleLoader = moduleLoader;
     }
 
-    public IGameLoop Create(string name, Action<GameLoopBuilderSettings>? configure = null)
+    public GameLoopScope Create(string name, Action<GameLoopBuilderSettings>? configure = null)
     {
         var loopServices = new ServiceCollection();
         foreach (var service in _rootServices)
@@ -40,15 +40,14 @@ internal sealed class GameLoopFactory : IGameLoopFactory
         var settings = new GameLoopBuilderSettings(loopServices);
         configure?.Invoke(settings);
 
-        loopServices.AddSingleton<IGameLoop, GameLoop>();
         var provider = loopServices.BuildServiceProvider();
-
-        using var scope = provider.CreateScope();
-        var loop = scope.ServiceProvider.GetRequiredService<IGameLoop>();
+        var scope = provider.CreateScope();
 
         var accessor = scope.ServiceProvider.GetRequiredService<IGameLoopContextAccessor>();
         accessor.CurrentContext = new GameLoopContext { LoopName = name };
 
-        return loop;
+        var loop = ActivatorUtilities.CreateInstance<GameLoop>(scope.ServiceProvider);
+
+        return new GameLoopScope(name, loop, scope);
     }
 }

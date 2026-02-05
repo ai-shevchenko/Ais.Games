@@ -9,10 +9,12 @@ public sealed class ModuleLoader : IKeyedModuleLoader
     private const string DefaultName = "Default";
 
     private readonly Dictionary<string, List<GameEngineModule>> _modules = [];
+    private readonly Dictionary<string, List<Type>> _types = [];
 
-    private readonly List<Type> _types = [];
-
-    public IReadOnlyList<Type> LoadModules => _types.AsReadOnly();
+    public IReadOnlyList<Type> LoadModules => _types.Values
+        .SelectMany(x => x)
+        .Distinct()
+        .ToArray();
 
     public void LoadAssembly(Assembly assembly)
     {
@@ -46,21 +48,22 @@ public sealed class ModuleLoader : IKeyedModuleLoader
 
         foreach (var type in moduleTypes)
         {
-            if (_types.Contains(type))
+            if (!_modules.TryGetValue(key, out var modules))
+            {
+                modules = [];
+                _modules.Add(key, modules);
+                _types.Add(key, []);
+            }
+
+            if (_types[key].Contains(type))
             {
                 continue;
             }
 
             var module = (GameEngineModule)Activator.CreateInstance(type)!;
-            if (!_modules.TryGetValue(key, out var modules))
-            {
-                modules = [];
-                _modules.Add(key, modules);
-            }
-
             modules.Add(module);
 
-            _types.Add(type);
+            _types[key].Add(type);
         }
     }
 

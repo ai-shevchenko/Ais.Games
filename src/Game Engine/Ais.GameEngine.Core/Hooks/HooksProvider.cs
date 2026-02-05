@@ -17,15 +17,9 @@ internal sealed class HooksProvider : IHooksProvider
     public IReadOnlyList<T> GetHooks<T>(bool enabledOnly = false)
         where T : class, IHook
     {
-        var query = _gameServices.GetServices<IHook>()
-            .OfType<T>();
-
-        if (enabledOnly)
-        {
-            query = query.Where(h => h.IsEnabled);
-        }
-
-        return [.. query];
+        return GetHooks(enabledOnly)
+            .OfType<T>()
+            .ToArray();
     }
 
     public T GetHook<T>()
@@ -33,5 +27,17 @@ internal sealed class HooksProvider : IHooksProvider
     {
         return _gameServices.GetService<T>()
                ?? throw new InvalidOperationException($"The hook {typeof(T).Name} not found");
+    }
+
+    private IEnumerable<IHook> GetHooks(bool enabledOnly = false)
+    {
+        var query = _gameServices.GetServices<IHook>();
+
+        if (enabledOnly)
+        {
+            query = query.Where(h => h.IsEnabled);
+        }
+
+        return query;
     }
 }
