@@ -54,7 +54,7 @@ internal sealed class EntityBuffer : IEntityFactory, IEntityRegistry
         {
             var nextId = _free.Peek();
 
-            if (nextId.Value == 1)
+            if (nextId.Value == 0)
             {
                 return [];
             }
