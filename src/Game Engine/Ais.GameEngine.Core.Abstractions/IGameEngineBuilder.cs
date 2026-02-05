@@ -36,6 +36,12 @@ public interface IGameEngineBuilder
     void AddModuleEnricher(IModuleEnricher enricher);
 
     /// <summary>
+    ///     Добавить обогатитель модулей
+    /// </summary>
+    /// <param name="enricher">Метод обогащения модулей</param>
+    void AddModuleEnricher(Action<IKeyedModuleLoader> enricher);
+
+    /// <summary>
     ///     Собрать игровой движок
     /// </summary>
     /// <returns>Игровой движок</returns>

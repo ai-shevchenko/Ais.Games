@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Ais.GameEngine.Core.Modules;
 
-public class ConfigurationModuleEnricher : IModuleEnricher
+internal sealed class ConfigurationModuleEnricher : IModuleEnricher
 {
     private const string SectionName = "GameEngineModules";
     private readonly IConfiguration _configuration;

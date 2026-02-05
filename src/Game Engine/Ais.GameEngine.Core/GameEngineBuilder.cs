@@ -57,6 +57,11 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _enrichers.Add(enricher);
     }
 
+    public void AddModuleEnricher(Action<IKeyedModuleLoader> enricher)
+    {
+        _enrichers.Add(new InlineModuleEnricher(enricher));
+    }
+
     public void ConfigureGameServices(Action<GameEngineBuilderContext, IServiceCollection> configure)
     {
         configure(_context, _services);
