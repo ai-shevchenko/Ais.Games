@@ -1,3 +1,4 @@
+using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.Games.SnakeGame.Components;
@@ -6,8 +7,8 @@ namespace Ais.Games.SnakeGame.Systems;
 
 internal sealed class MovementSystem : EcsSystem
 {
-    private float _accumulator;
     private const float StepInterval = 0.1f;
+    private float _accumulator;
 
     public override void Update(float deltaTime)
     {
@@ -19,7 +20,6 @@ internal sealed class MovementSystem : EcsSystem
 
         _accumulator = 0f;
 
-        // Находим все сегменты змейки
         var result = World.CreateQuery()
             .With<Position>()
             .With<SnakeSegment>()
@@ -31,8 +31,7 @@ internal sealed class MovementSystem : EcsSystem
             return;
         }
 
-        // Собираем список сегментов с их порядком
-        var segments = new List<(Ais.ECS.Abstractions.Entities.IEntity Entity, SnakeSegment Segment)>(entities.Length);
+        var segments = new List<(IEntity Entity, SnakeSegment Segment)>(entities.Length);
         foreach (var entity in entities)
         {
             var segment = entity.GetComponent<SnakeSegment>(World);
@@ -64,7 +63,6 @@ internal sealed class MovementSystem : EcsSystem
 
         var headEntity = segments[headIndex].Entity;
 
-        // Для головы должна быть скорость
         if (!World.GetStore<Velocity>().Contains(headEntity))
         {
             return;
@@ -72,24 +70,21 @@ internal sealed class MovementSystem : EcsSystem
 
         var headVelocity = headEntity.GetComponent<Velocity>(World);
 
-        // Если на голове активен паверап ускорения — двигаемся чаще
         if (World.GetStore<ActivePowerUpEffect>().Contains(headEntity))
         {
             ref var effect = ref headEntity.GetComponent<ActivePowerUpEffect>(World);
             if (effect.Type == PowerUpType.SpeedBoost)
             {
-                // Дополнительный шаг движения
                 ApplyMovementStep(headEntity, segments, headIndex, headVelocity);
             }
         }
 
-        // Сохраняем предыдущие позиции по порядку сегментов
         ApplyMovementStep(headEntity, segments, headIndex, headVelocity);
     }
 
     private void ApplyMovementStep(
-        Ais.ECS.Abstractions.Entities.IEntity headEntity,
-        List<(Ais.ECS.Abstractions.Entities.IEntity Entity, SnakeSegment Segment)> segments,
+        IEntity headEntity,
+        List<(IEntity Entity, SnakeSegment Segment)> segments,
         int headIndex,
         Velocity headVelocity)
     {
@@ -99,12 +94,10 @@ internal sealed class MovementSystem : EcsSystem
             previousPositions[i] = segments[i].Entity.GetComponent<Position>(World);
         }
 
-        // Двигаем голову
         ref var headPos = ref headEntity.GetComponent<Position>(World);
         headPos.X += headVelocity.DirectionX;
         headPos.Y += headVelocity.DirectoinY;
 
-        // Остальные сегменты "догоняют" предыдущий сегмент
         for (var i = 0; i < segments.Count; i++)
         {
             if (i == headIndex)

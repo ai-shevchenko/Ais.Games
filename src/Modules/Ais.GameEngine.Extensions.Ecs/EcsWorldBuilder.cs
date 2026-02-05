@@ -9,21 +9,20 @@ namespace Ais.GameEngine.Extensions.Ecs;
 
 public sealed class EcsWorldBuilder : IEcsWorldBuilder
 {
-    private readonly IServiceCollection _services;
     private readonly List<Action<IServiceProvider, IWorld>> _setup = [];
 
     public EcsWorldBuilder(IServiceCollection services)
     {
-        _services = services;
+        Services = services;
     }
 
-    public IServiceCollection Services => _services;
+    public IServiceCollection Services { get; }
 
     public IEcsWorldBuilder WithSystem<T>()
         where T : class, ISystem
     {
-        _services.AddScoped<T>();
-        _services.AddScoped<ISystem, T>();
+        Services.AddScoped<T>();
+        Services.AddScoped<ISystem, T>();
         return this;
     }
 

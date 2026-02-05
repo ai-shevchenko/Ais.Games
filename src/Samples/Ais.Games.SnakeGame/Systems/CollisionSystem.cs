@@ -1,9 +1,10 @@
+using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Extensions;
-using Ais.GameEngine.Extensions.Ecs;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
+using Ais.GameEngine.Extensions.Ecs;
 using Ais.GameEngine.Extensions.SignalBus.Abstractions;
-using Ais.Games.SnakeGame.Components;
 using Ais.Games.SnakeGame.Commands;
+using Ais.Games.SnakeGame.Components;
 
 using Microsoft.Extensions.Options;
 
@@ -11,9 +12,9 @@ namespace Ais.Games.SnakeGame.Systems;
 
 internal sealed class CollisionSystem : EcsSystem
 {
-    private readonly GameWindowSettings _windowSettings;
     private readonly ICommandExecutor _commandExecutor;
     private readonly ISignalPublisher _signalPublisher;
+    private readonly GameWindowSettings _windowSettings;
 
     public CollisionSystem(
         IOptions<GameWindowSettings> windowSettings,
@@ -38,9 +39,8 @@ internal sealed class CollisionSystem : EcsSystem
             return;
         }
 
-        // Находим голову
-        Ais.ECS.Abstractions.Entities.IEntity? head = null;
-        var orderedSegments = new List<(Ais.ECS.Abstractions.Entities.IEntity Entity, SnakeSegment Segment)>(segments.Length);
+        IEntity? head = null;
+        var orderedSegments = new List<(IEntity Entity, SnakeSegment Segment)>(segments.Length);
         foreach (var e in segments)
         {
             var seg = e.GetComponent<SnakeSegment>(World);
@@ -69,7 +69,6 @@ internal sealed class CollisionSystem : EcsSystem
 
         var headPos = head.GetComponent<Position>(World);
 
-        // Столкновение со стенами
         if (headPos.X <= 0 || headPos.X >= _windowSettings.Width + 1 ||
             headPos.Y <= 0 || headPos.Y >= _windowSettings.Height + 1)
         {
@@ -77,7 +76,6 @@ internal sealed class CollisionSystem : EcsSystem
             return;
         }
 
-        // Столкновение с собственным телом
         foreach (var segment in segments)
         {
             if (segment == head)
@@ -93,7 +91,6 @@ internal sealed class CollisionSystem : EcsSystem
             }
         }
 
-        // Проверяем еду
         var foodEntities = World.CreateQuery()
             .With<Food>()
             .With<Position>()
@@ -111,7 +108,6 @@ internal sealed class CollisionSystem : EcsSystem
             }
         }
 
-        // Проверяем паверапы
         var powerUps = World.CreateQuery()
             .With<PowerUp>()
             .With<Position>()
@@ -128,7 +124,6 @@ internal sealed class CollisionSystem : EcsSystem
 
             ref var powerUp = ref powerUpEntity.GetComponent<PowerUp>(World);
 
-            // Обновляем статистику
             var scoreEntities = World.CreateQuery()
                 .With<Score>()
                 .GetResult()
@@ -140,15 +135,10 @@ internal sealed class CollisionSystem : EcsSystem
                 score.PowerUpsCollected += 1;
             }
 
-            // Добавляем / обновляем активный эффект на голове
             var effectStore = World.GetStore<ActivePowerUpEffect>();
             if (!effectStore.Contains(head))
             {
-                head.AddComponent(World, new ActivePowerUpEffect
-                {
-                    Type = powerUp.Type,
-                    RemainingSeconds = 5f
-                });
+                head.AddComponent(World, new ActivePowerUpEffect { Type = powerUp.Type, RemainingSeconds = 5f });
             }
             else
             {
@@ -157,7 +147,6 @@ internal sealed class CollisionSystem : EcsSystem
                 effect.RemainingSeconds = 5f;
             }
 
-            // Удаляем паверап с поля
             World.DestroyEntity(powerUpEntity);
             return;
         }
@@ -165,7 +154,6 @@ internal sealed class CollisionSystem : EcsSystem
 
     private void HandleGameOver(bool isWin)
     {
-        // Помечаем все сегменты как "остановленные", просто обнуляя скорость
         var heads = World.CreateQuery()
             .With<SnakeSegment>()
             .With<Velocity>()
@@ -177,36 +165,28 @@ internal sealed class CollisionSystem : EcsSystem
             var velocity = entity.GetComponent<Velocity>(World);
             velocity.DirectionX = 0;
             velocity.DirectoinY = 0;
-            // Изменяем компонент по ссылке
+
             ref var v = ref entity.GetComponent<Velocity>(World);
             v = velocity;
         }
 
-        // Публикуем сигнал окончания игры (асинхронно)
         _ = _signalPublisher.PublishAsync(new GameOverSignal { IsWin = isWin });
     }
 
     private void OnFoodEaten()
     {
-        // Обновляем статистику
         var scoreEntities = World.CreateQuery()
             .With<Score>()
             .GetResult()
             .Entities;
 
-        Ais.ECS.Abstractions.Entities.IEntity scoreEntity;
+        IEntity scoreEntity;
         Score score;
 
         if (scoreEntities.Length == 0)
         {
             scoreEntity = World.CreateEntity();
-            score = new Score
-            {
-                Value = 0,
-                FruitsEaten = 0,
-                PowerUpsCollected = 0,
-                ScoreMultiplier = 1
-            };
+            score = new Score { Value = 0, FruitsEaten = 0, PowerUpsCollected = 0, ScoreMultiplier = 1 };
             scoreEntity.AddComponent(World, score);
         }
         else
@@ -222,7 +202,6 @@ internal sealed class CollisionSystem : EcsSystem
         ref var scoreRef = ref scoreEntity.GetComponent<Score>(World);
         scoreRef = score;
 
-        // Растим змейку: добавляем новый сегмент в конец
         var segmentsSpan = World.CreateQuery()
             .With<SnakeSegment>()
             .With<Position>()
@@ -234,7 +213,7 @@ internal sealed class CollisionSystem : EcsSystem
             return;
         }
 
-        var segmentsList = new List<(Ais.ECS.Abstractions.Entities.IEntity Entity, SnakeSegment Segment, Position Position)>(segmentsSpan.Length);
+        var segmentsList = new List<(IEntity Entity, SnakeSegment Segment, Position Position)>(segmentsSpan.Length);
         foreach (var e in segmentsSpan)
         {
             var seg = e.GetComponent<SnakeSegment>(World);
@@ -250,11 +229,6 @@ internal sealed class CollisionSystem : EcsSystem
         newSegment.AddComponent(World, tail.Position);
         newSegment.AddComponent(World, new Sprite { Symbol = 'o', Color = ConsoleColor.DarkGreen });
 
-        // Спавним новую еду командой
-        _commandExecutor.Execute(new SpawnFoodCommand
-        {
-            World = World,
-            WindowSettings = _windowSettings
-        });
+        _commandExecutor.Execute(new SpawnFoodCommand { World = World, WindowSettings = _windowSettings });
     }
 }

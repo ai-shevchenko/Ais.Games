@@ -16,46 +16,53 @@
 ## Структура решения
 
 - **`ECS Framework`**
-  - **`Ais.ECS.Abstractions`** – интерфейсы мира, сущностей, компонентов, систем и запросов:
-    - `IWorld`, `IEntity`, `IComponent`, `ISystem`, `IQuery`, `QueryResult` и т.п.
-  - **`Ais.ECS`** – реализация ECS:
-    - `World`, `Entity`, `ComponentStore`, `ComponentRegistry`, `SystemManager`, `QueryBuilder`, `QueryProvider`.
+    - **`Ais.ECS.Abstractions`** – интерфейсы мира, сущностей, компонентов, систем и запросов:
+        - `IWorld`, `IEntity`, `IComponent`, `ISystem`, `IQuery`, `QueryResult` и т.п.
+    - **`Ais.ECS`** – реализация ECS:
+        - `World`, `Entity`, `ComponentStore`, `ComponentRegistry`, `SystemManager`, `QueryBuilder`, `QueryProvider`.
 - **`Game Engine`**
-  - **`Ais.GameEngine.Core`** – ядро движка:
-    - `GameEngineBuilder`, `GameEngine`, `GameLoop`, состояния (`InitializeState`, `RunningState`, `PauseState`, `StoppingState`),
-      система таймеров (`TimerController`, `GameTimer`, `FrameTimer`), хуки (`HooksProvider`) и перехватчики состояний.
-  - **`Ais.GameEngine.Core.Abstractions`**, **`Ais.GameEngine.StateMachine.Abstractions`**, **`Ais.GameEngine.Hooks.Abstractions`**,
-    **`Ais.GameEngine.TimeSystem.Abstractions`** – абстракции для ядра и стейт‑машины.
-  - **`Ais.GameEngine.Modules.Abstractions`** – базовые типы модулей:
-    - `GameEngineModule`, `IModuleLoader`, `IKeyedModuleLoader`, расширения `ServiceCollectionExtensions`.
+    - **`Ais.GameEngine.Core`** – ядро движка:
+        - `GameEngineBuilder`, `GameEngine`, `GameLoop`, состояния (`InitializeState`, `RunningState`, `PauseState`,
+          `StoppingState`),
+          система таймеров (`TimerController`, `GameTimer`, `FrameTimer`), хуки (`HooksProvider`) и перехватчики
+          состояний.
+    - **`Ais.GameEngine.Core.Abstractions`**, **`Ais.GameEngine.StateMachine.Abstractions`**, *
+      *`Ais.GameEngine.Hooks.Abstractions`**,
+      **`Ais.GameEngine.TimeSystem.Abstractions`** – абстракции для ядра и стейт‑машины.
+    - **`Ais.GameEngine.Modules.Abstractions`** – базовые типы модулей:
+        - `GameEngineModule`, `IModuleLoader`, `IKeyedModuleLoader`, расширения `ServiceCollectionExtensions`.
 - **`Modules`**
-  - **`Ais.GameEngine.Extensions.Ecs`**
-    - модуль, подключающий ECS к игровому циклу:
-      - `EcsModule` регистрирует `IEcsWorldBuilder`, создаёт `World` и вешает ECS‑хуки на обновление/рендер.
-      - `EcsWorldBuilder` позволяет декларативно описывать мир и набор систем.
-  - **`Ais.GameEngine.Extensions.Commands`**
-    - `CommandsModule` регистрирует `CommandQueue` как `ICommandQueue` и `ICommandExecutor`;
-    - `CommandQueue` реализует выполнение команд, а также undo/redo.
-  - **`Ais.GameEngine.Extensions.SignalBus`**
-    - `SignalBusModule` регистрирует `ISignalBus`, `ISignalPublisher`, `ISignalSubscriber`;
-    - `SignalBus` реализует подписку/отписку и публикацию сигналов (синхронно и асинхронно) с потокобезопасным хранением обработчиков.
+    - **`Ais.GameEngine.Extensions.Ecs`**
+        - модуль, подключающий ECS к игровому циклу:
+            - `EcsModule` регистрирует `IEcsWorldBuilder`, создаёт `World` и вешает ECS‑хуки на обновление/рендер.
+            - `EcsWorldBuilder` позволяет декларативно описывать мир и набор систем.
+    - **`Ais.GameEngine.Extensions.Commands`**
+        - `CommandsModule` регистрирует `CommandQueue` как `ICommandQueue` и `ICommandExecutor`;
+        - `CommandQueue` реализует выполнение команд, а также undo/redo.
+    - **`Ais.GameEngine.Extensions.SignalBus`**
+        - `SignalBusModule` регистрирует `ISignalBus`, `ISignalPublisher`, `ISignalSubscriber`;
+        - `SignalBus` реализует подписку/отписку и публикацию сигналов (синхронно и асинхронно) с потокобезопасным
+          хранением обработчиков.
 - **`Samples/Ais.Games.RogueLike`**
-  - простая игра `Snake`, демонстрирующая:
-    - настройку `GameEngineBuilder`;
-    - конфигурацию сервисов/логирования;
-    - создание основного игрового цикла;
-    - использование ECS для хранения состояния и логики;
-    - использование команд для спавна еды.
+    - простая игра `Snake`, демонстрирующая:
+        - настройку `GameEngineBuilder`;
+        - конфигурацию сервисов/логирования;
+        - создание основного игрового цикла;
+        - использование ECS для хранения состояния и логики;
+        - использование команд для спавна еды.
 
 ---
 
 ## Как это работает на высоком уровне
 
-1. **`GameEngineBuilder`** создаёт DI‑контейнер, загружает конфигурацию (`gamesettings.json` + окружение + командная строка) и настраивает базовые сервисы.
+1. **`GameEngineBuilder`** создаёт DI‑контейнер, загружает конфигурацию (`gamesettings.json` + окружение + командная
+   строка) и настраивает базовые сервисы.
 2. Через **модули** (`GameEngineModule`) в контейнер добавляются подсистемы (ECS, команды, SignalBus и др.).
 3. **`GameEngine`** создаёт один или несколько **игровых циклов** (`IGameLoop`), каждый со своей конфигурацией.
-4. Игровой цикл запускает **стейт‑машину** (Initialize → Running → Pause → Stopping), вызывает хуки (`IUpdate`, `IRender`, `IAsyncUpdate` и т.п.) и управляет **таймингом** кадров.
-5. Модуль ECS создаёт **мир** (`World`) и связывает его с игровым циклом: на каждом кадре вызываются зарегистрированные системы.
+4. Игровой цикл запускает **стейт‑машину** (Initialize → Running → Pause → Stopping), вызывает хуки (`IUpdate`,
+   `IRender`, `IAsyncUpdate` и т.п.) и управляет **таймингом** кадров.
+5. Модуль ECS создаёт **мир** (`World`) и связывает его с игровым циклом: на каждом кадре вызываются зарегистрированные
+   системы.
 
 ---
 
@@ -67,10 +74,12 @@
 
 1. Создайте консольный проект `.NET` (например, `net8.0`).
 2. Добавьте ссылки на нужные проекты/пакеты:
-   - обязательно: `Ais.GameEngine.Core`, `Ais.GameEngine.Core.Abstractions`,
-   - по необходимости: `Ais.ECS`, `Ais.ECS.Abstractions`,
-   - модули: `Ais.GameEngine.Extensions.Ecs`, `Ais.GameEngine.Extensions.Commands`, `Ais.GameEngine.Extensions.SignalBus`.
-3. Добавьте файл конфигурации `gamesettings.json` в корень проекта (пример см. в `Samples/Ais.Games.RogueLike/gamesettings.json`).
+    - обязательно: `Ais.GameEngine.Core`, `Ais.GameEngine.Core.Abstractions`,
+    - по необходимости: `Ais.ECS`, `Ais.ECS.Abstractions`,
+    - модули: `Ais.GameEngine.Extensions.Ecs`, `Ais.GameEngine.Extensions.Commands`,
+      `Ais.GameEngine.Extensions.SignalBus`.
+3. Добавьте файл конфигурации `gamesettings.json` в корень проекта (пример см. в
+   `Samples/Ais.Games.RogueLike/gamesettings.json`).
 
 ### 2. Настройка `Program.cs`
 
@@ -129,7 +138,8 @@ gameEngine.Stop();
 
 ### Создание компонента
 
-Компонент – это простой тип данных, реализующий `IComponent` (или обычный POCO, если используется конкретная реализация ECS):
+Компонент – это простой тип данных, реализующий `IComponent` (или обычный POCO, если используется конкретная реализация
+ECS):
 
 ```csharp
 public sealed class Position // : IComponent (если требуется)
@@ -282,8 +292,8 @@ public sealed class PlayerDeathHandler
 - Файл конфигурации по умолчанию – `gamesettings.json` (и, при наличии, `gamesettings.{ENV}.json`).
 - Модули ищутся через `ModuleLoader` по типу `GameEngineModule` в загруженных сборках.
 - Дополнительные модули можно подключать:
-  - либо просто добавляя их в тот же exe‑проект;
-  - либо через отдельные DLL и загрузку из папки (см. `ModuleLoader.LoadFromDirectory` / `LoadDll` / `LoadAssembly`).
+    - либо просто добавляя их в тот же exe‑проект;
+    - либо через отдельные DLL и загрузку из папки (см. `ModuleLoader.LoadFromDirectory` / `LoadDll` / `LoadAssembly`).
 
 Это позволяет расширять движок собственными модулями: физика, UI, сетевой код и т.п., не меняя ядро.
 

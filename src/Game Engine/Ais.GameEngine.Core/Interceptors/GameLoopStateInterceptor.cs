@@ -5,11 +5,6 @@ namespace Ais.GameEngine.Core.Interceptors;
 
 public abstract class GameLoopStateInterceptor : IGameLoopStateInterceptor
 {
-    public IGameLoopState? GetInterceptedState(GameLoopContext context)
-    {
-        return (context.CurrentState as InterceptingGameLoopState)?.InnerState;
-    }
-
     public virtual Task BeforeEnterAsync(GameLoopContext context, CancellationToken stoppingToken)
     {
         return Task.CompletedTask;
@@ -38,5 +33,10 @@ public abstract class GameLoopStateInterceptor : IGameLoopStateInterceptor
     public virtual Task AfterExitAsync(GameLoopContext context, CancellationToken stoppingToken)
     {
         return Task.CompletedTask;
+    }
+
+    public IGameLoopState? GetInterceptedState(GameLoopContext context)
+    {
+        return (context.CurrentState as InterceptingGameLoopState)?.InnerState;
     }
 }

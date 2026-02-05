@@ -2,8 +2,6 @@
 
 using Ais.GameEngine.Core.Abstractions;
 
-using Microsoft.Extensions.Configuration;
-
 namespace Ais.GameEngine.Core;
 
 internal sealed class GameEngine : IGameEngine

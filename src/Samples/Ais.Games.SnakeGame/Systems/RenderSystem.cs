@@ -7,25 +7,22 @@ using Microsoft.Extensions.Options;
 
 namespace Ais.Games.SnakeGame.Systems;
 
-/// <summary>
-/// Рендер с простейшей двойной буферизацией и HUD.
-/// </summary>
 internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 {
     private readonly GameWindowSettings _settings;
 
     private char[,]? _buffer;
-    private char[,]? _prevBuffer;
     private ConsoleColor[,]? _colorBuffer;
+    private char[,]? _prevBuffer;
     private ConsoleColor[,]? _prevColorBuffer;
-
-    private int BufferWidth => _settings.Width + 2;
-    private int BufferHeight => _settings.Height + 3; // +1 строка под HUD
 
     public RenderSystem(IOptions<GameWindowSettings> settings)
     {
         _settings = settings.Value;
     }
+
+    private int BufferWidth => _settings.Width + 2;
+    private int BufferHeight => _settings.Height + 3; // +1 строка под HUD
 
     public void Initialize()
     {
@@ -199,4 +196,3 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
         Console.SetCursorPosition(0, BufferHeight - 1);
     }
 }
-

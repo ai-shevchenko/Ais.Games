@@ -1,27 +1,30 @@
 <Solution>
     <Folder Name="/Solution Items/">
-        <File Path=".editorconfig" />
-        <File Path="README.md" />
+        <File Path=".editorconfig"/>
+        <File Path="README.md"/>
     </Folder>
-    <Folder Name="/src/" />
+    <Folder Name="/src/"/>
     <Folder Name="/src/ECS Framework/">
-        <Project Path="src/ECS Framework/Ais.ECS.Abstractions/Ais.ECS.Abstractions.csproj" />
-        <Project Path="src/ECS Framework/Ais.ECS/Ais.ECS.csproj" />
+        <Project Path="src/ECS Framework/Ais.ECS.Abstractions/Ais.ECS.Abstractions.csproj"/>
+        <Project Path="src/ECS Framework/Ais.ECS/Ais.ECS.csproj"/>
     </Folder>
     <Folder Name="/src/Game Engine/">
-        <Project Path="src/Game Engine/Ais.GameEngine.Core.Abstractions/Ais.GameEngine.Core.Abstractions.csproj" />
-        <Project Path="src/Game Engine/Ais.GameEngine.Core/Ais.GameEngine.Core.csproj" />
-        <Project Path="src/Game Engine/Ais.GameEngine.Hooks.Abstractions/Ais.GameEngine.Hooks.Abstractions.csproj" />
-        <Project Path="src/Game Engine/Ais.GameEngine.Modules.Abstractions/Ais.GameEngine.Modules.Abstractions.csproj" />
-        <Project Path="src/Game Engine/Ais.GameEngine.StateMachine.Abstractions/Ais.GameEngine.StateMachine.Abstractions.csproj" />
-        <Project Path="src/Game Engine/Ais.GameEngine.TimeSystem.Abstractions/Ais.GameEngine.TimeSystem.Abstractions.csproj" />
+        <Project Path="src/Game Engine/Ais.GameEngine.Core.Abstractions/Ais.GameEngine.Core.Abstractions.csproj"/>
+        <Project Path="src/Game Engine/Ais.GameEngine.Core/Ais.GameEngine.Core.csproj"/>
+        <Project Path="src/Game Engine/Ais.GameEngine.Hooks.Abstractions/Ais.GameEngine.Hooks.Abstractions.csproj"/>
+        <Project Path="src/Game Engine/Ais.GameEngine.Modules.Abstractions/Ais.GameEngine.Modules.Abstractions.csproj"/>
+        <Project
+                Path="src/Game Engine/Ais.GameEngine.StateMachine.Abstractions/Ais.GameEngine.StateMachine.Abstractions.csproj"/>
+        <Project
+                Path="src/Game Engine/Ais.GameEngine.TimeSystem.Abstractions/Ais.GameEngine.TimeSystem.Abstractions.csproj"/>
     </Folder>
     <Folder Name="/src/Modules/">
-        <Project Path="src/Modules/Ais.GameEngine.Extensions.Commands/Ais.GameEngine.Extensions.Commands.csproj" />
-        <Project Path="src/Modules/Ais.GameEngine.Extensions.Ecs/Ais.GameEngine.Extensions.Ecs.csproj" />
-        <Project Path="src/Modules/Ais.GameEngine.Extensions.SignalBus/Ais.GameEngine.Extensions.SignalBus.csproj" />
+        <Project Path="src/Modules/Ais.GameEngine.Extensions.Commands/Ais.GameEngine.Extensions.Commands.csproj"/>
+        <Project Path="src/Modules/Ais.GameEngine.Extensions.Ecs/Ais.GameEngine.Extensions.Ecs.csproj"/>
+        <Project Path="src/Modules/Ais.GameEngine.Extensions.SignalBus/Ais.GameEngine.Extensions.SignalBus.csproj"/>
     </Folder>
     <Folder Name="/src/Samples/">
-        <Project Path="src/Samples/Ais.Games.RogueLike/Ais.Games.SnakeGame.csproj" />
+        <Project Path="src/Samples/Ais.Games.SnakeGame.Tests/Ais.Games.SnakeGame.Tests.csproj"/>
+        <Project Path="src/Samples/Ais.Games.SnakeGame/Ais.Games.SnakeGame.csproj"/>
     </Folder>
 </Solution>

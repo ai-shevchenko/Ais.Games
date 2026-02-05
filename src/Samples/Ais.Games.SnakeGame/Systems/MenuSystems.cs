@@ -3,9 +3,6 @@ using Ais.GameEngine.Hooks.Abstractions;
 
 namespace Ais.Games.SnakeGame.Systems;
 
-/// <summary>
-/// Рендер главного меню в отдельном геймлупе.
-/// </summary>
 internal sealed class MenuRenderSystem : EcsSystem, IRender
 {
     public void Render(float alpha)
@@ -16,10 +13,8 @@ internal sealed class MenuRenderSystem : EcsSystem, IRender
         var options = new[]
         {
             "=== SNAKE GAME ===",
-            "",
-            "1. Start game",
-            "2. Exit",
-            "",
+            "", "1. Start game",
+            "2. Exit", "",
             "Use keys 1-2 to choose."
         };
 
@@ -32,9 +27,6 @@ internal sealed class MenuRenderSystem : EcsSystem, IRender
     }
 }
 
-/// <summary>
-/// Обработка ввода в главном меню.
-/// </summary>
 internal sealed class MenuInputSystem : EcsSystem, IInitialize, IAsyncUpdate
 {
     private readonly GameSession _session;
@@ -46,16 +38,15 @@ internal sealed class MenuInputSystem : EcsSystem, IInitialize, IAsyncUpdate
         _session = session;
     }
 
+    public async Task UpdateAsync(float deltaTime, CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask;
+    }
+
     public void Initialize()
     {
         _cts = new CancellationTokenSource();
         _loopTask = Task.Run(() => LoopAsync(_cts.Token), _cts.Token);
-    }
-
-    public async Task UpdateAsync(float deltaTime, CancellationToken cancellationToken)
-    {
-        // Ничего не делаем, основной ввод читается в отдельном таске
-        await Task.CompletedTask;
     }
 
     public override void Shutdown()
@@ -76,12 +67,12 @@ internal sealed class MenuInputSystem : EcsSystem, IInitialize, IAsyncUpdate
             {
                 case ConsoleKey.D1:
                 case ConsoleKey.NumPad1:
-                    _session.SetResult(GameResult.None);
+                    _session.SetResult(GameState.Start);
                     return;
                 case ConsoleKey.D2:
                 case ConsoleKey.NumPad2:
                 case ConsoleKey.Escape:
-                    _session.SetResult(GameResult.Exit);
+                    _session.SetResult(GameState.Exit);
                     return;
             }
 
@@ -90,9 +81,6 @@ internal sealed class MenuInputSystem : EcsSystem, IInitialize, IAsyncUpdate
     }
 }
 
-/// <summary>
-/// Рендер экрана окончания игры (победа/поражение).
-/// </summary>
 internal sealed class GameOverRenderSystem : EcsSystem, IRender
 {
     private readonly GameSession _session;
@@ -107,11 +95,11 @@ internal sealed class GameOverRenderSystem : EcsSystem, IRender
         Console.Clear();
         Console.CursorVisible = false;
 
-        var message = _session.Result switch
+        var message = _session.State switch
         {
-            GameResult.Won => "YOU WON!",
-            GameResult.Lost => "GAME OVER",
-            GameResult.Exit => "GOOD BYE",
+            GameState.Won => "YOU WON!",
+            GameState.Lost => "GAME OVER",
+            GameState.Exit => "GOOD BYE",
             _ => "GAME OVER"
         };
 
@@ -122,4 +110,3 @@ internal sealed class GameOverRenderSystem : EcsSystem, IRender
         Console.WriteLine("Press ENTER to go back to menu or ESC to exit.");
     }
 }
-

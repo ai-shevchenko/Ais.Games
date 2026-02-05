@@ -4,14 +4,10 @@ using Ais.GameEngine.Hooks.Abstractions;
 
 namespace Ais.Games.SnakeGame.Systems;
 
-/// <summary>
-/// Асинхронный обработчик сигнала окончания игры.
-/// Демонстрирует использование SignalBus и async/await.
-/// </summary>
 internal sealed class GameOverSignalHandler : EcsSystem, IAsyncInitialize
 {
-    private readonly ISignalSubscriber _subscriber;
     private readonly GameSession _session;
+    private readonly ISignalSubscriber _subscriber;
     private IDisposable? _subscription;
 
     public GameOverSignalHandler(ISignalSubscriber subscriber, GameSession session)
@@ -22,12 +18,9 @@ internal sealed class GameOverSignalHandler : EcsSystem, IAsyncInitialize
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
-        _subscription = _subscriber.Subscribe<GameOverSignal>(async signal =>
+        _subscription = _subscriber.Subscribe<GameOverSignal>(signal =>
         {
-            // Имитация асинхронного сохранения результата (например, в файл/БД)
-            await Task.Delay(200, cancellationToken);
-
-            _session.SetResult(signal.IsWin ? GameResult.Won : GameResult.Lost);
+            _session.SetResult(signal.IsWin ? GameState.Won : GameState.Lost);
         });
 
         await Task.CompletedTask;
@@ -39,4 +32,3 @@ internal sealed class GameOverSignalHandler : EcsSystem, IAsyncInitialize
         base.Shutdown();
     }
 }
-

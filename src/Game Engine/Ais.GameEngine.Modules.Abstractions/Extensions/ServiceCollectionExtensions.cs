@@ -58,7 +58,6 @@ public static class ServiceCollectionExtensions
         return services.AddSelfService<IHook, THook>(ServiceLifetime.Transient);
     }
 
-
     public static IServiceCollection AddSelfService<TService, TImplementation>(
         this IServiceCollection services, ServiceLifetime lifetime)
         where TService : class

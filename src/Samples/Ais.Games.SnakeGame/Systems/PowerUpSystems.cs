@@ -1,3 +1,4 @@
+using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Abstractions.Worlds;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Ecs;
@@ -7,16 +8,13 @@ using Microsoft.Extensions.Options;
 
 namespace Ais.Games.SnakeGame.Systems;
 
-/// <summary>
-/// Периодически создаёт паверапы на свободных клетках поля.
-/// </summary>
 internal sealed class PowerUpSpawnSystem : EcsSystem
 {
-    private readonly GameWindowSettings _settings;
     private readonly Random _random = Random.Shared;
+    private readonly GameWindowSettings _settings;
+    private readonly float _spawnIntervalSeconds = 10f;
 
     private float _timeSinceLastSpawn;
-    private float _spawnIntervalSeconds = 10f;
 
     public PowerUpSpawnSystem(IOptions<GameWindowSettings> settings)
     {
@@ -70,12 +68,7 @@ internal sealed class PowerUpSpawnSystem : EcsSystem
         var type = _random.Next(0, 2) == 0 ? PowerUpType.SpeedBoost : PowerUpType.DoubleScore;
         var powerUp = world.CreateEntity();
         powerUp.AddComponent(world, new Position { X = newX, Y = newY });
-        powerUp.AddComponent(world, new PowerUp
-        {
-            Type = type,
-            TimeToLiveSeconds = 8f,
-            ElapsedSeconds = 0f
-        });
+        powerUp.AddComponent(world, new PowerUp { Type = type, TimeToLiveSeconds = 8f, ElapsedSeconds = 0f });
 
         var sprite = type switch
         {
@@ -89,7 +82,7 @@ internal sealed class PowerUpSpawnSystem : EcsSystem
 }
 
 /// <summary>
-/// Обновляет время жизни паверапов и удаляет истекшие.
+///     Обновляет время жизни паверапов и удаляет истекшие.
 /// </summary>
 internal sealed class PowerUpLifetimeSystem : EcsSystem
 {
@@ -113,7 +106,7 @@ internal sealed class PowerUpLifetimeSystem : EcsSystem
 }
 
 /// <summary>
-/// Обновляет активные эффекты паверапов (таймеры, множитель очков).
+///     Обновляет активные эффекты паверапов (таймеры, множитель очков).
 /// </summary>
 internal sealed class PowerUpEffectSystem : EcsSystem
 {
@@ -131,7 +124,7 @@ internal sealed class PowerUpEffectSystem : EcsSystem
             return;
         }
 
-        Ais.ECS.Abstractions.Entities.IEntity? head = null;
+        IEntity? head = null;
         foreach (var e in segments)
         {
             var seg = e.GetComponent<SnakeSegment>(World);
@@ -207,4 +200,3 @@ internal sealed class PowerUpEffectSystem : EcsSystem
         }
     }
 }
-

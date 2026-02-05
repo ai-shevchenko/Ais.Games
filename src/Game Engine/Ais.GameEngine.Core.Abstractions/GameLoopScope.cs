@@ -1,12 +1,12 @@
 namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-/// Область существования игрового цикла
+///     Область существования игрового цикла
 /// </summary>
 public sealed class GameLoopScope : IDisposable
 {
     /// <summary>
-    /// Конструктор
+    ///     Конструктор
     /// </summary>
     /// <param name="name">Наименование игрового цикла</param>
     /// <param name="gameLoop">Экземпляр игрового цикла</param>
@@ -19,17 +19,17 @@ public sealed class GameLoopScope : IDisposable
     }
 
     /// <summary>
-    /// Наименование игрового цикла
+    ///     Наименование игрового цикла
     /// </summary>
     public string Name { get; }
 
     /// <summary>
-    /// Экземпляр игрового цикла
+    ///     Экземпляр игрового цикла
     /// </summary>
     public IGameLoop GameLoop { get; }
 
     /// <summary>
-    /// Область игрового цикла
+    ///     Область игрового цикла
     /// </summary>
     public IDisposable Scope { get; }
 

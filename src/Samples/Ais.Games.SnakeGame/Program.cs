@@ -21,7 +21,6 @@ builder.ConfigureGameServices((context, services) =>
     var settings = context.Configuration.GetRequiredSection(nameof(GameWindowSettings));
     services.Configure<GameWindowSettings>(settings);
 
-    // Глобальное состояние сессии игры
     services.AddSingleton(gameSession);
 });
 
@@ -78,28 +77,27 @@ using var mainLoop = gameEngine.CreateGameLoop("main", settings =>
                 segment.AddComponent(world, new SnakeSegment { IsHead = false, Order = i + 1 });
             }
 
-            // Инициализируем счёт
             var scoreEntity = world.CreateEntity();
-            scoreEntity.AddComponent(world, new Score
-            {
-                Value = 0,
-                FruitsEaten = 0,
-                PowerUpsCollected = 0,
-                ScoreMultiplier = 1
-            });
+            scoreEntity.AddComponent(world,
+                new Score { Value = 0, FruitsEaten = 0, PowerUpsCollected = 0, ScoreMultiplier = 1 });
 
             services.GetRequiredService<ICommandExecutor>()
                 .Execute(new SpawnFoodCommand { WindowSettings = windowSettings, World = world });
         });
 });
 
-gameSession.SetResult(GameResult.None);
+gameSession.SetResult(GameState.None);
 menuLoop.Start(stoppingTokenSource.Token);
 
-while (gameSession.Result == GameResult.None && !stoppingTokenSource.IsCancellationRequested)
+while (gameSession.State == GameState.None && !stoppingTokenSource.IsCancellationRequested)
 {
     await Task.Delay(50);
 }
 
-gameEngine.Stop();
+if (gameSession.State == GameState.Start)
+{
+    menuLoop.Pause();
+    mainLoop.Start(stoppingTokenSource.Token);
+}
 
+gameEngine.Stop();

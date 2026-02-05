@@ -14,7 +14,6 @@ public class MovementSystemTests
         var system = new MovementSystem();
         world.AddSystem(system);
 
-        // Инициализируем мир примерно так же, как в игре
         var head = world.CreateEntity();
         head.AddComponent(world, new SnakeSegment { IsHead = true, Order = 0 });
         head.AddComponent(world, new Position { X = 5, Y = 5 });
@@ -24,7 +23,6 @@ public class MovementSystemTests
         tail.AddComponent(world, new SnakeSegment { IsHead = false, Order = 1 });
         tail.AddComponent(world, new Position { X = 4, Y = 5 });
 
-        // Один шаг движения
         world.UpdateSystems(0.2f);
 
         var headPos = head.GetComponent<Position>(world);
@@ -37,4 +35,3 @@ public class MovementSystemTests
         Assert.Equal(5, tailPos.Y);
     }
 }
-
