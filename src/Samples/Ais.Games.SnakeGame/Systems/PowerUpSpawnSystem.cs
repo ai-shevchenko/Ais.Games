@@ -31,12 +31,12 @@ internal sealed class PowerUpSpawnSystem : EcsSystem
 
         _timeSinceLastSpawn = 0f;
 
-        SpawnPowerUp(World, _settings);
+        SpawnPowerUp();
     }
 
-    private void SpawnPowerUp(IWorld world, GameWindowSettings window)
+    private void SpawnPowerUp()
     {
-        var entities = world.CreateQuery()
+        var entities = World.CreateQuery()
             .With<Position>()
             .GetResult()
             .Entities;
@@ -45,13 +45,13 @@ internal sealed class PowerUpSpawnSystem : EcsSystem
 
         while (true)
         {
-            newX = _random.Next(1, window.Width - 1);
-            newY = _random.Next(1, window.Height - 1);
+            newX = _random.Next(1, _settings.Width - 1);
+            newY = _random.Next(1, _settings.Height - 1);
 
             var occupied = false;
             foreach (var entity in entities)
             {
-                var pos = entity.GetComponent<Position>(world);
+                var pos = entity.GetComponent<Position>(World);
                 if (pos.X == newX && pos.Y == newY)
                 {
                     occupied = true;
@@ -66,9 +66,9 @@ internal sealed class PowerUpSpawnSystem : EcsSystem
         }
 
         var type = _random.Next(0, 2) == 0 ? PowerUpType.SpeedBoost : PowerUpType.DoubleScore;
-        var powerUp = world.CreateEntity();
-        powerUp.AddComponent(world, new Position { X = newX, Y = newY });
-        powerUp.AddComponent(world, new PowerUp { Type = type, TimeToLiveSeconds = 8f, ElapsedSeconds = 0f });
+        var powerUp = World.CreateEntity();
+        powerUp.AddComponent(World, new Position { X = newX, Y = newY });
+        powerUp.AddComponent(World, new PowerUp { Type = type, TimeToLiveSeconds = 8f, ElapsedSeconds = 0f });
 
         var sprite = type switch
         {
@@ -77,7 +77,7 @@ internal sealed class PowerUpSpawnSystem : EcsSystem
             _ => new Sprite { Symbol = '?', Color = ConsoleColor.White }
         };
 
-        powerUp.AddComponent(world, sprite);
+        powerUp.AddComponent(World, sprite);
     }
 }
 
