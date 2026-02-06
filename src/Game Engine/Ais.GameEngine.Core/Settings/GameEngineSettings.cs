@@ -1,5 +1,3 @@
-using Ais.GameEngine.Core.TimeSystem;
-
 namespace Ais.GameEngine.Core.Settings;
 
 /// <summary>
@@ -7,5 +5,8 @@ namespace Ais.GameEngine.Core.Settings;
 /// </summary>
 public class GameEngineSettings
 {
+    /// <summary>
+    ///     Настройки системы игрового времени
+    /// </summary>
     public GameTimerSettings TimerSettings { get; set; } = new();
 }

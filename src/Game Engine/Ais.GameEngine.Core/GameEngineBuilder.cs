@@ -1,14 +1,11 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.Hooks;
-using Ais.GameEngine.Core.Interceptors;
-using Ais.GameEngine.Core.Modules;
+using Ais.GameEngine.Core.Internal.GameLoop;
+using Ais.GameEngine.Core.Internal.HooksSystem;
+using Ais.GameEngine.Core.Internal.ModulesSystem;
+using Ais.GameEngine.Core.Internal.StateMachine;
+using Ais.GameEngine.Core.Internal.TimeSystem;
 using Ais.GameEngine.Core.Settings;
-using Ais.GameEngine.Core.States;
-using Ais.GameEngine.Core.TimeSystem;
 using Ais.GameEngine.Modules.Abstractions;
-using Ais.GameEngine.Modules.Abstractions.Extensions;
-using Ais.GameEngine.StateMachine.Abstractions;
-using Ais.GameEngine.TimeSystem.Abstractions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,7 +77,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         }
 
         var factory = new GameLoopFactory(_services, _configuration, _moduleLoader);
-        var engine = new GameEngine(factory);
+        var engine = new Internal.GameLoop.GameEngine(factory);
         return engine;
     }
 
@@ -126,23 +123,9 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             .AddSingleton<IConfiguration>(configuration)
             .AddOptions();
 
-        services
-            .AddSingleton<ITimerController, TimerController>()
-            .AddTransient(sp => sp.GetRequiredService<ITimerController>().CreateChildTimer());
-
-        services
-            .AddScoped<IGameLoopStateProvider, GameLoopStateProvider>()
-            .AddScoped<IHooksProvider, HooksProvider>()
-            .AddScoped<IGameLoopContextAccessor, GameLoopContextAccessor>()
-            .AddScoped<IGameLoopStateMachine, GameLoopStateMachine>()
-            .AddScoped<IHooksProvider, HooksProvider>();
-
-        services
-            .AddScopedState<InitializeState>()
-            .AddScopedState<RunningState>()
-            .AddScopedState<PauseState>()
-            .AddScopedState<StoppingState>()
-            .AddStateInterceptor<LoggingInterceptor>();
+        services.AddStateMachine();
+        services.AddTimeSystem();
+        services.AddHooksSystem();
 
         var engineSettings = configuration.GetSection(nameof(GameEngineSettings));
         if (engineSettings.Exists())

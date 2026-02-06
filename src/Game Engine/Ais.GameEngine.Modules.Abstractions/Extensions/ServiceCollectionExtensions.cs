@@ -9,21 +9,21 @@ namespace Ais.GameEngine.Modules.Abstractions.Extensions;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSingletonState<TState>(this IServiceCollection services)
-        where TState : class, IGameLoopState
+        where TState : class, IGameState
     {
-        return services.AddSelfService<IGameLoopState, TState>(ServiceLifetime.Singleton);
+        return services.AddSelfService<IGameState, TState>(ServiceLifetime.Singleton);
     }
 
     public static IServiceCollection AddScopedState<TState>(this IServiceCollection services)
-        where TState : class, IGameLoopState
+        where TState : class, IGameState
     {
-        return services.AddSelfService<IGameLoopState, TState>(ServiceLifetime.Scoped);
+        return services.AddSelfService<IGameState, TState>(ServiceLifetime.Scoped);
     }
 
     public static IServiceCollection AddTransientState<TState>(this IServiceCollection services)
-        where TState : class, IGameLoopState
+        where TState : class, IGameState
     {
-        return services.AddSelfService<IGameLoopState, TState>(ServiceLifetime.Transient);
+        return services.AddSelfService<IGameState, TState>(ServiceLifetime.Transient);
     }
 
     /// <summary>
@@ -35,9 +35,9 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddStateInterceptor<TInterceptor>(
         this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Transient)
-        where TInterceptor : class, IGameLoopStateInterceptor
+        where TInterceptor : class, IGameStateInterceptor
     {
-        return services.AddSelfService<IGameLoopStateInterceptor, TInterceptor>(lifetime);
+        return services.AddSelfService<IGameStateInterceptor, TInterceptor>(lifetime);
     }
 
     public static IServiceCollection AddSingletonHook<THook>(this IServiceCollection services)

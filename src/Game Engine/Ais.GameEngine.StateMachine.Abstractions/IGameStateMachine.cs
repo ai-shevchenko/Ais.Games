@@ -1,0 +1,30 @@
+﻿namespace Ais.GameEngine.StateMachine.Abstractions;
+
+/// <summary>
+///     Машина состояний для управления игровым циклом
+/// </summary>
+public interface IGameStateMachine : IGameStateTracker, IDisposable
+{
+    /// <summary>
+    ///     Изменить статус
+    /// </summary>
+    /// <typeparam name="T">Тип статуса</typeparam>
+    /// <param name="stoppingToken">Токен отмены</param>
+    /// <returns></returns>
+    Task ChangeStateAsync<T>(CancellationToken stoppingToken = default)
+        where T : IGameState;
+
+    /// <summary>
+    ///     Запустить машину состояний с указанного статуса
+    /// </summary>
+    /// <typeparam name="T">Тип статус</typeparam>
+    /// <param name="stoppingToken">Токен отмены</param>
+    /// <returns></returns>
+    Task StartAsync<T>(CancellationToken stoppingToken = default)
+        where T : IGameState;
+
+    /// <summary>
+    ///     Остановить выполнение машины
+    /// </summary>
+    Task StopAsync();
+}
