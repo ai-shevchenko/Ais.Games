@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.Hooks.Abstractions;
+using Ais.GameEngine.Hooks.Abstractions;
 using Ais.GameEngine.StateMachine.Abstractions;
 using Ais.GameEngine.TimeSystem.Abstractions;
 

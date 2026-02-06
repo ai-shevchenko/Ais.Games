@@ -1,10 +1,12 @@
-﻿using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
 using Ais.GameEngine.StateMachine.Abstractions;
 
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Ais.GameEngine.Core.Internal.GameLoop;
 
@@ -12,14 +14,14 @@ internal sealed class GameLoopFactory : IGameLoopFactory
 {
     private readonly IConfiguration _configuration;
     private readonly IKeyedModuleLoader _moduleLoader;
-    private readonly IServiceCollection _rootServices;
+    private readonly IContainer _rootContainer;
 
     public GameLoopFactory(
-        IServiceCollection rootServices,
+        IContainer container,
         IConfiguration configuration,
         IKeyedModuleLoader moduleLoader)
     {
-        _rootServices = rootServices;
+        _rootContainer = container;
         _configuration = configuration;
         _moduleLoader = moduleLoader;
     }
@@ -27,10 +29,6 @@ internal sealed class GameLoopFactory : IGameLoopFactory
     public GameLoopScope Create(string name, Action<GameLoopBuilderSettings>? configure = null)
     {
         var loopServices = new ServiceCollection();
-        foreach (var service in _rootServices)
-        {
-            loopServices.Add(service);
-        }
 
         foreach (var module in _moduleLoader.GetLoadedModules(name))
         {
@@ -40,13 +38,19 @@ internal sealed class GameLoopFactory : IGameLoopFactory
         var settings = new GameLoopBuilderSettings(loopServices);
         configure?.Invoke(settings);
 
-        var provider = loopServices.BuildServiceProvider();
-        var scope = provider.CreateScope();
+        var scope = _rootContainer.BeginLifetimeScope(name, builder =>
+        {
+            builder.Populate(loopServices);
 
-        var accessor = scope.ServiceProvider.GetRequiredService<IGameContextAccessor>();
+            builder.RegisterType<GameLoop>()
+                .AsSelf()
+                .InstancePerLifetimeScope();
+        });
+
+        var accessor = scope.Resolve<IGameContextAccessor>();
         accessor.CurrentContext = new GameContext { LoopName = name };
 
-        var loop = ActivatorUtilities.CreateInstance<GameLoop>(scope.ServiceProvider);
+        var loop = scope.Resolve<GameLoop>();
 
         return new GameLoopScope(name, loop, scope);
     }

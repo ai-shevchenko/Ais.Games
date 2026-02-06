@@ -40,7 +40,7 @@ internal sealed class GameStateMachine : IGameStateMachine
 
         if (_contextAccessor.CurrentContext is { CurrentState: not null })
         {
-            await _stateExecutor.ExecuteAsync(_contextAccessor.CurrentContext.CurrentState, stoppingToken);
+            await _stateExecutor.ExitAsync(_contextAccessor.CurrentContext.CurrentState, stoppingToken);
         }
 
         var previousState = _contextAccessor.CurrentContext.CurrentState;

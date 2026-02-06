@@ -1,7 +1,10 @@
 using Ais.ECS;
 using Ais.ECS.Extensions;
+using Ais.GameEngine.Extensions.SignalBus;
 using Ais.Games.SnakeGame.Components;
 using Ais.Games.SnakeGame.Systems;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Ais.Games.SnakeGame.Tests;
 
@@ -11,7 +14,7 @@ public class MovementSystemTests
     public void MovementSystem_MovesHeadAndBodyForward()
     {
         var world = new World(new EcsSettings());
-        var system = new MovementSystem();
+        var system = new MovementSystem(new SignalBus(NullLogger<SignalBus>.Instance));
         world.AddSystem(system);
 
         var head = world.CreateEntity();

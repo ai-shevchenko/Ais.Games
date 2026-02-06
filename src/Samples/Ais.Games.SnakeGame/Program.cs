@@ -1,10 +1,12 @@
-﻿using Ais.ECS.Extensions;
+using Ais.ECS.Extensions;
 using Ais.GameEngine.Core;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.GameEngine.Extensions.Ecs;
+using Ais.GameEngine.Modules.Abstractions.Extensions;
 using Ais.Games.SnakeGame;
 using Ais.Games.SnakeGame.Commands;
 using Ais.Games.SnakeGame.Components;
+using Ais.Games.SnakeGame.Hooks;
 using Ais.Games.SnakeGame.Systems;
 
 using Microsoft.Extensions.Configuration;
@@ -37,12 +39,14 @@ var stoppingTokenSource = new CancellationTokenSource();
 
 using var gameEngine = builder.Build();
 
+using var logging = gameEngine.CreateGameLoop("logging", settings =>
+{
+    settings.GameServices.AddSingletonHook<LogSignalsHook>();
+});
+
 using var menuLoop = gameEngine.CreateGameLoop("menu", settings =>
 {
-    settings.GameServices
-        .AddEcs()
-        .WithSystem<MenuRenderSystem>()
-        .WithSystem<MenuInputSystem>();
+    settings.GameServices.AddSingletonHook<MainMenuHook>();
 });
 
 using var mainLoop = gameEngine.CreateGameLoop("main", settings =>
@@ -87,6 +91,7 @@ using var mainLoop = gameEngine.CreateGameLoop("main", settings =>
 });
 
 gameSession.SetResult(GameState.None);
+logging.Start(stoppingTokenSource.Token);
 menuLoop.Start(stoppingTokenSource.Token);
 
 while (gameSession.State == GameState.None && !stoppingTokenSource.IsCancellationRequested)

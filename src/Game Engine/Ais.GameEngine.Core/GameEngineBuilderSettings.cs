@@ -1,6 +1,4 @@
-﻿using Ais.GameEngine.Core.Settings;
-
-using Microsoft.Extensions.DependencyInjection;
+using Ais.GameEngine.Core.Settings;
 
 namespace Ais.GameEngine.Core;
 
@@ -13,11 +11,6 @@ public sealed class GameEngineBuilderSettings
     ///     Аргументы командной строки
     /// </summary>
     public string[] Args { get; init; } = [];
-
-    /// <summary>
-    ///     Настройки поставщика сервисов
-    /// </summary>
-    public ServiceProviderOptions? ServiceProviderOptions { get; init; }
 
     /// <summary>
     ///     Настройки игрового движка

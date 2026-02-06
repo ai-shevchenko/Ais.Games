@@ -1,4 +1,5 @@
-﻿using Ais.GameEngine.Hooks.Abstractions;
+﻿using Ais.GameEngine.Core.Extensions;
+using Ais.GameEngine.Hooks.Abstractions;
 using Ais.GameEngine.StateMachine.Abstractions;
 
 namespace Ais.GameEngine.Core.Internal.StateMachine.States;
@@ -30,6 +31,6 @@ internal sealed class InitializeState : GameStateBase
 
     public override async Task ExecuteAsync(GameContext context, CancellationToken stoppingToken = default)
     {
-        await _stateMachine.ChangeStateAsync<RunningState>(stoppingToken);
+        await _stateMachine.Run(stoppingToken);
     }
 }

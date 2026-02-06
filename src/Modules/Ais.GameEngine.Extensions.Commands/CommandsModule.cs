@@ -1,5 +1,6 @@
-﻿using Ais.GameEngine.Extensions.Commands.Abstractions;
+using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
+using Ais.GameEngine.Modules.Abstractions.Extensions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,5 +14,7 @@ public sealed class CommandsModule : GameEngineModule
     {
         gameServices.TryAddScoped<ICommandQueue, CommandQueue>();
         gameServices.TryAddScoped<ICommandExecutor>(sp => sp.GetRequiredService<ICommandQueue>());
+
+        gameServices.AddScopedHook<CommandExecutor>();
     }
 }

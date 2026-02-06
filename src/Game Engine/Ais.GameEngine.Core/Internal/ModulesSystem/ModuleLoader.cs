@@ -55,7 +55,7 @@ internal sealed class ModuleLoader : IKeyedModuleLoader
                 _types.Add(key, []);
             }
 
-            if (_types[key].Contains(type))
+            if (_types[key].Contains(type) || _types[DefaultName] is { Count: > 0 } defaultTypes && defaultTypes.Contains(type))
             {
                 continue;
             }

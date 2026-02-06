@@ -11,10 +11,10 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 {
     private readonly GameWindowSettings _settings;
 
-    private char[,]? _buffer;
-    private ConsoleColor[,]? _colorBuffer;
-    private char[,]? _prevBuffer;
-    private ConsoleColor[,]? _prevColorBuffer;
+    private char[,] _buffer = default!;
+    private ConsoleColor[,] _colorBuffer = default!;
+    private char[,] _prevBuffer = default!;
+    private ConsoleColor[,] _prevColorBuffer = default!;
 
     public RenderSystem(IOptions<GameWindowSettings> settings)
     {
@@ -22,10 +22,12 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
     }
 
     private int BufferWidth => _settings.Width + 2;
-    private int BufferHeight => _settings.Height + 3; // +1 строка под HUD
+    private int BufferHeight => _settings.Height + 3;
 
     public void Initialize()
     {
+        Console.Clear();
+
         Console.CursorVisible = false;
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.Green;
@@ -45,11 +47,6 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 
     public void Render(float alpha)
     {
-        if (_buffer is null || _prevBuffer is null || _colorBuffer is null || _prevColorBuffer is null)
-        {
-            return;
-        }
-
         ClearBuffer(_buffer, _colorBuffer);
 
         DrawBorders();
@@ -73,11 +70,6 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 
     private void DrawBorders()
     {
-        if (_buffer is null || _colorBuffer is null)
-        {
-            return;
-        }
-
         for (var y = 0; y < _settings.Height + 2; y++)
         {
             _buffer[0, y] = '#';
@@ -97,11 +89,6 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 
     private void DrawEntities()
     {
-        if (_buffer is null || _colorBuffer is null)
-        {
-            return;
-        }
-
         var result = World.CreateQuery()
             .With<Position>()
             .With<Sprite>()
@@ -131,11 +118,6 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 
     private void DrawHud()
     {
-        if (_buffer is null || _colorBuffer is null)
-        {
-            return;
-        }
-
         var hudY = BufferHeight - 1;
 
         var scores = World.CreateQuery()
@@ -167,11 +149,6 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 
     private void FlushToConsole()
     {
-        if (_buffer is null || _prevBuffer is null || _colorBuffer is null || _prevColorBuffer is null)
-        {
-            return;
-        }
-
         for (var y = 0; y < BufferHeight; y++)
         {
             for (var x = 0; x < BufferWidth; x++)

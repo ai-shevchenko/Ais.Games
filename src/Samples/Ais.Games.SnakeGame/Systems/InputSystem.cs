@@ -1,4 +1,4 @@
-﻿using Ais.ECS.Extensions;
+using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.GameEngine.Hooks.Abstractions;
 using Ais.Games.SnakeGame.Components;
@@ -32,44 +32,66 @@ internal sealed class InputSystem : EcsSystem, IInitialize
             .With<Velocity>()
             .GetResult();
 
+        var entities = result.Entities;
+
         while (true)
         {
             var key = Console.ReadKey(true).Key;
 
-            foreach (var entity in result.Entities)
+            foreach (var entity in entities)
             {
-                var velocity = entity.GetComponent<Velocity>(World);
+                ref var velocity = ref entity.GetComponent<Velocity>(World);
 
                 switch (key)
                 {
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.W:
-                    {
-                        velocity.DirectoinY = -1;
-                        velocity.DirectionX = 0;
-                        break;
-                    }
+                        {
+                            if (velocity.DirectoinY == 1)
+                            {
+                                break;
+                            }
+
+                            velocity.DirectoinY = -1;
+                            velocity.DirectionX = 0;
+                            break;
+                        }
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
-                    {
-                        velocity.DirectoinY = 1;
-                        velocity.DirectionX = 0;
-                        break;
-                    }
+                        {
+                            if (velocity.DirectoinY == -1)
+                            {
+                                break;
+                            }
+
+                            velocity.DirectoinY = 1;
+                            velocity.DirectionX = 0;
+                            break;
+                        }
                     case ConsoleKey.LeftArrow:
                     case ConsoleKey.A:
-                    {
-                        velocity.DirectionX = -1;
-                        velocity.DirectoinY = 0;
-                        break;
-                    }
+                        {
+                            if (velocity.DirectionX == 1)
+                            {
+                                break;
+                            }
+
+                            velocity.DirectionX = -1;
+                            velocity.DirectoinY = 0;
+                            break;
+                        }
                     case ConsoleKey.RightArrow:
                     case ConsoleKey.D:
-                    {
-                        velocity.DirectionX = 1;
-                        velocity.DirectoinY = 0;
-                        break;
-                    }
+                        {
+                            if (velocity.DirectionX == -1)
+                            {
+                                break;
+                            }
+
+                            velocity.DirectionX = 1;
+                            velocity.DirectoinY = 0;
+                            break;
+                        }
                 }
             }
         }

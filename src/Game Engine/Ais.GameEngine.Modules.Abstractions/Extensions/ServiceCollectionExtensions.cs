@@ -1,6 +1,7 @@
-﻿using Ais.GameEngine.Hooks.Abstractions;
+using Ais.GameEngine.Hooks.Abstractions;
 using Ais.GameEngine.StateMachine.Abstractions;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -8,6 +9,14 @@ namespace Ais.GameEngine.Modules.Abstractions.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddModule<TModule>(this IServiceCollection services, IConfiguration configuration)
+        where TModule : GameEngineModule, new()
+    {
+        var module = new TModule();
+        module.ConfigureGameServices(services, configuration);
+        return services;
+    }
+
     public static IServiceCollection AddSingletonState<TState>(this IServiceCollection services)
         where TState : class, IGameState
     {

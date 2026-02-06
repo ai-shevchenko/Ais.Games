@@ -1,5 +1,6 @@
 using Ais.ECS;
 using Ais.ECS.Extensions;
+using Ais.GameEngine.Extensions.Commands;
 using Ais.Games.SnakeGame.Components;
 using Ais.Games.SnakeGame.Systems;
 
@@ -29,7 +30,7 @@ public class PowerUpSystemsTests
     public void PowerUpEffectSystem_ChangesScoreMultiplier()
     {
         var world = new World(new EcsSettings());
-        var effectSystem = new PowerUpEffectSystem();
+        var effectSystem = new PowerUpEffectSystem(new CommandQueue());
         world.AddSystem(effectSystem);
 
         var head = world.CreateEntity();

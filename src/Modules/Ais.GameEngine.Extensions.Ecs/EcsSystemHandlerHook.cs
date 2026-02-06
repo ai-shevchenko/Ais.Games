@@ -1,4 +1,4 @@
-﻿using Ais.ECS.Abstractions.Worlds;
+using Ais.ECS.Abstractions.Worlds;
 using Ais.GameEngine.Hooks.Abstractions;
 
 namespace Ais.GameEngine.Extensions.Ecs;

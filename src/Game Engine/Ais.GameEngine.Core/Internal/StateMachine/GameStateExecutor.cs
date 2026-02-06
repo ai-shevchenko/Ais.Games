@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.StateMachine.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
 
 namespace Ais.GameEngine.Core.Internal.StateMachine;
 

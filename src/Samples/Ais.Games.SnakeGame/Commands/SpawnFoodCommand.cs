@@ -22,8 +22,8 @@ internal sealed class SpawnFoodCommand : ICommand
 
         while (true)
         {
-            newX = random.Next(1, WindowSettings.Width - 1);
-            newY = random.Next(1, WindowSettings.Height - 1);
+            newX = random.Next(1, WindowSettings.Width + 1);
+            newY = random.Next(1, WindowSettings.Height + 1);
 
             var occupied = false;
             foreach (var entity in entities)

@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Core.Internal.GameLoop;
 using Ais.GameEngine.Core.Internal.HooksSystem;
 using Ais.GameEngine.Core.Internal.ModulesSystem;
@@ -6,6 +6,9 @@ using Ais.GameEngine.Core.Internal.StateMachine;
 using Ais.GameEngine.Core.Internal.TimeSystem;
 using Ais.GameEngine.Core.Settings;
 using Ais.GameEngine.Modules.Abstractions;
+
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,7 +79,11 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             module.ConfigureGameServices(_services, _configuration);
         }
 
-        var factory = new GameLoopFactory(_services, _configuration, _moduleLoader);
+        var builder = new ContainerBuilder();
+        builder.Populate(_services);
+        var container = builder.Build();
+
+        var factory = new GameLoopFactory(container, _configuration, _moduleLoader);
         var engine = new Internal.GameLoop.GameEngine(factory);
         return engine;
     }

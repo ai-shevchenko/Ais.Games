@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.Extensions.Commands.Abstractions;
+using Ais.GameEngine.Extensions.Commands.Abstractions;
 
 namespace Ais.GameEngine.Extensions.Commands;
 

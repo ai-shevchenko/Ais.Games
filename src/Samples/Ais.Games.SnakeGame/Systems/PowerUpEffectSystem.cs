@@ -1,18 +1,23 @@
-﻿using Ais.ECS.Abstractions.Entities;
+using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Extensions;
+using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.GameEngine.Extensions.Ecs;
+using Ais.Games.SnakeGame.Commands;
 using Ais.Games.SnakeGame.Components;
 
 namespace Ais.Games.SnakeGame.Systems;
 
-/// <summary>
-///     Обновляет активные эффекты паверапов (таймеры, множитель очков).
-/// </summary>
 internal sealed class PowerUpEffectSystem : EcsSystem
 {
+    private readonly ICommandExecutor _commandExecutor;
+
+    public PowerUpEffectSystem(ICommandExecutor commandExecutor)
+    {
+        _commandExecutor = commandExecutor;
+    }
+
     public override void Update(float deltaTime)
     {
-        // Ищем голову змейки
         var segments = World.CreateQuery()
             .With<SnakeSegment>()
             .With<Position>()
@@ -40,7 +45,6 @@ internal sealed class PowerUpEffectSystem : EcsSystem
             return;
         }
 
-        // Обновляем активный эффект на голове
         if (World.GetStore<ActivePowerUpEffect>().Contains(head))
         {
             ref var effect = ref head.GetComponent<ActivePowerUpEffect>(World);
@@ -48,13 +52,11 @@ internal sealed class PowerUpEffectSystem : EcsSystem
 
             if (effect.RemainingSeconds <= 0f)
             {
-                // Эффект закончился — сбрасываем множитель очков
                 ResetScoreMultiplier();
                 World.GetStore<ActivePowerUpEffect>().Remove(head);
                 return;
             }
 
-            // Если эффект удвоения очков — поддерживаем множитель
             if (effect.Type == PowerUpType.DoubleScore)
             {
                 EnsureScoreMultiplier(2);
@@ -62,41 +64,17 @@ internal sealed class PowerUpEffectSystem : EcsSystem
         }
         else
         {
-            // Нет активного эффекта — множитель по умолчанию
             ResetScoreMultiplier();
         }
     }
 
     private void EnsureScoreMultiplier(int multiplier)
     {
-        var scores = World.CreateQuery()
-            .With<Score>()
-            .GetResult()
-            .Entities;
-
-        if (scores.Length == 0)
-        {
-            return;
-        }
-
-        foreach (var entity in scores)
-        {
-            ref var score = ref entity.GetComponent<Score>(World);
-            score.ScoreMultiplier = multiplier;
-        }
+        _commandExecutor.Execute(new EnsureScoreMultiplierCommand { World = World, Multiplier = multiplier });
     }
 
     private void ResetScoreMultiplier()
     {
-        var scores = World.CreateQuery()
-            .With<Score>()
-            .GetResult()
-            .Entities;
-
-        foreach (var entity in scores)
-        {
-            ref var score = ref entity.GetComponent<Score>(World);
-            score.ScoreMultiplier = 1;
-        }
+        _commandExecutor.Execute(new EnsureScoreMultiplierCommand { World = World, Multiplier = 1 });
     }
 }

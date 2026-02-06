@@ -1,13 +1,23 @@
 using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Ecs;
+using Ais.GameEngine.Extensions.SignalBus.Abstractions;
 using Ais.Games.SnakeGame.Components;
+using Ais.Games.SnakeGame.Signals;
 
 namespace Ais.Games.SnakeGame.Systems;
 
 internal sealed class MovementSystem : EcsSystem
 {
     private const float StepInterval = 0.1f;
+
+    private readonly ISignalBus _signalBus;
+
+    public MovementSystem(ISignalBus signalBus)
+    {
+        _signalBus = signalBus;
+    }
+
     private float _accumulator;
 
     public override void Update(float deltaTime)
@@ -45,7 +55,6 @@ internal sealed class MovementSystem : EcsSystem
 
         segments.Sort((a, b) => a.Segment.Order.CompareTo(b.Segment.Order));
 
-        // Голова — первый элемент с IsHead
         var headIndex = -1;
         for (var i = 0; i < segments.Count; i++)
         {
@@ -95,8 +104,11 @@ internal sealed class MovementSystem : EcsSystem
         }
 
         ref var headPos = ref headEntity.GetComponent<Position>(World);
+        var oldPos = new Position { X = headPos.X, Y = headPos.Y };
         headPos.X += headVelocity.DirectionX;
         headPos.Y += headVelocity.DirectoinY;
+
+        _signalBus.Publish(new SnakeMoveSignal(oldPos, headPos));
 
         for (var i = 0; i < segments.Count; i++)
         {

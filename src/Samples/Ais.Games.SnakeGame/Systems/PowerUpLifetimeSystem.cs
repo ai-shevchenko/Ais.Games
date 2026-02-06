@@ -1,12 +1,9 @@
-﻿using Ais.ECS.Extensions;
+using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.Games.SnakeGame.Components;
 
 namespace Ais.Games.SnakeGame.Systems;
 
-/// <summary>
-///     Обновляет время жизни паверапов и удаляет истекшие.
-/// </summary>
 internal sealed class PowerUpLifetimeSystem : EcsSystem
 {
     public override void Update(float deltaTime)

@@ -13,7 +13,8 @@ internal static class ServiceCollectionExtensions
         services
             .AddScoped<IGameStateProvider, GameStateProvider>()
             .AddScoped<IGameContextAccessor, GameContextAccessor>()
-            .AddScoped<IGameStateMachine, GameStateMachine>();
+            .AddScoped<IGameStateMachine, GameStateMachine>()
+            .AddScoped<IGameStateExecutor, GameStateExecutor>();
 
         services
             .AddScopedState<InitializeState>()

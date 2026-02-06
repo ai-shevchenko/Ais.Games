@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
@@ -69,45 +71,32 @@ internal sealed class CollisionSystem : EcsSystem
 
         var headPos = head.GetComponent<Position>(World);
 
-        if (headPos.X <= 0 || headPos.X >= _windowSettings.Width + 1 ||
-            headPos.Y <= 0 || headPos.Y >= _windowSettings.Height + 1)
+        if (HasWallCollision(headPos))
         {
             HandleGameOver(false);
             return;
         }
 
-        foreach (var segment in segments)
+        if (HasTailCollision(segments, head, headPos))
         {
-            if (segment == head)
-            {
-                continue;
-            }
-
-            var pos = segment.GetComponent<Position>(World);
-            if (pos.X == headPos.X && pos.Y == headPos.Y)
-            {
-                HandleGameOver(false);
-                return;
-            }
+            HandleGameOver(false);
+            return;
         }
 
-        var foodEntities = World.CreateQuery()
-            .With<Food>()
-            .With<Position>()
-            .GetResult()
-            .Entities;
-
-        foreach (var food in foodEntities)
+        if (HasFoodCollision(headPos))
         {
-            var foodPos = food.GetComponent<Position>(World);
-            if (foodPos.X == headPos.X && foodPos.Y == headPos.Y)
-            {
-                OnFoodEaten();
-                World.DestroyEntity(food);
-                return;
-            }
+            HandleFoodEaten();
+            return;
         }
+        if (HasPowerUpCollision(head, headPos, out var powerUp))
+        {
+            HandlePowerUpEaten(head, powerUp);
+            return;
+        }
+    }
 
+    private bool HasPowerUpCollision(IEntity head, Position headPos, [NotNullWhen(true)] out IEntity? powerUp)
+    {
         var powerUps = World.CreateQuery()
             .With<PowerUp>()
             .With<Position>()
@@ -117,118 +106,82 @@ internal sealed class CollisionSystem : EcsSystem
         foreach (var powerUpEntity in powerUps)
         {
             var pos = powerUpEntity.GetComponent<Position>(World);
-            if (pos.X != headPos.X || pos.Y != headPos.Y)
+            if (!Equals(headPos, pos))
             {
                 continue;
             }
 
-            ref var powerUp = ref powerUpEntity.GetComponent<PowerUp>(World);
-
-            var scoreEntities = World.CreateQuery()
-                .With<Score>()
-                .GetResult()
-                .Entities;
-
-            if (scoreEntities.Length > 0)
-            {
-                ref var score = ref scoreEntities[0].GetComponent<Score>(World);
-                score.PowerUpsCollected += 1;
-            }
-
-            var effectStore = World.GetStore<ActivePowerUpEffect>();
-            if (!effectStore.Contains(head))
-            {
-                head.AddComponent(World, new ActivePowerUpEffect { Type = powerUp.Type, RemainingSeconds = 5f });
-            }
-            else
-            {
-                ref var effect = ref head.GetComponent<ActivePowerUpEffect>(World);
-                effect.Type = powerUp.Type;
-                effect.RemainingSeconds = 5f;
-            }
-
-            World.DestroyEntity(powerUpEntity);
-            return;
+            powerUp = powerUpEntity;
+            return true;
         }
+
+        powerUp = default;
+        return false;
     }
 
-    private void HandleGameOver(bool isWin)
+    private bool HasFoodCollision(Position headPos)
     {
-        var heads = World.CreateQuery()
-            .With<SnakeSegment>()
-            .With<Velocity>()
-            .GetResult()
-            .Entities;
-
-        foreach (var entity in heads)
-        {
-            var velocity = entity.GetComponent<Velocity>(World);
-            velocity.DirectionX = 0;
-            velocity.DirectoinY = 0;
-
-            ref var v = ref entity.GetComponent<Velocity>(World);
-            v = velocity;
-        }
-
-        _ = _signalPublisher.PublishAsync(new GameOverSignal { IsWin = isWin });
-    }
-
-    private void OnFoodEaten()
-    {
-        var scoreEntities = World.CreateQuery()
-            .With<Score>()
-            .GetResult()
-            .Entities;
-
-        IEntity scoreEntity;
-        Score score;
-
-        if (scoreEntities.Length == 0)
-        {
-            scoreEntity = World.CreateEntity();
-            score = new Score { Value = 0, FruitsEaten = 0, PowerUpsCollected = 0, ScoreMultiplier = 1 };
-            scoreEntity.AddComponent(World, score);
-        }
-        else
-        {
-            scoreEntity = scoreEntities[0];
-            score = scoreEntity.GetComponent<Score>(World);
-        }
-
-        var points = 10 * (score.ScoreMultiplier <= 0 ? 1 : score.ScoreMultiplier);
-        score.Value += points;
-        score.FruitsEaten += 1;
-
-        ref var scoreRef = ref scoreEntity.GetComponent<Score>(World);
-        scoreRef = score;
-
-        var segmentsSpan = World.CreateQuery()
-            .With<SnakeSegment>()
+        var foodEntities = World.CreateQuery()
+            .With<Food>()
             .With<Position>()
             .GetResult()
             .Entities;
 
-        if (segmentsSpan.Length == 0)
+        foreach (var food in foodEntities)
         {
-            return;
+            var foodPos = food.GetComponent<Position>(World);
+            if (Equals(foodPos, headPos))
+            {
+                World.DestroyEntity(food);
+                return true;
+            }
         }
 
-        var segmentsList = new List<(IEntity Entity, SnakeSegment Segment, Position Position)>(segmentsSpan.Length);
-        foreach (var e in segmentsSpan)
+        return false;
+    }
+
+    private bool HasTailCollision(ReadOnlySpan<IEntity> segments, IEntity head, Position headPos)
+    {
+        foreach (var segment in segments)
         {
-            var seg = e.GetComponent<SnakeSegment>(World);
-            var pos = e.GetComponent<Position>(World);
-            segmentsList.Add((e, seg, pos));
+            if (Equals(segment, head))
+            {
+                continue;
+            }
+
+            var pos = segment.GetComponent<Position>(World);
+            if (Equals(pos, headPos))
+            {
+                return true;
+            }
         }
 
-        segmentsList.Sort((a, b) => a.Segment.Order.CompareTo(b.Segment.Order));
+        return false;
+    }
 
-        var tail = segmentsList[^1];
-        var newSegment = World.CreateEntity();
-        newSegment.AddComponent(World, new SnakeSegment { IsHead = false, Order = tail.Segment.Order + 1 });
-        newSegment.AddComponent(World, tail.Position);
-        newSegment.AddComponent(World, new Sprite { Symbol = 'o', Color = ConsoleColor.DarkGreen });
+    private bool HasWallCollision(Position headPos)
+    {
+        return headPos.X <= 0
+            || headPos.X >= _windowSettings.Width + 1
+            || headPos.Y <= 0
+            || headPos.Y >= _windowSettings.Height + 1;
+    }
 
+    private void HandleGameOver(bool isWin)
+    {
+        _commandExecutor.Execute(new StopSnakeCommand { World = World });
+        _ = _signalPublisher.PublishAsync(new GameOverSignal { IsWin = isWin });
+    }
+
+    private void HandleFoodEaten()
+    {
+        _commandExecutor.Execute(new IncreaseScoreCommand { World = World });
+        _commandExecutor.Execute(new GrowthSnakeCommand { World = World });
         _commandExecutor.Execute(new SpawnFoodCommand { World = World, WindowSettings = _windowSettings });
+    }
+
+    private void HandlePowerUpEaten(IEntity head, IEntity powerUp)
+    {
+        _commandExecutor.Execute(new ApplyPowerUpCommand { World = World, Head = head, PowerUp = powerUp });
     }
 }

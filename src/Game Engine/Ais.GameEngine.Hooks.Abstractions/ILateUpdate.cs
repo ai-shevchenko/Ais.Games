@@ -1,4 +1,4 @@
-﻿namespace Ais.GameEngine.Hooks.Abstractions;
+namespace Ais.GameEngine.Hooks.Abstractions;
 
 public interface ILateUpdate : IHook
 {

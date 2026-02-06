@@ -1,13 +1,10 @@
 {
   "GameEngineModules": {
     "Default": [
-      "Ais.GameEngine.Extensions.Commands",
       "Ais.GameEngine.Extensions.SignalBus"
     ],
     "main": [
-      "Ais.GameEngine.Extensions.Ecs"
-    ],
-    "menu": [
+      "Ais.GameEngine.Extensions.Commands",
       "Ais.GameEngine.Extensions.Ecs"
     ]
   },
@@ -22,10 +19,10 @@
   },
   "Serilog": {
     "MinimumLevel": {
-      "Default": "Information",
+      "Default": "Debug",
       "Override": {
         "System": "Warning",
-        "Microsoft": "Debug"
+        "Microsoft": "Warning"
       }
     },
     "WriteTo": [
@@ -36,7 +33,7 @@
             {
               "Name": "File",
               "Args": {
-                "path": "./logs/app-.log",
+                "path": "./Logs/app-.log",
                 "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
                 "rollingInterval": "Day",
                 "fileSizeLimitBytes": 10485760,
