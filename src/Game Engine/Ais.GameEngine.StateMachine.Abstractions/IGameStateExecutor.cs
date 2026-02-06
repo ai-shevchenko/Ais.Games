@@ -6,7 +6,6 @@
 public interface IGameStateExecutor
 {
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="state"></param>
     /// <param name="cancellationToken"></param>
@@ -23,7 +22,6 @@ public interface IGameStateExecutor
     Task ExecuteAsync(IGameState state, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="state"></param>
     /// <param name="cancellationToken"></param>

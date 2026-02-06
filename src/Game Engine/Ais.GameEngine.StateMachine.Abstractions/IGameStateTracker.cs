@@ -1,7 +1,7 @@
 ﻿namespace Ais.GameEngine.StateMachine.Abstractions;
 
 /// <summary>
-/// Трекер игрового состояния
+///     Трекер игрового состояния
 /// </summary>
 public interface IGameStateTracker
 {

@@ -8,8 +8,8 @@ internal sealed class GameStateMachine : IGameStateMachine
 {
     private readonly IGameContextAccessor _contextAccessor;
     private readonly ILogger<GameStateMachine> _logger;
-    private readonly IGameStateProvider _stateProvider;
     private readonly IGameStateExecutor _stateExecutor;
+    private readonly IGameStateProvider _stateProvider;
 
     private bool _disposed;
     private CancellationTokenSource? _executionCts;

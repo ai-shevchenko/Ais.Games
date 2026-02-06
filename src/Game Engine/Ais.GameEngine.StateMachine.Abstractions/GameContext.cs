@@ -25,7 +25,6 @@ public class GameContext
     public IReadOnlyDictionary<string, object?> Data => _data.AsReadOnly();
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="key"></param>
     /// <param name="value"></param>
@@ -37,7 +36,6 @@ public class GameContext
     }
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="key"></param>
     /// <param name="value"></param>
@@ -49,7 +47,6 @@ public class GameContext
     }
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="key"></param>
     /// <param name="value"></param>
@@ -73,7 +70,6 @@ public class GameContext
     }
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="key"></param>
     /// <typeparam name="T"></typeparam>
@@ -93,5 +89,4 @@ public class GameContext
         var typedKey = string.Intern($"{key}:{typeof(T).Name}");
         return typedKey;
     }
-
 }

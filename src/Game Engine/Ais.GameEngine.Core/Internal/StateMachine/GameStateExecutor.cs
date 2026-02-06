@@ -4,8 +4,8 @@ namespace Ais.GameEngine.Core.Internal.StateMachine;
 
 internal sealed class GameStateExecutor : IGameStateExecutor
 {
+    private readonly IGameContextAccessor _contextAccessor;
     private readonly IEnumerable<IGameStateInterceptor> _interceptors;
-    private readonly IGameContextAccessor  _contextAccessor;
 
     public GameStateExecutor(IEnumerable<IGameStateInterceptor> interceptors, IGameContextAccessor contextAccessor)
     {
