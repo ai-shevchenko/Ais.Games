@@ -32,14 +32,18 @@ internal sealed class InputSystem : EcsSystem, IInitialize
             .With<Velocity>()
             .GetResult();
 
-        var entities = result.Entities;
-
         while (true)
         {
             var key = Console.ReadKey(true).Key;
 
-            foreach (var entity in entities)
+            foreach (var entity in result.Entities)
             {
+                var control = entity.GetComponent<PlayerControlled>(World);
+                if (!control.Available)
+                {
+                    continue;
+                }
+
                 ref var velocity = ref entity.GetComponent<Velocity>(World);
 
                 switch (key)

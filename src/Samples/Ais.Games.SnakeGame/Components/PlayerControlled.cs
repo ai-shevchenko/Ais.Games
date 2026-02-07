@@ -1,5 +1,8 @@
-﻿using Ais.ECS.Abstractions.Components;
+using Ais.ECS.Abstractions.Components;
 
 namespace Ais.Games.SnakeGame.Components;
 
-internal struct PlayerControlled : IComponent;
+internal struct PlayerControlled : IComponent
+{
+    public bool Available;
+}

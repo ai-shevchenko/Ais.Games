@@ -1,10 +1,20 @@
-﻿namespace Ais.GameEngine.Core.Abstractions;
+namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
 ///     Игровой цикл
 /// </summary>
 public interface IGameLoop : IDisposable
 {
+    /// <summary>
+    ///     Состояние игрового цикла
+    /// </summary>
+    bool IsRunning { get; }
+
+    /// <summary>
+    ///     Состояние паузы
+    /// </summary>
+    bool IsPaused { get; }
+
     /// <summary>
     ///     Запустить игровой цикл
     /// </summary>

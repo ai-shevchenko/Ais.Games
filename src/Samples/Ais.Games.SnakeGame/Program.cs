@@ -66,7 +66,7 @@ using var mainLoop = gameEngine.CreateGameLoop("main", settings =>
             var windowSettings = services.GetRequiredService<IOptions<GameWindowSettings>>().Value;
 
             var player = world.CreateEntity();
-            player.AddComponent<PlayerControlled>(world);
+            player.AddComponent(world, new PlayerControlled { Available = true });
             player.AddComponent(world, new SnakeSegment { IsHead = true, Order = 0 });
             player.AddComponent(world, new Position { X = windowSettings.Width / 2, Y = windowSettings.Height / 2 });
             player.AddComponent(world, new Velocity { DirectionX = 1, DirectoinY = 0 });
@@ -96,7 +96,7 @@ menuLoop.Start(stoppingTokenSource.Token);
 
 while (gameSession.State == GameState.None && !stoppingTokenSource.IsCancellationRequested)
 {
-    await Task.Delay(50);
+    await Task.Delay(50); 
 }
 
 if (gameSession.State == GameState.Start)

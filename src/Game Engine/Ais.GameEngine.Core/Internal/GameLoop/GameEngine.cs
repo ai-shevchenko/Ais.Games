@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 using Ais.GameEngine.Core.Abstractions;
 
@@ -66,10 +66,7 @@ internal sealed class GameEngine : IGameEngine
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var scope in _cachedScopes.Values)
-        {
-            scope.GameLoop.Stop();
-        }
+        DisposeGameLoops(stopOnly: true);
     }
 
     public void Dispose()
@@ -79,13 +76,40 @@ internal sealed class GameEngine : IGameEngine
             return;
         }
 
-        Stop();
-
         _disposed = true;
+
+        DisposeGameLoops(stopOnly: false);
+    }
+
+    private void DisposeGameLoops(bool stopOnly)
+    {
+        var exceptions = new List<Exception>();
 
         foreach (var scope in _cachedScopes.Values)
         {
-            scope.Dispose();
+            try
+            {
+                if (stopOnly && scope.GameLoop.IsRunning)
+                {
+                    scope.GameLoop.Stop();
+                }
+
+                if (!stopOnly)
+                {
+                    scope.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
+        }
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException(
+                "One or more errors occurred while disposing game loops.",
+                exceptions);
         }
     }
 }

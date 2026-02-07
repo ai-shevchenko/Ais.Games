@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.Hooks.Abstractions;
+using Ais.GameEngine.Hooks.Abstractions;
 
 using Microsoft.Extensions.DependencyInjection;
 

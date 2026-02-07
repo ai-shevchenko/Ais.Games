@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Core.Extensions;
 using Ais.GameEngine.Core.Internal.StateMachine.States;
 using Ais.GameEngine.StateMachine.Abstractions;
@@ -16,13 +16,15 @@ internal sealed class GameLoop : IGameLoop
     private bool _disposed;
     private CancellationTokenSource? _gameLoopCts;
     private Task? _gameLoopTask;
-    private bool _isPaused;
 
     public GameLoop(IGameStateMachine stateMachine, ILogger<GameLoop> logger)
     {
         _stateMachine = stateMachine;
         _logger = logger;
     }
+
+    public bool IsPaused { get; private set; }
+    public bool IsRunning { get; private set; }
 
     public void Start(CancellationToken stoppingToken = default)
     {
@@ -36,7 +38,8 @@ internal sealed class GameLoop : IGameLoop
             }
 
             _gameLoopCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
-            _isPaused = false;
+            IsPaused = false;
+            IsRunning = true;
 
             _gameLoopTask = Task.Run(async () =>
             {
@@ -58,12 +61,12 @@ internal sealed class GameLoop : IGameLoop
 
         lock (_sync)
         {
-            if (_isPaused || _gameLoopTask is { IsCompleted: true } or null)
+            if (IsPaused || _gameLoopTask is { IsCompleted: true } or null)
             {
                 return;
             }
 
-            _isPaused = true;
+            IsPaused = true;
             _ = _stateMachine.Pause(_gameLoopCts!.Token);
         }
     }
@@ -74,12 +77,12 @@ internal sealed class GameLoop : IGameLoop
 
         lock (_sync)
         {
-            if (!_isPaused || _gameLoopTask == null || _gameLoopTask.IsCompleted)
+            if (!IsPaused || _gameLoopTask == null || _gameLoopTask.IsCompleted)
             {
                 return;
             }
 
-            _isPaused = false;
+            IsPaused = false;
 
             _ = _stateMachine.Run(_gameLoopCts!.Token);
         }
@@ -105,11 +108,9 @@ internal sealed class GameLoop : IGameLoop
                 _logger.LogError(ex.InnerException, "Game loop stopping was fault");
             }
 
+            IsRunning = false;
+
             _gameLoopCts?.Cancel();
-            if (_gameLoopTask is not null)
-            {
-                Task.WhenAny(_gameLoopTask).Wait();
-            }
         }
     }
 
@@ -120,7 +121,10 @@ internal sealed class GameLoop : IGameLoop
             return;
         }
 
-        Stop();
+        if (IsRunning)
+        {
+            Stop();
+        }
 
         _disposed = true;
 

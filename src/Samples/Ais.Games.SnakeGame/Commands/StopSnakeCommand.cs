@@ -16,22 +16,19 @@ internal sealed class StopSnakeCommand : ICommand
     public void Execute()
     {
         var heads = World.CreateQuery()
-            .With<SnakeSegment>()
+            .With<PlayerControlled>()
             .With<Velocity>()
             .GetResult()
             .Entities;
 
         foreach (var entity in heads)
         {
-            var segment = entity.GetComponent<SnakeSegment>(World);
-            if (segment.IsHead)
-            {
-                ref var velocity = ref entity.GetComponent<Velocity>(World);
-                velocity.DirectionX = 0;
-                velocity.DirectoinY = 0;
+            ref var control = ref entity.GetComponent<PlayerControlled>(World);
+            control.Available = false;
 
-                break;
-            }
+            ref var velocity = ref entity.GetComponent<Velocity>(World);
+            velocity.DirectionX = 0;
+            velocity.DirectoinY = 0;
         }
     }
 
