@@ -21,7 +21,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
     private readonly IConfigurationManager _configuration;
     private readonly GameEngineBuilderContext _context;
     private readonly List<IModuleEnricher> _enrichers = [];
-    private readonly IKeyedModuleLoader _moduleLoader;
+    private readonly IModuleLoader _moduleLoader;
     private readonly IServiceCollection _services;
     private readonly GameEngineBuilderSettings _setting;
 
@@ -57,7 +57,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _enrichers.Add(enricher);
     }
 
-    public void AddModuleEnricher(Action<IKeyedModuleLoader> enricher)
+    public void AddModuleEnricher(Action<IModuleLoader> enricher)
     {
         _enrichers.Add(new InlineModuleEnricher(enricher));
     }
@@ -74,7 +74,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
             enricher.Enrich(_moduleLoader);
         }
 
-        foreach (var module in _moduleLoader.GetLoadedModules())
+        foreach (var module in _moduleLoader.GetLoadedModules("Default"))
         {
             module.ConfigureGameServices(_services, _configuration);
         }

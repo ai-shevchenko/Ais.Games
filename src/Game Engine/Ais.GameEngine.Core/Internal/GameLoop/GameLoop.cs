@@ -32,7 +32,7 @@ internal sealed class GameLoop : IGameLoop
 
         lock (_sync)
         {
-            if (_gameLoopTask is { IsCompleted: true })
+            if (_gameLoopTask != null && !_gameLoopTask.IsCompleted)
             {
                 throw new InvalidOperationException("Game loop is already running");
             }
@@ -41,17 +41,19 @@ internal sealed class GameLoop : IGameLoop
             IsPaused = false;
             IsRunning = true;
 
+            var token = _gameLoopCts.Token;
+
             _gameLoopTask = Task.Run(async () =>
             {
                 try
                 {
-                    await _stateMachine.StartAsync<InitializeState>(stoppingToken);
+                    await _stateMachine.StartAsync<InitializeState>(token);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Game loop starting was fault");
                 }
-            }, _gameLoopCts.Token);
+            }, token);
         }
     }
 
@@ -91,26 +93,28 @@ internal sealed class GameLoop : IGameLoop
     public void Stop()
     {
         ObjectDisposedException.ThrowIf(_disposed, true);
-
         lock (_sync)
         {
-            if (_gameLoopTask is { IsCompleted: true } or null)
+            if (_gameLoopTask == null || _gameLoopTask.IsCompleted)
             {
                 return;
             }
 
             try
             {
+                _gameLoopCts?.Cancel();
                 _stateMachine.Stop(_gameLoopCts!.Token).Wait();
             }
             catch (AggregateException ex)
             {
-                _logger.LogError(ex.InnerException, "Game loop stopping was fault");
+                _logger.LogError(ex.Flatten().InnerException, "Game loop stopping was fault");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Game loop stopping was fault");
             }
 
             IsRunning = false;
-
-            _gameLoopCts?.Cancel();
         }
     }
 
@@ -127,6 +131,9 @@ internal sealed class GameLoop : IGameLoop
         }
 
         _disposed = true;
+
+        _gameLoopTask?.GetAwaiter()
+            .GetResult();
 
         _stateMachine.Dispose();
         _gameLoopCts?.Dispose();

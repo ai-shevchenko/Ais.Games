@@ -12,7 +12,7 @@ internal sealed class TimerController : ITimerController
     private readonly ConcurrentDictionary<string, IGameTimer> _namedTimers = [];
     private readonly IOptionsMonitor<GameEngineSettings> _optionsMonitor;
 
-    private readonly List<IGameTimer> _timers = [];
+    private readonly ConcurrentBag<IGameTimer> _timers = [];
     private bool _disposed;
 
     public TimerController(IOptionsMonitor<GameEngineSettings> settings)
@@ -155,7 +155,11 @@ internal sealed class TimerController : ITimerController
 
         foreach (var timer in _timers)
         {
-            timer.Dispose();
+            try
+            {
+                timer.Dispose();
+            }
+            catch { }
         }
 
         foreach (var timer in _namedTimers.Values)

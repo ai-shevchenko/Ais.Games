@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.StateMachine.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
 
 using Microsoft.Extensions.Logging;
 
@@ -72,15 +72,16 @@ internal sealed class GameStateMachine : IGameStateMachine
         _isRunning = true;
 
         _executionCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+        var execToken = _executionCts.Token;
         _executionTask = Task.Run(async () =>
         {
-            while (_isRunning && !stoppingToken.IsCancellationRequested)
+            while (_isRunning && !execToken.IsCancellationRequested)
             {
                 try
                 {
                     if (CurrentState is not null)
                     {
-                        await _stateExecutor.ExecuteAsync(CurrentState, stoppingToken);
+                        await _stateExecutor.ExecuteAsync(CurrentState, execToken);
                     }
                 }
                 catch (OperationCanceledException ex) when (ex.CancellationToken.IsCancellationRequested)
@@ -88,17 +89,17 @@ internal sealed class GameStateMachine : IGameStateMachine
                     _logger.LogError(ex, "State machine for {@GameLoop} was canceled cause {@Reason}",
                         _contextAccessor.CurrentContext.LoopName, ex.Message);
 
-                    throw;
+                    break;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "State machine for {@GameLoop} was failed cause {@Reason}",
                         _contextAccessor.CurrentContext.LoopName, ex.Message);
 
-                    throw;
+                    break;
                 }
             }
-        }, _executionCts.Token);
+        }, execToken);
 
         await _executionTask;
     }
@@ -120,11 +121,13 @@ internal sealed class GameStateMachine : IGameStateMachine
             await _stateExecutor.ExitAsync(CurrentState, _executionCts!.Token);
         }
 
-        _executionCts?.CancelAsync();
-        if (_executionTask is not null)
+        if (_executionCts is not null)
         {
-            await Task.WhenAny(_executionTask);
+            await _executionCts.CancelAsync();
         }
+
+        _executionTask?.GetAwaiter()
+            .GetResult();
     }
 
     public void Dispose()
@@ -134,7 +137,9 @@ internal sealed class GameStateMachine : IGameStateMachine
             return;
         }
 
-        StopAsync().Wait();
+        StopAsync()
+            .GetAwaiter()
+            .GetResult();
 
         _disposed = true;
     }

@@ -15,9 +15,7 @@ internal sealed class GameEngine : IGameEngine
         _factory = factory;
     }
 
-    public IReadOnlyList<IGameLoop> GameLoops => _cachedScopes.Values
-        .Select(x => x.GameLoop)
-        .ToArray();
+    public IReadOnlyList<IGameLoop> GameLoops => [.. _cachedScopes.Values.Select(x => x.GameLoop)];
 
     public IGameLoop GetGameLoop(string name)
     {
@@ -79,6 +77,8 @@ internal sealed class GameEngine : IGameEngine
         _disposed = true;
 
         DisposeGameLoops(stopOnly: false);
+
+        _cachedScopes.Clear();
     }
 
     private void DisposeGameLoops(bool stopOnly)

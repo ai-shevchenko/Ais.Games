@@ -13,13 +13,13 @@ namespace Ais.GameEngine.Core.Internal.GameLoop;
 internal sealed class GameLoopFactory : IGameLoopFactory
 {
     private readonly IConfiguration _configuration;
-    private readonly IKeyedModuleLoader _moduleLoader;
+    private readonly IModuleLoader _moduleLoader;
     private readonly IContainer _rootContainer;
 
     public GameLoopFactory(
         IContainer container,
         IConfiguration configuration,
-        IKeyedModuleLoader moduleLoader)
+        IModuleLoader moduleLoader)
     {
         _rootContainer = container;
         _configuration = configuration;

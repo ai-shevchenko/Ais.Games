@@ -4,7 +4,7 @@ using Ais.GameEngine.Modules.Abstractions;
 
 namespace Ais.GameEngine.Core.Internal.ModulesSystem;
 
-internal sealed class ModuleLoader : IKeyedModuleLoader
+internal sealed class ModuleLoader : IModuleLoader
 {
     private const string DefaultName = "Default";
 

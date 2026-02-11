@@ -4,14 +4,14 @@ namespace Ais.GameEngine.Core.Internal.ModulesSystem;
 
 internal sealed class InlineModuleEnricher : IModuleEnricher
 {
-    private readonly Action<IKeyedModuleLoader> _enricher;
+    private readonly Action<IModuleLoader> _enricher;
 
-    public InlineModuleEnricher(Action<IKeyedModuleLoader> enricher)
+    public InlineModuleEnricher(Action<IModuleLoader> enricher)
     {
         _enricher = enricher;
     }
 
-    public void Enrich(IKeyedModuleLoader moduleLoader)
+    public void Enrich(IModuleLoader moduleLoader)
     {
         _enricher(moduleLoader);
     }

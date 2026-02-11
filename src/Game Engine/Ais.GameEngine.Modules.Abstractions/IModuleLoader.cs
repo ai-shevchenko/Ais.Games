@@ -2,43 +2,40 @@ using System.Reflection;
 
 namespace Ais.GameEngine.Modules.Abstractions;
 
-/// <summary>
-///     Загрузчик модулей
-/// </summary>
 public interface IModuleLoader
 {
     /// <summary>
-    ///     Загруженные модули
-    /// </summary>
-    IReadOnlyList<Type> LoadModules { get; }
-
-    /// <summary>
     ///     Загрузить модуль из сборки
     /// </summary>
+    /// <param name="key">Ключ</param>
     /// <param name="assembly">Сборка</param>
-    void LoadAssembly(Assembly assembly);
+    void LoadAssembly(string key, Assembly assembly);
 
     /// <summary>
     ///     Загрузить модуль из сборки
     /// </summary>
+    /// <param name="key">Ключ</param>
     /// <param name="assemblyName">Наименование сборки</param>
-    void LoadAssembly(string assemblyName);
+    void LoadAssembly(string key, string assemblyName);
 
     /// <summary>
     ///     Загрузить модуль из DLL
     /// </summary>
+    /// <param name="key">Ключ</param>
     /// <param name="path">Путь к DLL файлу</param>
-    void LoadDll(string path);
+    void LoadDll(string key, string path);
 
     /// <summary>
     ///     Загрузить модули из указанной директории
     /// </summary>
-    /// <param name="path"></param>
-    void LoadFromDirectory(string path);
+    /// <param name="key">Ключ</param>
+    /// <param name="path">Директория</param>
+    void LoadFromDirectory(string key, string path);
 
     /// <summary>
     ///     Получить список загруженных модулей
     /// </summary>
+    /// <param name="key">Ключ</param>
     /// <returns>Список модулей</returns>
-    IReadOnlyList<GameEngineModule> GetLoadedModules();
+    IReadOnlyList<GameEngineModule> GetLoadedModules(string key);
 }
