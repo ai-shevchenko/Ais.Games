@@ -9,7 +9,7 @@ namespace Ais.GameEngine.Core.Internal.TimeSystem;
 
 internal sealed class TimerController : ITimerController
 {
-    private readonly ConcurrentDictionary<string, IGameTimer> _namedTimers = [];
+    private readonly ConcurrentDictionary<string, IGameTimer> _namedTimers = new(StringComparer.Ordinal);
     private readonly IOptionsMonitor<GameEngineSettings> _optionsMonitor;
 
     private readonly ConcurrentBag<IGameTimer> _timers = [];
@@ -84,6 +84,9 @@ internal sealed class TimerController : ITimerController
     public void SetScale(float scale)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentOutOfRangeException.ThrowIfLessThan(scale, 0f);
+
+        Scale = scale;
 
         foreach (var timer in _timers)
         {
@@ -100,6 +103,7 @@ internal sealed class TimerController : ITimerController
     public void ResetScale()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        Scale = 1f;
 
         foreach (var timer in _timers)
         {
@@ -119,6 +123,13 @@ internal sealed class TimerController : ITimerController
 
         var timer = new GameTimer(this, _optionsMonitor.CurrentValue.TimerSettings);
         _timers.Add(timer);
+
+        timer.SetScale(Scale);
+        if (IsRunning)
+        {
+            timer.Start();
+        }
+
         return timer;
     }
 

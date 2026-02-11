@@ -118,7 +118,11 @@ internal sealed class GameStateMachine : IGameStateMachine
 
         if (CurrentState is not null)
         {
-            await _stateExecutor.ExitAsync(CurrentState, _executionCts!.Token);
+            try
+            {
+                await _stateExecutor.ExitAsync(CurrentState, _executionCts!.Token);
+            }
+            catch (OperationCanceledException) { }
         }
 
         if (_executionCts is not null)
@@ -126,8 +130,14 @@ internal sealed class GameStateMachine : IGameStateMachine
             await _executionCts.CancelAsync();
         }
 
-        _executionTask?.GetAwaiter()
-            .GetResult();
+        if (_executionTask != null)
+        {
+            try
+            {
+                await _executionTask;
+            }
+            catch (OperationCanceledException) { }
+        }
     }
 
     public void Dispose()

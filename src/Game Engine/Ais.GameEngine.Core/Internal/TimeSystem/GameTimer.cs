@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using Ais.GameEngine.Core.Settings;
@@ -7,7 +8,7 @@ namespace Ais.GameEngine.Core.Internal.TimeSystem;
 
 internal sealed class GameTimer : IGameTimer
 {
-    private readonly List<IFrameTimer> _frameTimers = [];
+    private readonly ConcurrentBag<IFrameTimer> _frameTimers = [];
     private readonly GameTimerSettings _settings;
     private readonly Stopwatch _timer = new();
     private float _accumulator;
@@ -81,6 +82,8 @@ internal sealed class GameTimer : IGameTimer
     /// <inheritdoc />
     public IFrameTimer CreateFrameTimer()
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         var frameTimer = new FrameTimer(this, _settings);
         _frameTimers.Add(frameTimer);
         return frameTimer;
@@ -89,6 +92,8 @@ internal sealed class GameTimer : IGameTimer
     /// <inheritdoc />
     public void Start()
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (IsRunning)
         {
             return;
@@ -156,8 +161,6 @@ internal sealed class GameTimer : IGameTimer
         }
 
         _frameTimers.Clear();
-        _frameTimers.TrimExcess();
-
         _timer.Stop();
     }
 }

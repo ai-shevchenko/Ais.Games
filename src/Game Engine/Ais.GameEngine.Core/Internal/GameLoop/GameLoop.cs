@@ -103,11 +103,13 @@ internal sealed class GameLoop : IGameLoop
             try
             {
                 _gameLoopCts?.Cancel();
-                _stateMachine.Stop(_gameLoopCts!.Token).Wait();
+                _stateMachine.StopAsync()
+                    .GetAwaiter()
+                    .GetResult();
             }
-            catch (AggregateException ex)
+            catch (OperationCanceledException ex) when (ex.CancellationToken.IsCancellationRequested)
             {
-                _logger.LogError(ex.Flatten().InnerException, "Game loop stopping was fault");
+                _logger.LogError(ex, "Game loop stopping was fault");
             }
             catch (Exception ex)
             {
