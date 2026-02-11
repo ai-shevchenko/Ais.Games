@@ -38,7 +38,7 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         _configuration = configuration;
         _context = new GameEngineBuilderContext(_configuration);
 
-        _moduleLoader = new ModuleLoader();
+        _moduleLoader = settings.ModuleLoader ?? new ModuleLoader();
         _enrichers.Add(new ConfigurationModuleEnricher(_configuration));
     }
 
