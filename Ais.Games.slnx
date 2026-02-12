@@ -26,4 +26,7 @@
         <Project Path="src/Samples/Ais.Games.SnakeGame.Tests/Ais.Games.SnakeGame.Tests.csproj" />
         <Project Path="src/Samples/Ais.Games.SnakeGame/Ais.Games.SnakeGame.csproj" />
     </Folder>
+    <Folder Name="/tests/">
+        <Project Path="tests/Ais.GameEngine.Core.Tests/Ais.GameEngine.Core.Tests.csproj" />
+    </Folder>
 </Solution>
