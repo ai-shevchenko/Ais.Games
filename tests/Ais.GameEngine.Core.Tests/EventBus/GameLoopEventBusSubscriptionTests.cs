@@ -7,6 +7,11 @@ public sealed class GameLoopEventBusSubscriptionTests : IDisposable
 {
     private readonly GameLoopEventBusFixture _fixture = new();
 
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
+
     [Fact(DisplayName = "Проверка подписка на события")]
     public async Task Subscribe_WithValidHandler_ReturnsDisposable()
     {
@@ -55,7 +60,7 @@ public sealed class GameLoopEventBusSubscriptionTests : IDisposable
         eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>("Loop1", Handler1);
         eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>("Loop2", Handler2);
 
-        var evt = _fixture.CreateTestEvent(sourceLoopName: "Loop1", targetLoopName: null);
+        var evt = _fixture.CreateTestEvent("Loop1", null);
 
         // Act
         await eventBus.PublishAsync(evt);
@@ -110,10 +115,5 @@ public sealed class GameLoopEventBusSubscriptionTests : IDisposable
         // Act & Assert
         subscription.Dispose();
         subscription.Dispose();
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

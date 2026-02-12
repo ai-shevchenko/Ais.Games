@@ -9,6 +9,11 @@ public sealed class GameEngineIntegrationTests : IDisposable
 {
     private readonly GameLoopFactoryFixture _fixture = new();
 
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
+
     [Fact(DisplayName = "Проверка полный жизненный цикл движка с одним циклом")]
     public async Task GameEngine_FullLifecycle_WithOneLoop_Succeeds()
     {
@@ -127,10 +132,5 @@ public sealed class GameEngineIntegrationTests : IDisposable
 
         await loop1.Received(1).ResumeAsync(Arg.Any<CancellationToken>());
         await loop2.Received(1).ResumeAsync(Arg.Any<CancellationToken>());
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

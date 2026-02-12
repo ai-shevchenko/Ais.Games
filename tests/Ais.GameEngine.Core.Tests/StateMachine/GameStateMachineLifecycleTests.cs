@@ -1,6 +1,7 @@
 ﻿using Ais.GameEngine.Core.Internal.StateMachine;
 using Ais.GameEngine.Core.Tests.Fixtures;
 using Ais.GameEngine.StateMachine.Abstractions;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -20,12 +21,17 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
         _fixture.SetupStateExecutorCalls();
     }
 
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
+
     [Fact(DisplayName = "Проверка запуск машины состояний с начальным состоянием")]
     public async Task StartAsync_WithInitialState_ChangesToInitialState()
     {
         // Arrange
         var initialState = _fixture.CreateMockState("InitialState");
-        _fixture.SetupStateProvider<IGameState>(initialState);
+        _fixture.SetupStateProvider(initialState);
 
         var stateMachine = new GameStateMachine(
             _fixture.StateProvider,
@@ -47,7 +53,7 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
     {
         // Arrange
         var initialState = _fixture.CreateMockState("InitialState");
-        _fixture.SetupStateProvider<IGameState>(initialState);
+        _fixture.SetupStateProvider(initialState);
 
         var stateMachine = new GameStateMachine(
             _fixture.StateProvider,
@@ -68,7 +74,7 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
 
         // Act
         await stateMachine.StartAsync<IGameState>(CancellationToken.None);
-        await  Task.Delay(100);
+        await Task.Delay(100);
 
         // Assert
         Assert.True(executeCallCount > 0);
@@ -81,7 +87,7 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
     {
         // Arrange
         var initialState = _fixture.CreateMockState("InitialState");
-        _fixture.SetupStateProvider<IGameState>(initialState);
+        _fixture.SetupStateProvider(initialState);
 
         var stateMachine = new GameStateMachine(
             _fixture.StateProvider,
@@ -114,7 +120,7 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
     {
         // Arrange
         var initialState = _fixture.CreateMockState("InitialState");
-        _fixture.SetupStateProvider<IGameState>(initialState);
+        _fixture.SetupStateProvider(initialState);
 
         var stateMachine = new GameStateMachine(
             _fixture.StateProvider,
@@ -132,7 +138,7 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
     {
         // Arrange
         var initialState = _fixture.CreateMockState("InitialState");
-        _fixture.SetupStateProvider<IGameState>(initialState);
+        _fixture.SetupStateProvider(initialState);
 
         var stateMachine = new GameStateMachine(
             _fixture.StateProvider,
@@ -176,8 +182,7 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
             _fixture.StateExecutor);
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => stateMachine.StartAsync<IGameState>());
+        await Assert.ThrowsAsync<ArgumentNullException>(() => stateMachine.StartAsync<IGameState>());
     }
 
     [Fact(DisplayName = "Проверка ошибка при StopAsync когда контекст null")]
@@ -193,12 +198,6 @@ public sealed class GameStateMachineLifecycleTests : IDisposable
             _fixture.StateExecutor);
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => stateMachine.StopAsync());
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
+        await Assert.ThrowsAsync<ArgumentNullException>(() => stateMachine.StopAsync());
     }
 }

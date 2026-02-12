@@ -1,6 +1,7 @@
 ﻿using Ais.GameEngine.Core.Internal.StateMachine;
 using Ais.GameEngine.Core.Tests.Fixtures;
 using Ais.GameEngine.StateMachine.Abstractions;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -20,6 +21,11 @@ public sealed class GameStateMachineDisposalTests : IDisposable
         _fixture.SetupStateExecutorCalls();
     }
 
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
+
     [Fact(DisplayName = "Проверка ошибка при ChangeStateAsync после утилизации")]
     public async Task ChangeStateAsync_AfterDispose_ThrowsObjectDisposedException()
     {
@@ -33,8 +39,7 @@ public sealed class GameStateMachineDisposalTests : IDisposable
         stateMachine.Dispose();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ObjectDisposedException>(
-            () => stateMachine.ChangeStateAsync<IGameState>());
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => stateMachine.ChangeStateAsync<IGameState>());
     }
 
     [Fact(DisplayName = "Проверка ошибка при StartAsync после утилизации")]
@@ -50,8 +55,7 @@ public sealed class GameStateMachineDisposalTests : IDisposable
         stateMachine.Dispose();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ObjectDisposedException>(
-            () => stateMachine.StartAsync<IGameState>());
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => stateMachine.StartAsync<IGameState>());
     }
 
     [Fact(DisplayName = "Проверка ошибка при StopAsync после утилизации")]
@@ -67,8 +71,7 @@ public sealed class GameStateMachineDisposalTests : IDisposable
         stateMachine.Dispose();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ObjectDisposedException>(
-            () => stateMachine.StopAsync());
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => stateMachine.StopAsync());
     }
 
     [Fact(DisplayName = "Проверка утилизация машины останавливает выполнение")]
@@ -96,10 +99,5 @@ public sealed class GameStateMachineDisposalTests : IDisposable
         await startTask;
         await _fixture.StateExecutor.Received(1)
             .ExitAsync(initialState, Arg.Any<CancellationToken>());
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

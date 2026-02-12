@@ -7,6 +7,11 @@ public sealed class GameEngineStateTransitionTests : IDisposable
 {
     private readonly GameLoopFactoryFixture _fixture = new();
 
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
+
     [Fact(DisplayName = "Проверка начального состояния двигателя при создании")]
     public void Constructor_NoArguments_ReturnsNotInitializedState()
     {
@@ -97,10 +102,5 @@ public sealed class GameEngineStateTransitionTests : IDisposable
         // Act & Assert
         await engine.StopAsync(TimeSpan.FromSeconds(5), CancellationToken.None);
         Assert.Equal(EngineState.Stopped, engine.State);
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

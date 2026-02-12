@@ -1,15 +1,11 @@
 ﻿using Ais.GameEngine.StateMachine.Abstractions;
+
 using NSubstitute;
 
 namespace Ais.GameEngine.Core.Tests.Fixtures;
 
 public sealed class GameStateMachineFixture : IDisposable
 {
-    public IGameStateProvider StateProvider { get; }
-    public IGameContextAccessor ContextAccessor { get; }
-    public IGameStateExecutor StateExecutor { get; }
-    public GameContext GameContext { get; }
-
     public GameStateMachineFixture()
     {
         StateProvider = Substitute.For<IGameStateProvider>();
@@ -18,6 +14,15 @@ public sealed class GameStateMachineFixture : IDisposable
         GameContext = new GameContext { LoopName = "TestLoop" };
 
         ContextAccessor.CurrentContext.Returns(GameContext);
+    }
+
+    public IGameStateProvider StateProvider { get; }
+    public IGameContextAccessor ContextAccessor { get; }
+    public IGameStateExecutor StateExecutor { get; }
+    public GameContext GameContext { get; }
+
+    public void Dispose()
+    {
     }
 
     public IGameState CreateMockState(string stateName = "TestState")
@@ -38,9 +43,5 @@ public sealed class GameStateMachineFixture : IDisposable
             .Returns(Task.CompletedTask);
         StateExecutor.ExitAsync(Arg.Any<IGameState>(), Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
-    }
-
-    public void Dispose()
-    {
     }
 }

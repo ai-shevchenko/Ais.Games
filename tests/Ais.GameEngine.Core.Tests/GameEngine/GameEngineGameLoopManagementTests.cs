@@ -1,11 +1,15 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.Tests.Fixtures;
+﻿using Ais.GameEngine.Core.Tests.Fixtures;
 
 namespace Ais.GameEngine.Core.Tests.GameEngine;
 
 public sealed class GameEngineGameLoopManagementTests : IDisposable
 {
     private readonly GameLoopFactoryFixture _fixture = new();
+
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
 
     [Fact(DisplayName = "Проверка создание игрового цикла")]
     public void CreateGameLoop_WithValidName_CreatesGameLoop()
@@ -136,10 +140,5 @@ public sealed class GameEngineGameLoopManagementTests : IDisposable
         Assert.Equal(2, gameLoops.Count);
         Assert.Contains(gameLoops, gl => gl.Name == "Loop1");
         Assert.Contains(gameLoops, gl => gl.Name == "Loop2");
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

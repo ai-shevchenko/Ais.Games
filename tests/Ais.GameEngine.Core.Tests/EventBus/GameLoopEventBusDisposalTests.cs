@@ -7,6 +7,11 @@ public sealed class GameLoopEventBusDisposalTests : IDisposable
 {
     private readonly GameLoopEventBusFixture _fixture = new();
 
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
+
     [Fact(DisplayName = "Проверка ошибка при подписке после утилизации")]
     public void Subscribe_AfterDispose_ThrowsObjectDisposedException()
     {
@@ -20,10 +25,9 @@ public sealed class GameLoopEventBusDisposalTests : IDisposable
         }
 
         // Act & Assert
-        Assert.Throws<ObjectDisposedException>(
-            () => eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>(
-                "TestLoop",
-                Handler));
+        Assert.Throws<ObjectDisposedException>(() => eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>(
+            "TestLoop",
+            Handler));
     }
 
     [Fact(DisplayName = "Проверка публикация после утилизации вызывает исключение")]
@@ -70,15 +74,9 @@ public sealed class GameLoopEventBusDisposalTests : IDisposable
         eventBus.Dispose();
 
         // Try to publish after dispose - should fail
-        await Assert.ThrowsAsync<ObjectDisposedException>(
-            () => eventBus.PublishAsync(evt));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => eventBus.PublishAsync(evt));
 
         // Assert
         Assert.False(handlerCalled);
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }
