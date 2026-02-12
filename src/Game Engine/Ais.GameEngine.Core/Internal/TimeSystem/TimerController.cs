@@ -21,7 +21,7 @@ internal sealed class TimerController : ITimerController
     }
 
     /// <inheritdoc />
-    public float Scale { get; private set; }
+    public float Scale { get; private set; } = 1f;
 
     /// <inheritdoc />
     public bool IsRunning { get; private set; }

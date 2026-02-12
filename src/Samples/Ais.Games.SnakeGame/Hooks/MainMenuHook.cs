@@ -19,7 +19,7 @@ internal sealed class MainMenuHook : BaseHook, IInitialize, IRender, IDestroy
     public void Initialize()
     {
         _cts = new CancellationTokenSource();
-        _loopTask = Task.Run(() => ReadInputAsync(_cts.Token), _cts.Token);
+        _loopTask = ReadInputAsync(_cts.Token);
     }
 
     public void Render(float alpha)

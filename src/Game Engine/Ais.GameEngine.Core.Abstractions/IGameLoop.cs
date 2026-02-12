@@ -1,38 +1,38 @@
 namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-///     Игровой цикл
+/// Игровой цикл с асинхронным управлением жизненным циклом.
+/// Предоставляет полный контроль над запуском, остановкой, паузой и возобновлением цикла.
 /// </summary>
-public interface IGameLoop : IDisposable
+public interface IGameLoop : IGameLoopController, IDisposable
 {
     /// <summary>
-    ///     Состояние игрового цикла
+    /// Имя игрового цикла для идентификации.
     /// </summary>
-    bool IsRunning { get; }
+    string Name { get; }
 
     /// <summary>
-    ///     Состояние паузы
+    /// Произойдёт когда цикл начинает выполняться.
     /// </summary>
-    bool IsPaused { get; }
+    event EventHandler<GameLoopEventArgs>? Started;
 
     /// <summary>
-    ///     Запустить игровой цикл
+    /// Произойдёт когда цикл останавливается.
     /// </summary>
-    /// <param name="stoppingToken">Токен остановки</param>
-    void Start(CancellationToken stoppingToken = default);
+    event EventHandler<GameLoopEventArgs>? Stopped;
 
     /// <summary>
-    ///     Остановить игровой цикл
+    /// Произойдёт когда цикл приостанавливается.
     /// </summary>
-    void Stop();
+    event EventHandler<GameLoopEventArgs>? Paused;
 
     /// <summary>
-    ///     Поставить игровой цикл на паузу
+    /// Произойдёт когда цикл возобновляется.
     /// </summary>
-    void Pause();
+    event EventHandler<GameLoopEventArgs>? Resumed;
 
     /// <summary>
-    ///     Продолжить игровой цикл
+    /// Произойдёт при ошибке в цикле.
     /// </summary>
-    void Resume();
+    event EventHandler<GameLoopErrorEventArgs>? ErrorOccurred;
 }

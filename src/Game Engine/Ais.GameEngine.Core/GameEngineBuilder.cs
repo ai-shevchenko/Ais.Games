@@ -1,10 +1,8 @@
 using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.Core.Internal.DI;
 using Ais.GameEngine.Core.Internal.GameLoop;
-using Ais.GameEngine.Core.Internal.HooksSystem;
+using Ais.GameEngine.Core.Internal.Helpers;
 using Ais.GameEngine.Core.Internal.ModulesSystem;
-using Ais.GameEngine.Core.Internal.StateMachine;
-using Ais.GameEngine.Core.Internal.TimeSystem;
-using Ais.GameEngine.Core.Settings;
 using Ais.GameEngine.Modules.Abstractions;
 
 using Autofac;
@@ -16,14 +14,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core;
 
+/// <summary>
+/// Построитель для создания и конфигурирования экземпляра игрового движка.
+/// Использует паттерн Builder для удобного и гибкого создания движка.
+/// </summary>
 public sealed class GameEngineBuilder : IGameEngineBuilder
 {
-    private readonly IConfigurationManager _configuration;
     private readonly GameEngineBuilderContext _context;
-    private readonly List<IModuleEnricher> _enrichers = [];
+    private readonly LoggingConfigurator _loggingConfigurator;
+    private readonly ModuleEnricherManager _moduleEnricherManager;
     private readonly IModuleLoader _moduleLoader;
+    private readonly IConfigurationManager _configuration;
     private readonly IServiceCollection _services;
-    private readonly GameEngineBuilderSettings _setting;
+    private readonly GameEngineBuilderSettings _settings;
+    private readonly ServicesConfigurator _servicesConfigurator;
 
     public GameEngineBuilder(string[] args)
         : this(new GameEngineBuilderSettings { Args = args })
@@ -32,14 +36,20 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
     public GameEngineBuilder(GameEngineBuilderSettings settings)
     {
-        Initialize(settings, out var services, out var configuration);
-        _setting = settings;
-        _services = services;
-        _configuration = configuration;
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+
+        _configuration = GameEngineInitializer.InitializeConfiguration(settings);
         _context = new GameEngineBuilderContext(_configuration);
 
+        _services = new ServiceCollection();
+        GameEngineInitializer.InitializeServices(_services, _configuration);
+
         _moduleLoader = settings.ModuleLoader ?? new ModuleLoader();
-        _enrichers.Add(new ConfigurationModuleEnricher(_configuration));
+        _moduleEnricherManager = new ModuleEnricherManager();
+        _loggingConfigurator = new LoggingConfigurator();
+        _servicesConfigurator = new ServicesConfigurator();
+
+        _moduleEnricherManager.AddEnricher(new ConfigurationModuleEnricher(_configuration));
     }
 
     public void ConfigureGameConfiguration(Action<IConfigurationBuilder> configure)
@@ -49,30 +59,31 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
 
     public void ConfigureGameLogging(Action<GameEngineBuilderContext, ILoggingBuilder> configure)
     {
-        _services.AddLogging(builder => configure(_context, builder));
+        _loggingConfigurator.Configure(configure);
     }
 
     public void AddModuleEnricher(IModuleEnricher enricher)
     {
-        _enrichers.Add(enricher);
+        _moduleEnricherManager.AddEnricher(enricher);
     }
 
     public void AddModuleEnricher(Action<IModuleLoader> enricher)
     {
-        _enrichers.Add(new InlineModuleEnricher(enricher));
+        _moduleEnricherManager.AddEnricher(enricher);
     }
 
     public void ConfigureGameServices(Action<GameEngineBuilderContext, IServiceCollection> configure)
     {
-        configure(_context, _services);
+        _servicesConfigurator.AddConfigurator(configure);
     }
 
     public IGameEngine Build()
     {
-        foreach (var enricher in _enrichers)
-        {
-            enricher.Enrich(_moduleLoader);
-        }
+        _moduleEnricherManager.EnrichAll(_moduleLoader);
+
+        _loggingConfigurator.Apply(_services, _context);
+
+        _servicesConfigurator.ApplyAll(_services, _context);
 
         foreach (var module in _moduleLoader.GetLoadedModules("Default"))
         {
@@ -83,65 +94,32 @@ public sealed class GameEngineBuilder : IGameEngineBuilder
         builder.Populate(_services);
         var container = builder.Build();
 
-        var factory = new GameLoopFactory(container, _configuration, _moduleLoader);
+        var scopeFactory = new AutofacServiceScopeFactory(container);
+
+        var factory = new GameLoopFactory(
+            _configuration,
+            _moduleLoader,
+            container.Resolve<ILogger<GameLoopFactory>>(),
+            scopeFactory);
+
         var engine = new Internal.GameLoop.GameEngine(factory);
         return engine;
     }
 
     public static GameEngineBuilder Create(params string[] args)
     {
-        var builder = new GameEngineBuilder(args);
-        return builder;
+        return new GameEngineBuilder(args);
     }
 
     public static GameEngineBuilder Create(GameEngineBuilderSettings settings)
     {
-        var builder = new GameEngineBuilder(settings);
-        return builder;
+        return new GameEngineBuilder(settings);
     }
 
     public static GameEngineBuilder Create(Action<GameEngineBuilderSettings> configure)
     {
         var settings = new GameEngineBuilderSettings();
         configure(settings);
-        var builder = new GameEngineBuilder(settings);
-        return builder;
-    }
-
-    private static void Initialize(
-        GameEngineBuilderSettings settings,
-        out IServiceCollection services,
-        out IConfigurationManager configuration)
-    {
-        configuration = new ConfigurationManager();
-        services = new ServiceCollection();
-
-        configuration.AddJsonFile("gamesettings.json", true, true);
-        if (Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") is { Length: > 0 } env)
-        {
-            configuration.AddJsonFile($"gamesettings.{env}.json", true, true);
-        }
-
-        configuration
-            .AddEnvironmentVariables()
-            .AddCommandLine(settings.Args);
-
-        services
-            .AddSingleton<IConfiguration>(configuration)
-            .AddOptions();
-
-        services.AddStateMachine();
-        services.AddTimeSystem();
-        services.AddHooksSystem();
-
-        var engineSettings = configuration.GetSection(nameof(GameEngineSettings));
-        if (engineSettings.Exists())
-        {
-            services.Configure<GameEngineSettings>(engineSettings);
-        }
-        else
-        {
-            services.Configure<GameEngineSettings>(_ => { });
-        }
+        return new GameEngineBuilder(settings);
     }
 }

@@ -1,7 +1,6 @@
 {
   "GameEngineModules": {
     "Default": [
-      "Ais.GameEngine.Extensions.SignalBus"
     ],
     "main": [
       "Ais.GameEngine.Extensions.Commands",

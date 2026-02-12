@@ -11,6 +11,11 @@ internal sealed class ModuleLoader : IModuleLoader
     private readonly Dictionary<string, List<GameEngineModule>> _modules = [];
     private readonly Dictionary<string, List<Type>> _types = [];
 
+    public ModuleLoader()
+    {
+        _types.Add(DefaultName, []);
+    }
+
     public IReadOnlyList<Type> LoadModules => _types.Values
         .SelectMany(x => x)
         .Distinct()

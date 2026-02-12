@@ -1,4 +1,4 @@
-using Ais.GameEngine.Extensions.SignalBus.Abstractions;
+using Ais.GameEngine.Core.Abstractions;
 
 namespace Ais.Games.SnakeGame;
 
@@ -26,7 +26,9 @@ internal sealed class GameSession
     }
 }
 
-internal sealed class GameOverSignal : ISignal
+internal sealed class GameOverEvent : IGameLoopEvent
 {
+    public required string SourceLoopName { get; init; }
+    public string? TargetLoopName { get; init; }
     public required bool IsWin { get; init; }
 }
