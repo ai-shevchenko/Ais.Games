@@ -1,4 +1,4 @@
-namespace Ais.GameEngine.Core.Abstractions;
+namespace Ais.GameEngine.DependencyInjection.Abstractions;
 
 /// <summary>
 /// Абстракция для создания областей видимости в DI контейнере.

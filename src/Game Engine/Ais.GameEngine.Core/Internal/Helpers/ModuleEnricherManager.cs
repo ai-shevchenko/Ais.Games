@@ -1,7 +1,7 @@
 using Ais.GameEngine.Core.Internal.ModulesSystem;
 using Ais.GameEngine.Modules.Abstractions;
 
-namespace Ais.GameEngine.Core.Internal.Configuration;
+namespace Ais.GameEngine.Core.Internal.Helpers;
 
 internal sealed class ModuleEnricherManager
 {

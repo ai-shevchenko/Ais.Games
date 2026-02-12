@@ -1,7 +1,7 @@
 using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.Internal.Configuration;
 using Ais.GameEngine.Core.Internal.DI;
 using Ais.GameEngine.Core.Internal.GameLoop;
+using Ais.GameEngine.Core.Internal.Helpers;
 using Ais.GameEngine.Core.Internal.ModulesSystem;
 using Ais.GameEngine.Modules.Abstractions;
 

@@ -8,31 +8,35 @@ using Microsoft.Extensions.Logging;
 namespace Ais.GameEngine.Core.Internal.GameLoop;
 
 /// <summary>
-/// Асинхронная реализация игрового цикла с конечным автоматом (FSM) для управления состоянием.
+/// Асинхронная реализация игрового цикла
 /// </summary>
 internal sealed class GameLoop : IGameLoop
 {
     private const int DefaultStopTimeoutMs = 5000;
 
     private readonly ILogger<GameLoop> _logger;
-    private readonly IGameStateMachine StateMachine;
-    private readonly SemaphoreSlim StateLock = new(1, 1);
+    private readonly IGameStateMachine _stateMachine;
+    private readonly IGameContextAccessor _contextAccessor;
+    private readonly IGameLoopEventBus _eventBus;
+    private readonly SemaphoreSlim _stateLock = new(1, 1);
 
     private bool _disposed;
     private CancellationTokenSource? _gameLoopCts;
     private Task? _gameLoopTask;
 
     public GameLoop(
-        string name,
         IGameStateMachine stateMachine,
-        ILogger<GameLoop> logger)
+        ILogger<GameLoop> logger,
+        IGameContextAccessor contextAccessor,
+        IGameLoopEventBus eventBus)
     {
-        Name = name;
-        StateMachine = stateMachine;
+        _stateMachine = stateMachine;
         _logger = logger;
+        _contextAccessor = contextAccessor;
+        _eventBus = eventBus;
     }
 
-    public string Name { get; }
+    public string Name => _contextAccessor.CurrentContext?.LoopName ?? "Unknown";
 
     public GameLoopState State { get; private set; } = GameLoopState.Stopped;
 
@@ -50,7 +54,7 @@ internal sealed class GameLoop : IGameLoop
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        await StateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _stateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (State != GameLoopState.Stopped)
@@ -59,7 +63,7 @@ internal sealed class GameLoop : IGameLoop
                     $"Cannot start game loop in state '{State}'. Only '{GameLoopState.Stopped}' state is allowed.");
             }
 
-            State = GameLoopState.Initializing;
+            await ChangeStateAsync(GameLoopState.Initializing, cancellationToken);
 
             _gameLoopCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var token = _gameLoopCts.Token;
@@ -68,7 +72,7 @@ internal sealed class GameLoop : IGameLoop
         }
         finally
         {
-            StateLock.Release();
+            _stateLock.Release();
         }
     }
 
@@ -78,7 +82,7 @@ internal sealed class GameLoop : IGameLoop
 
         timeout ??= TimeSpan.FromMilliseconds(DefaultStopTimeoutMs);
 
-        await StateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _stateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (State == GameLoopState.Stopped)
@@ -88,16 +92,19 @@ internal sealed class GameLoop : IGameLoop
 
             if (State == GameLoopState.Initializing)
             {
-                State = GameLoopState.Stopping;
+                await ChangeStateAsync(GameLoopState.Stopping, cancellationToken)
+                    .ConfigureAwait(false);
+
                 await WaitForStateChangeAsync(GameLoopState.Running, timeout.Value, cancellationToken)
                     .ConfigureAwait(false);
             }
 
-            State = GameLoopState.Stopping;
+            await ChangeStateAsync(GameLoopState.Stopping, cancellationToken)
+                .ConfigureAwait(false);
 
             if (_gameLoopCts != null && !_gameLoopCts.Token.IsCancellationRequested)
             {
-                _gameLoopCts.Cancel();
+                await _gameLoopCts.CancelAsync();
             }
 
             await AttemptStopAsync(timeout.Value)
@@ -105,8 +112,10 @@ internal sealed class GameLoop : IGameLoop
         }
         finally
         {
-            State = GameLoopState.Stopped;
-            StateLock.Release();
+            await ChangeStateAsync(GameLoopState.Stopped, CancellationToken.None)
+                .ConfigureAwait(false);
+
+            _stateLock.Release();
         }
 
         OnStopped();
@@ -116,7 +125,7 @@ internal sealed class GameLoop : IGameLoop
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        await StateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _stateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (State != GameLoopState.Running)
@@ -125,16 +134,17 @@ internal sealed class GameLoop : IGameLoop
                     $"Cannot pause game loop in state '{State}'. Only '{GameLoopState.Running}' state is allowed.");
             }
 
-            State = GameLoopState.Paused;
+            await ChangeStateAsync(GameLoopState.Paused, cancellationToken)
+                .ConfigureAwait(false);
 
             if (_gameLoopCts != null)
             {
-                _ = StateMachine.Pause(_gameLoopCts.Token);
+                await _stateMachine.Pause(_gameLoopCts.Token);
             }
         }
         finally
         {
-            StateLock.Release();
+            _stateLock.Release();
         }
 
         OnPaused();
@@ -144,7 +154,7 @@ internal sealed class GameLoop : IGameLoop
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        await StateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _stateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (State != GameLoopState.Paused)
@@ -153,16 +163,17 @@ internal sealed class GameLoop : IGameLoop
                     $"Cannot resume game loop in state '{State}'. Only '{GameLoopState.Paused}' state is allowed.");
             }
 
-            State = GameLoopState.Running;
+            await ChangeStateAsync(GameLoopState.Running, cancellationToken)
+                .ConfigureAwait(false);
 
             if (_gameLoopCts != null)
             {
-                _ = StateMachine.Run(_gameLoopCts.Token);
+                await _stateMachine.Run(_gameLoopCts.Token);
             }
         }
         finally
         {
-            StateLock.Release();
+            _stateLock.Release();
         }
 
         OnResumed();
@@ -192,28 +203,28 @@ internal sealed class GameLoop : IGameLoop
         _gameLoopTask?.GetAwaiter()
             .GetResult();
 
-        StateMachine.Dispose();
+        _stateMachine.Dispose();
         _gameLoopCts?.Dispose();
-        StateLock.Dispose();
+        _stateLock.Dispose();
     }
 
     private async Task RunGameLoopAsync(CancellationToken cancellationToken)
     {
         try
         {
-            await StateMachine.StartAsync<InitializeState>(cancellationToken).ConfigureAwait(false);
-            await StateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await _stateMachine.StartAsync<InitializeState>(cancellationToken).ConfigureAwait(false);
+            await _stateLock.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
                 if (State == GameLoopState.Initializing)
                 {
-                    State = GameLoopState.Running;
+                    await ChangeStateAsync(GameLoopState.Running, cancellationToken);
                 }
             }
             finally
             {
-                StateLock.Release();
+                _stateLock.Release();
             }
 
             OnStarted();
@@ -226,14 +237,14 @@ internal sealed class GameLoop : IGameLoop
         {
             _logger.LogError(ex, "Game loop '{LoopName}' encountered an error", Name);
 
-            await StateLock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+            await _stateLock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
             try
             {
-                State = GameLoopState.Failed;
+                await ChangeStateAsync(GameLoopState.Failed, CancellationToken.None);
             }
             finally
             {
-                StateLock.Release();
+                _stateLock.Release();
             }
 
             OnErrorOccurred(ex, $"Game loop failed with error: {ex.Message}");
@@ -245,7 +256,7 @@ internal sealed class GameLoop : IGameLoop
         try
         {
             using var cts = new CancellationTokenSource(timeout);
-            await StateMachine.StopAsync().ConfigureAwait(false);
+            await _stateMachine.StopAsync().ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -259,6 +270,16 @@ internal sealed class GameLoop : IGameLoop
             _logger.LogError(ex, "Error stopping game loop '{LoopName}'", Name);
             OnErrorOccurred(ex, $"Error stopping game loop: {ex.Message}");
         }
+    }
+
+    private async Task ChangeStateAsync(GameLoopState state, CancellationToken cancellationToken)
+    {
+        State = state;
+        await _eventBus.PublishAsync(new GameLoopStateChangedEvent
+        {
+            SourceLoopName = Name,
+            State = state
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task WaitForStateChangeAsync(

@@ -2,7 +2,7 @@ using Ais.GameEngine.Core.Abstractions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Ais.GameEngine.Core.Internal.Configuration;
+namespace Ais.GameEngine.Core.Internal.Helpers;
 
 internal sealed class ServicesConfigurator
 {

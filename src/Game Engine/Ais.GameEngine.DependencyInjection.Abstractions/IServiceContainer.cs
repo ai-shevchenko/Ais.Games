@@ -1,4 +1,4 @@
-namespace Ais.GameEngine.Core.Abstractions;
+namespace Ais.GameEngine.DependencyInjection.Abstractions;
 
 /// <summary>
 /// Абстракция для DI контейнера, изолирующая зависимость от конкретно фреймворка (Autofac, Unity и т.д.).

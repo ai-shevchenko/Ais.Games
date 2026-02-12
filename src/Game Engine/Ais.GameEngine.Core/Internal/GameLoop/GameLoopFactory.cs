@@ -3,7 +3,7 @@ using Ais.GameEngine.Modules.Abstractions;
 using Ais.GameEngine.StateMachine.Abstractions;
 
 using Microsoft.Extensions.Configuration;
-
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core.Internal.GameLoop;
@@ -13,13 +13,13 @@ internal sealed class GameLoopFactory : IGameLoopFactory
     private readonly IConfiguration _configuration;
     private readonly IModuleLoader _moduleLoader;
     private readonly ILogger<GameLoopFactory> _logger;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly DependencyInjection.Abstractions.IServiceScopeFactory _serviceScopeFactory;
 
     public GameLoopFactory(
         IConfiguration configuration,
         IModuleLoader moduleLoader,
         ILogger<GameLoopFactory> logger,
-        IServiceScopeFactory serviceScopeFactory)
+        DependencyInjection.Abstractions.IServiceScopeFactory serviceScopeFactory)
     {
         _configuration = configuration;
         _moduleLoader = moduleLoader;
@@ -44,6 +44,8 @@ internal sealed class GameLoopFactory : IGameLoopFactory
 
                 var settings = new GameLoopBuilderSettings(services);
                 configure?.Invoke(settings);
+
+                services.AddSingleton<GameLoop>();
             };
         });
 

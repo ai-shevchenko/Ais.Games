@@ -90,9 +90,8 @@ using var mainLoop = gameEngine.CreateGameLoop("main", settings =>
         });
 });
 
-gameSession.SetResult(GameState.None);
-logging.Start(stoppingTokenSource.Token);
-menuLoop.Start(stoppingTokenSource.Token);
+await logging.StartAsync(stoppingTokenSource.Token);
+await menuLoop.StartAsync(stoppingTokenSource.Token);
 
 while (gameSession.State == GameState.None && !stoppingTokenSource.IsCancellationRequested)
 {
@@ -101,8 +100,8 @@ while (gameSession.State == GameState.None && !stoppingTokenSource.IsCancellatio
 
 if (gameSession.State == GameState.Start)
 {
-    menuLoop.Pause();
-    mainLoop.Start(stoppingTokenSource.Token);
+    await menuLoop.PauseAsync(stoppingTokenSource.Token);
+    await mainLoop.StartAsync(stoppingTokenSource.Token);
 }
 
-gameEngine.Stop();
+await gameEngine.StopAsync();

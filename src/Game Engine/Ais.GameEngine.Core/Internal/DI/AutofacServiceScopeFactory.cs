@@ -1,4 +1,4 @@
-using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.DependencyInjection.Abstractions;
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -7,13 +7,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Ais.GameEngine.Core.Internal.DI;
 
-internal sealed class AutofacServiceScopeFactory : Abstractions.IServiceScopeFactory
+internal sealed class AutofacServiceScopeFactory : DependencyInjection.Abstractions.IServiceScopeFactory
 {
     private readonly IContainer _container;
 
     public AutofacServiceScopeFactory(IContainer container)
     {
-        _container = container ?? throw new ArgumentNullException(nameof(container));
+        _container = container;
     }
 
     public IServiceContainer CreateScope(

@@ -1,4 +1,4 @@
-using Ais.GameEngine.Core.Abstractions;
+using Ais.GameEngine.DependencyInjection.Abstractions;
 
 using Autofac;
 
@@ -10,10 +10,11 @@ internal sealed class AutofacServiceContainer : IServiceContainer
 
     public AutofacServiceContainer(ILifetimeScope scope)
     {
-        _scope = scope ?? throw new ArgumentNullException(nameof(scope));
+        _scope = scope;
     }
 
-    public T Resolve<T>() where T : notnull
+    public T Resolve<T>()
+        where T : notnull
     {
         try
         {
@@ -27,7 +28,8 @@ internal sealed class AutofacServiceContainer : IServiceContainer
         }
     }
 
-    public bool TryResolve<T>(out T instance) where T : notnull
+    public bool TryResolve<T>(out T instance)
+        where T : notnull
     {
         try
         {

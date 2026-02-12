@@ -1,7 +1,7 @@
 namespace Ais.GameEngine.Core.Abstractions;
 
 /// <summary>
-/// Состояние игрового цикла для конечного автомата.
+/// Состояние игрового цикла.
 /// </summary>
 public enum GameLoopState
 {

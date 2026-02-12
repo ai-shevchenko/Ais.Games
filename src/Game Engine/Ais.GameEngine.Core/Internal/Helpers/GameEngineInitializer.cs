@@ -1,3 +1,4 @@
+using Ais.GameEngine.Core.Internal.GameLoop;
 using Ais.GameEngine.Core.Internal.HooksSystem;
 using Ais.GameEngine.Core.Internal.StateMachine;
 using Ais.GameEngine.Core.Internal.TimeSystem;
@@ -6,7 +7,7 @@ using Ais.GameEngine.Core.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Ais.GameEngine.Core.Internal.Configuration;
+namespace Ais.GameEngine.Core.Internal.Helpers;
 
 internal sealed class GameEngineInitializer
 {
@@ -20,6 +21,7 @@ internal sealed class GameEngineInitializer
         services.AddStateMachine();
         services.AddTimeSystem();
         services.AddHooksSystem();
+        services.AddGameLoopServices();
 
         var engineSettings = configuration.GetSection(nameof(GameEngineSettings));
         if (engineSettings.Exists())

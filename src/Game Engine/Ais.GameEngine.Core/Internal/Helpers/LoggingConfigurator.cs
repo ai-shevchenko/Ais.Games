@@ -3,7 +3,7 @@ using Ais.GameEngine.Core.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Ais.GameEngine.Core.Internal.Configuration;
+namespace Ais.GameEngine.Core.Internal.Helpers;
 
 internal sealed class LoggingConfigurator
 {

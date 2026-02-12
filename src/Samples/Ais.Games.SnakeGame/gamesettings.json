@@ -4,8 +4,7 @@
       "Ais.GameEngine.Extensions.SignalBus"
     ],
     "main": [
-      "Ais.GameEngine.Extensions.Commands",
-      "Ais.GameEngine.Extensions.Ecs"
+      "Ais.GameEngine.Extensions.Commands"
     ]
   },
   "GameEngineSettings": {

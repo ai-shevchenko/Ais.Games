@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Ais.GameEngine.Core.Abstractions;
+namespace Ais.GameEngine.DependencyInjection.Abstractions;
 
 /// <summary>
 /// Конфигурация области видимости в DI контейнере.
