@@ -90,19 +90,23 @@ using var mainLoop = gameEngine.CreateGameLoop("main", settings =>
         });
 });
 
-gameSession.SetResult(GameState.None);
-logging.Start(stoppingTokenSource.Token);
-menuLoop.Start(stoppingTokenSource.Token);
+await logging.StartAsync(stoppingTokenSource.Token);
+await menuLoop.StartAsync(stoppingTokenSource.Token);
 
 while (gameSession.State == GameState.None && !stoppingTokenSource.IsCancellationRequested)
 {
-    await Task.Delay(50); 
+    await Task.Delay(50);
 }
 
 if (gameSession.State == GameState.Start)
 {
-    menuLoop.Pause();
-    mainLoop.Start(stoppingTokenSource.Token);
+    await menuLoop.PauseAsync(stoppingTokenSource.Token);
+    await mainLoop.StartAsync(stoppingTokenSource.Token);
 }
 
-gameEngine.Stop();
+while (gameSession.State == GameState.Start)
+{
+    await Task.Delay(50);
+}
+
+await gameEngine.StopAsync();

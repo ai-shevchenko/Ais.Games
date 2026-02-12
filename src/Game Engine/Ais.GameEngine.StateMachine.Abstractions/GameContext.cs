@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ais.GameEngine.StateMachine.Abstractions;
 
@@ -7,7 +8,7 @@ namespace Ais.GameEngine.StateMachine.Abstractions;
 /// </summary>
 public class GameContext
 {
-    private readonly Dictionary<string, object?> _data = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, object?> _data = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Наименование игрового цикла
@@ -86,7 +87,6 @@ public class GameContext
 
     private static string GetValueKey<T>(string key)
     {
-        var typedKey = string.Intern($"{key}:{typeof(T).Name}");
-        return typedKey;
+        return $"{key}:{typeof(T).FullName}";
     }
 }

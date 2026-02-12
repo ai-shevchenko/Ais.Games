@@ -14,7 +14,7 @@ internal sealed class ConfigurationModuleEnricher : IModuleEnricher
         _configuration = configuration;
     }
 
-    public void Enrich(IKeyedModuleLoader loader)
+    public void Enrich(IModuleLoader loader)
     {
         var section = _configuration.GetSection(SectionName);
         if (!section.Exists())

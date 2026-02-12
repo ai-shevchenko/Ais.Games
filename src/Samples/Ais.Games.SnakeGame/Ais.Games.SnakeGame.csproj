@@ -20,10 +20,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\ECS Framework\Ais.ECS.Abstractions\Ais.ECS.Abstractions.csproj" />
+    <ProjectReference Include="..\..\ECS Framework\Ais.ECS\Ais.ECS.csproj" />
     <ProjectReference Include="..\..\Game Engine\Ais.GameEngine.Core\Ais.GameEngine.Core.csproj" />
     <ProjectReference Include="..\..\Modules\Ais.GameEngine.Extensions.Commands\Ais.GameEngine.Extensions.Commands.csproj" />
     <ProjectReference Include="..\..\Modules\Ais.GameEngine.Extensions.Ecs\Ais.GameEngine.Extensions.Ecs.csproj" />
-    <ProjectReference Include="..\..\Modules\Ais.GameEngine.Extensions.SignalBus\Ais.GameEngine.Extensions.SignalBus.csproj" />
   </ItemGroup>
 
   <ItemGroup>

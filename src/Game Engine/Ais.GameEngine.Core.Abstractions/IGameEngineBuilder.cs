@@ -1,4 +1,4 @@
-﻿using Ais.GameEngine.Modules.Abstractions;
+using Ais.GameEngine.Modules.Abstractions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +39,7 @@ public interface IGameEngineBuilder
     ///     Добавить обогатитель модулей
     /// </summary>
     /// <param name="enricher">Метод обогащения модулей</param>
-    void AddModuleEnricher(Action<IKeyedModuleLoader> enricher);
+    void AddModuleEnricher(Action<IModuleLoader> enricher);
 
     /// <summary>
     ///     Собрать игровой движок

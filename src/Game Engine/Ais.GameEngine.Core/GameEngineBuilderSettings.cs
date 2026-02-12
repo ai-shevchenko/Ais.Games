@@ -1,4 +1,5 @@
 using Ais.GameEngine.Core.Settings;
+using Ais.GameEngine.Modules.Abstractions;
 
 namespace Ais.GameEngine.Core;
 
@@ -16,4 +17,9 @@ public sealed class GameEngineBuilderSettings
     ///     Настройки игрового движка
     /// </summary>
     public GameEngineSettings? GameEngineSettings { get; init; }
+
+    /// <summary>
+    ///     Загрузчик модулей
+    /// </summary>
+    public IModuleLoader? ModuleLoader { get; init; }
 }

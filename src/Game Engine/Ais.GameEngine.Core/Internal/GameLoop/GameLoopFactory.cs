@@ -2,55 +2,59 @@ using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Modules.Abstractions;
 using Ais.GameEngine.StateMachine.Abstractions;
 
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Ais.GameEngine.Core.Internal.GameLoop;
 
 internal sealed class GameLoopFactory : IGameLoopFactory
 {
     private readonly IConfiguration _configuration;
-    private readonly IKeyedModuleLoader _moduleLoader;
-    private readonly IContainer _rootContainer;
+    private readonly IModuleLoader _moduleLoader;
+    private readonly ILogger<GameLoopFactory> _logger;
+    private readonly DependencyInjection.Abstractions.IServiceScopeFactory _serviceScopeFactory;
 
     public GameLoopFactory(
-        IContainer container,
         IConfiguration configuration,
-        IKeyedModuleLoader moduleLoader)
+        IModuleLoader moduleLoader,
+        ILogger<GameLoopFactory> logger,
+        DependencyInjection.Abstractions.IServiceScopeFactory serviceScopeFactory)
     {
-        _rootContainer = container;
         _configuration = configuration;
         _moduleLoader = moduleLoader;
+        _logger = logger;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     public GameLoopScope Create(string name, Action<GameLoopBuilderSettings>? configure = null)
     {
-        var loopServices = new ServiceCollection();
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        foreach (var module in _moduleLoader.GetLoadedModules(name))
+        _logger.LogInformation("Creating game loop '{LoopName}'", name);
+
+        var scope = _serviceScopeFactory.CreateScope(name, builder =>
         {
-            module.ConfigureGameServices(loopServices, _configuration);
-        }
+            builder.ConfigureServices = (services) =>
+            {
+                foreach (var module in _moduleLoader.GetLoadedModules(name))
+                {
+                    module.ConfigureGameServices(services, _configuration);
+                }
 
-        var settings = new GameLoopBuilderSettings(loopServices);
-        configure?.Invoke(settings);
+                var settings = new GameLoopBuilderSettings(services);
+                configure?.Invoke(settings);
 
-        var scope = _rootContainer.BeginLifetimeScope(name, builder =>
-        {
-            builder.Populate(loopServices);
-
-            builder.RegisterType<GameLoop>()
-                .AsSelf()
-                .InstancePerLifetimeScope();
+                services.AddSingleton<GameLoop>();
+            };
         });
 
         var accessor = scope.Resolve<IGameContextAccessor>();
         accessor.CurrentContext = new GameContext { LoopName = name };
 
         var loop = scope.Resolve<GameLoop>();
+
+        _logger.LogInformation("Game loop '{LoopName}' created successfully", name);
 
         return new GameLoopScope(name, loop, scope);
     }

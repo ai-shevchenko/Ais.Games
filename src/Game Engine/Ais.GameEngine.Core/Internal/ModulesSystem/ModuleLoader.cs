@@ -4,12 +4,17 @@ using Ais.GameEngine.Modules.Abstractions;
 
 namespace Ais.GameEngine.Core.Internal.ModulesSystem;
 
-internal sealed class ModuleLoader : IKeyedModuleLoader
+internal sealed class ModuleLoader : IModuleLoader
 {
     private const string DefaultName = "Default";
 
     private readonly Dictionary<string, List<GameEngineModule>> _modules = [];
     private readonly Dictionary<string, List<Type>> _types = [];
+
+    public ModuleLoader()
+    {
+        _types.Add(DefaultName, []);
+    }
 
     public IReadOnlyList<Type> LoadModules => _types.Values
         .SelectMany(x => x)

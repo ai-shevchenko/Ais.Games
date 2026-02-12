@@ -2,9 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 
 using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Extensions;
+using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.GameEngine.Extensions.Ecs;
-using Ais.GameEngine.Extensions.SignalBus.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
 using Ais.Games.SnakeGame.Commands;
 using Ais.Games.SnakeGame.Components;
 
@@ -15,17 +16,20 @@ namespace Ais.Games.SnakeGame.Systems;
 internal sealed class CollisionSystem : EcsSystem
 {
     private readonly ICommandExecutor _commandExecutor;
-    private readonly ISignalPublisher _signalPublisher;
+    private readonly IGameLoopEventBus _eventBus;
     private readonly GameWindowSettings _windowSettings;
+    private readonly IGameContextAccessor _accessor;
 
     public CollisionSystem(
         IOptions<GameWindowSettings> windowSettings,
         ICommandExecutor commandExecutor,
-        ISignalPublisher signalPublisher)
+        IGameLoopEventBus eventBus,
+        IGameContextAccessor accessor)
     {
         _windowSettings = windowSettings.Value;
         _commandExecutor = commandExecutor;
-        _signalPublisher = signalPublisher;
+        _eventBus = eventBus;
+        _accessor = accessor;
     }
 
     public override void Update(float deltaTime)
@@ -170,7 +174,7 @@ internal sealed class CollisionSystem : EcsSystem
     private void HandleGameOver(bool isWin)
     {
         _commandExecutor.Execute(new StopSnakeCommand { World = World });
-        _ = _signalPublisher.PublishAsync(new GameOverSignal { IsWin = isWin });
+        _ = _eventBus.PublishAsync(new GameOverEvent { SourceLoopName = _accessor.CurrentContext!.LoopName, IsWin = isWin });
     }
 
     private void HandleFoodEaten()
