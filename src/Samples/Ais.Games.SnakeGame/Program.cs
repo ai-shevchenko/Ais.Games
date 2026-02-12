@@ -95,13 +95,18 @@ await menuLoop.StartAsync(stoppingTokenSource.Token);
 
 while (gameSession.State == GameState.None && !stoppingTokenSource.IsCancellationRequested)
 {
-    await Task.Delay(50); 
+    await Task.Delay(50);
 }
 
 if (gameSession.State == GameState.Start)
 {
     await menuLoop.PauseAsync(stoppingTokenSource.Token);
     await mainLoop.StartAsync(stoppingTokenSource.Token);
+}
+
+while (gameSession.State == GameState.Start)
+{
+    await Task.Delay(50);
 }
 
 await gameEngine.StopAsync();

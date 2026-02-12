@@ -1,10 +1,10 @@
 {
   "GameEngineModules": {
     "Default": [
-      "Ais.GameEngine.Extensions.SignalBus"
     ],
     "main": [
-      "Ais.GameEngine.Extensions.Commands"
+      "Ais.GameEngine.Extensions.Commands",
+      "Ais.GameEngine.Extensions.Ecs"
     ]
   },
   "GameEngineSettings": {

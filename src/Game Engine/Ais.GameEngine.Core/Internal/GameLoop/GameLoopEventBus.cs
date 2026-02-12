@@ -4,57 +4,38 @@ using Ais.GameEngine.Core.Abstractions;
 
 namespace Ais.GameEngine.Core.Internal.GameLoop;
 
-internal sealed class GameLoopEventBus : IGameLoopEventBus
+internal sealed class GameLoopEventBus : IGameLoopEventBus, IDisposable
 {
-    private readonly ConcurrentDictionary<Type, ConcurrentBag<Delegate>> _subscribers = new();
+    private readonly ConcurrentDictionary<Type, List<SubscriptionInfo>> _subscribers = new();
     private readonly ReaderWriterLockSlim _lock = new();
+    private bool _disposed;
 
     public IDisposable Subscribe<TEvent>(string loopName, Func<TEvent, CancellationToken, Task> handler)
         where TEvent : IGameLoopEvent
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         _lock.EnterWriteLock();
         try
         {
             var key = typeof(TEvent);
-            var bag = _subscribers.GetOrAdd(key, _ => []);
+            var list = _subscribers.GetOrAdd(key, _ => []);
 
-            var wrappedHandler = new Func<TEvent, CancellationToken, Task>(async (evt, ct) =>
-            {
-                if (evt.TargetLoopName == null || evt.TargetLoopName == loopName)
-                {
-                    await handler(evt, ct);
-                }
-            });
-
-            bag.Add(wrappedHandler);
+            var subscriptionInfo = new SubscriptionInfo(loopName, handler);
+            list.Add(subscriptionInfo);
 
             return new Unsubscriber(() =>
             {
                 _lock.EnterWriteLock();
                 try
                 {
-                    var temp = new List<Delegate>();
-                    var removed = false;
-
-                    while (bag.TryTake(out var item))
+                    if (_subscribers.TryGetValue(key, out var handlers))
                     {
-                        if (!removed && item == (Delegate)wrappedHandler)
+                        handlers.Remove(subscriptionInfo);
+                        if (handlers.Count == 0)
                         {
-                            removed = true;
-                            continue;
+                            _subscribers.TryRemove(key, out _);
                         }
-
-                        temp.Add(item);
-                    }
-
-                    foreach (var it in temp)
-                    {
-                        bag.Add(it);
-                    }
-
-                    if (bag.IsEmpty)
-                    {
-                        _subscribers.TryRemove(key, out _);
                     }
                 }
                 finally
@@ -77,17 +58,65 @@ internal sealed class GameLoopEventBus : IGameLoopEventBus
         {
             if (_subscribers.TryGetValue(typeof(TEvent), out var handlers))
             {
-                var tasks = handlers
-                    .Cast<Delegate>()
-                    .OfType<Func<TEvent, CancellationToken, Task>>()
-                    .Select(h => Task.Run(async () => await h(evt, cancellationToken).ConfigureAwait(false), cancellationToken));
+                var tasks = new List<Task>(handlers.Count);
 
-                await Task.WhenAll(tasks);
+                foreach (var subscription in handlers)
+                {
+                    if (evt.TargetLoopName == null || evt.TargetLoopName == subscription.LoopName)
+                    {
+                        tasks.Add(subscription.Invoke(evt, cancellationToken));
+                    }
+                }
+
+                if (tasks.Count > 0)
+                {
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                }
             }
         }
         finally
         {
             _lock.ExitReadLock();
+        }
+    }
+
+    public void Publish<TEvent>(TEvent evt)
+        where TEvent : IGameLoopEvent
+    {
+        PublishAsync(evt, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        _lock.Dispose();
+    }
+
+    private sealed class SubscriptionInfo
+    {
+        public string LoopName { get; }
+        private readonly Delegate _handler;
+
+        public SubscriptionInfo(string loopName, Delegate handler)
+        {
+            LoopName = loopName;
+            _handler = handler;
+        }
+
+        public Task Invoke<TEvent>(TEvent evt, CancellationToken cancellationToken)
+            where TEvent : IGameLoopEvent
+        {
+            if (_handler is Func<TEvent, CancellationToken, Task> typedHandler)
+            {
+                return typedHandler(evt, cancellationToken);
+            }
+
+            return Task.CompletedTask;
         }
     }
 

@@ -10,10 +10,10 @@ internal sealed class RunningState : GameStateBase, IDisposable
     private readonly IGameTimer _gameTimer;
     private readonly IHooksProvider _hooksProvider;
 
-    public RunningState(ITimerController timer, IHooksProvider hooksProvider)
+    public RunningState(ITimerController timer, IHooksProvider hooksProvider, IGameContextAccessor accessor)
     {
         _hooksProvider = hooksProvider;
-        _gameTimer = timer.CreateChildTimer();
+        _gameTimer = timer.CreateChildTimer(accessor.CurrentContext!.LoopName);
         _frameTimer = _gameTimer.CreateFrameTimer();
     }
 

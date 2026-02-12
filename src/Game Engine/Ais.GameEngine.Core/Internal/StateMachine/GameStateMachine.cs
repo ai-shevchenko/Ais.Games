@@ -100,8 +100,6 @@ internal sealed class GameStateMachine : IGameStateMachine
                 }
             }
         }, execToken);
-
-        await _executionTask;
     }
 
     public async Task StopAsync()

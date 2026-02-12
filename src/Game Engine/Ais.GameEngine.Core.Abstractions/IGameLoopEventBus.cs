@@ -11,10 +11,10 @@ public interface IGameLoopEventBus
     ///     Если имя цикла не указано, то подписчик будет получать события от всех циклов.
     /// </summary>
     /// <typeparam name="TEvent">Тип события</typeparam>
-    /// <param name="loopNmae">Имя цикла</param>
+    /// <param name="loopName">Имя цикла</param>
     /// <param name="handler">Обработчик</param>
     /// <returns>Подписка</returns>
-    IDisposable Subscribe<TEvent>(string loopNmae, Func<TEvent, CancellationToken, Task> handler)
+    IDisposable Subscribe<TEvent>(string loopName, Func<TEvent, CancellationToken, Task> handler)
         where TEvent : IGameLoopEvent;
 
     /// <summary>
@@ -25,5 +25,14 @@ public interface IGameLoopEventBus
     /// <param name="cancellationToken">Токен отмены</param>
     /// <returns></returns>
     Task PublishAsync<TEvent>(TEvent evt, CancellationToken cancellationToken = default)
+        where TEvent : IGameLoopEvent;
+
+    /// <summary>
+    ///     Опубликовать событие от игрового цикла.
+    /// </summary>
+    /// <typeparam name="TEvent">Тип события</typeparam>
+    /// <param name="evt">Событие</param>
+    /// <returns></returns>
+    void Publish<TEvent>(TEvent evt)
         where TEvent : IGameLoopEvent;
 }
