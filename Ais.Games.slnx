@@ -22,10 +22,6 @@
         <Project Path="src/Modules/Ais.GameEngine.Extensions.Ecs/Ais.GameEngine.Extensions.Ecs.csproj" />
         <Project Path="src/Modules/Ais.GameEngine.Extensions.SignalBus/Ais.GameEngine.Extensions.SignalBus.csproj" />
     </Folder>
-    <Folder Name="/src/Samples/">
-        <Project Path="src/Samples/Ais.Games.SnakeGame.Tests/Ais.Games.SnakeGame.Tests.csproj" />
-        <Project Path="src/Samples/Ais.Games.SnakeGame/Ais.Games.SnakeGame.csproj" />
-    </Folder>
     <Folder Name="/tests/">
         <Project Path="tests/Ais.GameEngine.Core.Tests/Ais.GameEngine.Core.Tests.csproj" />
     </Folder>
