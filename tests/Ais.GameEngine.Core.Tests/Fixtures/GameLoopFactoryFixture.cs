@@ -1,4 +1,5 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
+
 using NSubstitute;
 
 namespace Ais.GameEngine.Core.Tests.Fixtures;
@@ -7,6 +8,16 @@ public sealed class GameLoopFactoryFixture : IDisposable
 {
     public IGameLoopFactory Factory { get; } = Substitute.For<IGameLoopFactory>();
     public List<GameLoopScope> CreatedScopes { get; } = [];
+
+    public void Dispose()
+    {
+        foreach (var scope in CreatedScopes)
+        {
+            scope.Dispose();
+        }
+
+        CreatedScopes.Clear();
+    }
 
     public GameLoopScope CreateMockScope(string loopName)
     {
@@ -27,15 +38,5 @@ public sealed class GameLoopFactoryFixture : IDisposable
     {
         var scope = CreateMockScope(loopName);
         Factory.Create(loopName, Arg.Any<Action<GameLoopBuilderSettings>?>()).Returns(scope);
-    }
-
-    public void Dispose()
-    {
-        foreach (var scope in CreatedScopes)
-        {
-            scope.Dispose();
-        }
-
-        CreatedScopes.Clear();
     }
 }

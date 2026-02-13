@@ -16,9 +16,6 @@ internal sealed class LoggingConfigurator
 
     public void Apply(IServiceCollection services, GameEngineBuilderContext context)
     {
-        services.AddLogging(builder =>
-        {
-            _configure?.Invoke(context, builder);
-        });
+        services.AddLogging(builder => { _configure?.Invoke(context, builder); });
     }
 }

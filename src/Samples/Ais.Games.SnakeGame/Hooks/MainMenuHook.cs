@@ -1,4 +1,3 @@
-using Ais.GameEngine.Extensions.Ecs;
 using Ais.GameEngine.Hooks.Abstractions;
 
 namespace Ais.Games.SnakeGame.Hooks;
@@ -16,6 +15,15 @@ internal sealed class MainMenuHook : BaseHook, IInitialize, IRender, IDestroy
         _session = session;
     }
 
+    public void OnDestroy()
+    {
+        _cts?.Cancel();
+        if (_loopTask is not null)
+        {
+            Task.WhenAny(_loopTask).Wait();
+        }
+    }
+
     public void Initialize()
     {
         _cts = new CancellationTokenSource();
@@ -27,13 +35,7 @@ internal sealed class MainMenuHook : BaseHook, IInitialize, IRender, IDestroy
         Console.Clear();
         Console.CursorVisible = false;
 
-        var options = new[]
-        {
-            "=== SNAKE GAME ===",
-            "", "1. Start game",
-            "2. Exit", "",
-            "Use keys 1-2 to choose."
-        };
+        var options = new[] { "=== SNAKE GAME ===", "", "1. Start game", "2. Exit", "", "Use keys 1-2 to choose." };
 
         var top = 2;
         for (var i = 0; i < options.Length; i++)
@@ -43,20 +45,11 @@ internal sealed class MainMenuHook : BaseHook, IInitialize, IRender, IDestroy
         }
     }
 
-    public void OnDestroy()
-    {
-        _cts?.Cancel();
-        if (_loopTask is not null)
-        {
-            Task.WhenAny(_loopTask).Wait();
-        }
-    }
-
     private async Task ReadInputAsync(CancellationToken token)
     {
         while (!token.IsCancellationRequested)
         {
-            var key = Console.ReadKey(intercept: true).Key;
+            var key = Console.ReadKey(true).Key;
 
             switch (key)
             {

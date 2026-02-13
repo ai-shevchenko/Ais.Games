@@ -1,9 +1,6 @@
-using Ais.ECS.Abstractions.Worlds;
-using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.Games.SnakeGame.Commands;
-using Ais.Games.SnakeGame.Components;
 
 using Microsoft.Extensions.Options;
 
@@ -11,9 +8,9 @@ namespace Ais.Games.SnakeGame.Systems;
 
 internal sealed class PowerUpSpawnSystem : EcsSystem
 {
+    private readonly ICommandExecutor _commandExecutor;
     private readonly GameWindowSettings _settings;
     private readonly float _spawnIntervalSeconds = 10f;
-    private readonly ICommandExecutor _commandExecutor;
 
     private float _timeSinceLastSpawn;
 

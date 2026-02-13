@@ -14,7 +14,7 @@ public interface IGameLoopEventBus
     /// <param name="loopName">Имя цикла</param>
     /// <param name="handler">Обработчик</param>
     /// <returns>Подписка</returns>
-    IDisposable Subscribe<TEvent>(string loopName, Func<TEvent, CancellationToken, Task> handler)
+    IDisposable Subscribe<TEvent>(string? loopName, Func<TEvent, CancellationToken, Task> handler)
         where TEvent : IGameLoopEvent;
 
     /// <summary>

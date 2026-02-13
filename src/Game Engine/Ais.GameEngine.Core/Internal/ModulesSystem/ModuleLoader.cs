@@ -21,31 +21,6 @@ internal sealed class ModuleLoader : IModuleLoader
         .Distinct()
         .ToArray();
 
-    public void LoadAssembly(Assembly assembly)
-    {
-        LoadAssembly(DefaultName, assembly);
-    }
-
-    public void LoadAssembly(string assemblyName)
-    {
-        LoadAssembly(DefaultName, assemblyName);
-    }
-
-    public void LoadDll(string path)
-    {
-        LoadDll(DefaultName, path);
-    }
-
-    public void LoadFromDirectory(string path)
-    {
-        LoadFromDirectory(DefaultName, path);
-    }
-
-    public IReadOnlyList<GameEngineModule> GetLoadedModules()
-    {
-        return GetLoadedModules(DefaultName);
-    }
-
     public void LoadAssembly(string key, Assembly assembly)
     {
         var moduleTypes = assembly.GetTypes()
@@ -60,7 +35,8 @@ internal sealed class ModuleLoader : IModuleLoader
                 _types.Add(key, []);
             }
 
-            if (_types[key].Contains(type) || _types[DefaultName] is { Count: > 0 } defaultTypes && defaultTypes.Contains(type))
+            if (_types[key].Contains(type) ||
+                (_types[DefaultName] is { Count: > 0 } defaultTypes && defaultTypes.Contains(type)))
             {
                 continue;
             }
@@ -116,5 +92,30 @@ internal sealed class ModuleLoader : IModuleLoader
         }
 
         return [];
+    }
+
+    public void LoadAssembly(Assembly assembly)
+    {
+        LoadAssembly(DefaultName, assembly);
+    }
+
+    public void LoadAssembly(string assemblyName)
+    {
+        LoadAssembly(DefaultName, assemblyName);
+    }
+
+    public void LoadDll(string path)
+    {
+        LoadDll(DefaultName, path);
+    }
+
+    public void LoadFromDirectory(string path)
+    {
+        LoadFromDirectory(DefaultName, path);
+    }
+
+    public IReadOnlyList<GameEngineModule> GetLoadedModules()
+    {
+        return GetLoadedModules(DefaultName);
     }
 }

@@ -1,4 +1,3 @@
-using Ais.ECS.Abstractions.Entities;
 using Ais.ECS.Abstractions.Worlds;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
@@ -23,21 +22,29 @@ internal sealed class GrowthSnakeCommand : ICommand
             return;
         }
 
-        var segmentsList = new List<(IEntity Entity, SnakeSegment Segment, Position Position)>(segmentsSpan.Length);
-        foreach (var e in segmentsSpan)
+        foreach (var segment in segmentsSpan)
         {
-            var seg = e.GetComponent<SnakeSegment>(World);
-            var pos = e.GetComponent<Position>(World);
-            segmentsList.Add((e, seg, pos));
+            if (!World.GetStore<SnakeSegment>().Contains(segment))
+            {
+                continue;
+            }
+
+            var seg = segment.GetComponent<SnakeSegment>(World);
+            if (seg.IsHead)
+            {
+                if (World.GetStore<GrowthPending>().Contains(segment))
+                {
+                    ref var growth = ref segment.GetComponent<GrowthPending>(World);
+                    growth.PendingCount++;
+                }
+                else
+                {
+                    segment.AddComponent(World, new GrowthPending { PendingCount = 1 });
+                }
+
+                break;
+            }
         }
-
-        segmentsList.Sort((a, b) => a.Segment.Order.CompareTo(b.Segment.Order));
-
-        var tail = segmentsList[^1];
-        var newSegment = World.CreateEntity();
-        newSegment.AddComponent(World, new SnakeSegment { IsHead = false, Order = tail.Segment.Order + 1 });
-        newSegment.AddComponent(World, tail.Position);
-        newSegment.AddComponent(World, new Sprite { Symbol = 'o', Color = ConsoleColor.DarkGreen });
     }
 
     public void Undo()

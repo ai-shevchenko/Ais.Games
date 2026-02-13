@@ -1,6 +1,7 @@
 ﻿using Ais.GameEngine.Core.Internal.StateMachine;
 using Ais.GameEngine.Core.Tests.Fixtures;
 using Ais.GameEngine.StateMachine.Abstractions;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -18,6 +19,11 @@ public sealed class GameStateMachineStateTransitionTests : IDisposable
         _fixture = new GameStateMachineFixture();
         _logger = NullLogger<GameStateMachine>.Instance;
         _fixture.SetupStateExecutorCalls();
+    }
+
+    public void Dispose()
+    {
+        _fixture.Dispose();
     }
 
     [Fact(DisplayName = "Проверка начальное состояние машины равно null")]
@@ -120,8 +126,8 @@ public sealed class GameStateMachineStateTransitionTests : IDisposable
             _fixture.StateExecutor);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<StateTransitionException>(
-            () => stateMachine.ChangeStateAsync<IGameState>());
+        var exception =
+            await Assert.ThrowsAsync<StateTransitionException>(() => stateMachine.ChangeStateAsync<IGameState>());
 
         Assert.Same(oldState, stateMachine.CurrentState);
         Assert.Contains("Failed to enter state", exception.Message);
@@ -140,12 +146,6 @@ public sealed class GameStateMachineStateTransitionTests : IDisposable
             _fixture.StateExecutor);
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => stateMachine.ChangeStateAsync<IGameState>());
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
+        await Assert.ThrowsAsync<ArgumentNullException>(() => stateMachine.ChangeStateAsync<IGameState>());
     }
 }

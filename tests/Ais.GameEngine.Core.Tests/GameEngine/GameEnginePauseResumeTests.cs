@@ -1,5 +1,5 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.Tests.Fixtures;
+﻿using Ais.GameEngine.Core.Tests.Fixtures;
+
 using NSubstitute;
 
 namespace Ais.GameEngine.Core.Tests.GameEngine;
@@ -7,6 +7,11 @@ namespace Ais.GameEngine.Core.Tests.GameEngine;
 public sealed class GameEnginePauseResumeTests : IDisposable
 {
     private readonly GameLoopFactoryFixture _fixture = new();
+
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
 
     [Fact(DisplayName = "Проверка паузирование всех игровых циклов")]
     public async Task PauseAllAsync_RunningGameLoops_PausesAll()
@@ -90,10 +95,5 @@ public sealed class GameEnginePauseResumeTests : IDisposable
         // Assert
         await pausedLoop.Received(1).ResumeAsync(Arg.Any<CancellationToken>());
         await runningLoop.DidNotReceive().ResumeAsync(Arg.Any<CancellationToken>());
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

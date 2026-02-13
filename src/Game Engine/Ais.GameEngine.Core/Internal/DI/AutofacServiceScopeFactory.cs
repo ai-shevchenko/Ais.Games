@@ -5,9 +5,11 @@ using Autofac.Extensions.DependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using IServiceScopeFactory = Ais.GameEngine.DependencyInjection.Abstractions.IServiceScopeFactory;
+
 namespace Ais.GameEngine.Core.Internal.DI;
 
-internal sealed class AutofacServiceScopeFactory : DependencyInjection.Abstractions.IServiceScopeFactory
+internal sealed class AutofacServiceScopeFactory : IServiceScopeFactory
 {
     private readonly IContainer _container;
 

@@ -222,7 +222,7 @@ internal sealed class GameEngine : IGameEngine
         {
         }
 
-        DisposeGameLoops(stopOnly: false);
+        DisposeGameLoops(false);
 
         _cachedScopes.Clear();
         StateLock.Dispose();

@@ -1,7 +1,10 @@
 using Ais.ECS.Extensions;
+using Ais.GameEngine.Core.Abstractions;
 using Ais.GameEngine.Extensions.Ecs;
 using Ais.GameEngine.Hooks.Abstractions;
+using Ais.GameEngine.StateMachine.Abstractions;
 using Ais.Games.SnakeGame.Components;
+using Ais.Games.SnakeGame.Events;
 
 using Microsoft.Extensions.Options;
 
@@ -9,6 +12,8 @@ namespace Ais.Games.SnakeGame.Systems;
 
 internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 {
+    private readonly IGameContextAccessor? _accessor;
+    private readonly IGameLoopEventBus? _eventBus;
     private readonly GameWindowSettings _settings;
 
     private char[,] _buffer = default!;
@@ -16,9 +21,12 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
     private char[,] _prevBuffer = default!;
     private ConsoleColor[,] _prevColorBuffer = default!;
 
-    public RenderSystem(IOptions<GameWindowSettings> settings)
+    public RenderSystem(IOptions<GameWindowSettings> settings, IGameLoopEventBus? eventBus = null,
+        IGameContextAccessor? accessor = null)
     {
         _settings = settings.Value;
+        _eventBus = eventBus;
+        _accessor = accessor;
     }
 
     private int BufferWidth => _settings.Width + 2;
@@ -97,6 +105,13 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
 
         foreach (var entity in result)
         {
+            // Check if components still exist
+            if (!World.GetStore<Position>().Contains(entity) ||
+                !World.GetStore<Sprite>().Contains(entity))
+            {
+                continue;
+            }
+
             var position = entity.GetComponent<Position>(World);
             var sprite = entity.GetComponent<Sprite>(World);
 
@@ -108,12 +123,26 @@ internal sealed class RenderSystem : EcsSystem, IInitialize, IRender
             if (position.X < 0 || position.X >= BufferWidth ||
                 position.Y < 0 || position.Y >= BufferHeight - 1)
             {
+                PublishOutOfBounds(position.X, position.Y);
                 continue;
             }
 
             _buffer[position.X, position.Y] = sprite.Symbol;
             _colorBuffer[position.X, position.Y] = sprite.Color;
         }
+    }
+
+    private void PublishOutOfBounds(int x, int y)
+    {
+        _ = _eventBus?.PublishAsync(new OutOfBoundsEvent
+        {
+            SourceLoopName = _accessor?.CurrentContext?.LoopName ?? "unknown",
+            PositionX = x,
+            PositionY = y,
+            MaxX = BufferWidth,
+            MaxY = BufferHeight,
+            EntityType = "Unknown"
+        });
     }
 
     private void DrawHud()

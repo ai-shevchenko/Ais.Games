@@ -6,11 +6,22 @@ namespace Ais.GameEngine.Core.Internal.GameLoop;
 
 internal sealed class GameLoopEventBus : IGameLoopEventBus, IDisposable
 {
-    private readonly ConcurrentDictionary<Type, List<SubscriptionInfo>> _subscribers = new();
     private readonly ReaderWriterLockSlim _lock = new();
+    private readonly ConcurrentDictionary<Type, List<SubscriptionInfo>> _subscribers = new();
     private bool _disposed;
 
-    public IDisposable Subscribe<TEvent>(string loopName, Func<TEvent, CancellationToken, Task> handler)
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        _lock.Dispose();
+    }
+
+    public IDisposable Subscribe<TEvent>(string? loopName, Func<TEvent, CancellationToken, Task> handler)
         where TEvent : IGameLoopEvent
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -62,7 +73,7 @@ internal sealed class GameLoopEventBus : IGameLoopEventBus, IDisposable
 
                 foreach (var subscription in handlers)
                 {
-                    if (evt.TargetLoopName == null || evt.TargetLoopName == subscription.LoopName)
+                    if (string.IsNullOrWhiteSpace(evt.TargetLoopName) || evt.TargetLoopName == subscription.LoopName)
                     {
                         tasks.Add(subscription.Invoke(evt, cancellationToken));
                     }
@@ -88,25 +99,17 @@ internal sealed class GameLoopEventBus : IGameLoopEventBus, IDisposable
             .GetResult();
     }
 
-    public void Dispose()
-    {
-        if (_disposed)
-            return;
-
-        _disposed = true;
-        _lock.Dispose();
-    }
-
     private sealed class SubscriptionInfo
     {
-        public string LoopName { get; }
         private readonly Delegate _handler;
 
-        public SubscriptionInfo(string loopName, Delegate handler)
+        public SubscriptionInfo(string? loopName, Delegate handler)
         {
             LoopName = loopName;
             _handler = handler;
         }
+
+        public string? LoopName { get; }
 
         public Task Invoke<TEvent>(TEvent evt, CancellationToken cancellationToken)
             where TEvent : IGameLoopEvent
@@ -129,6 +132,9 @@ internal sealed class GameLoopEventBus : IGameLoopEventBus, IDisposable
             _unsubscribe = unsubscribe;
         }
 
-        public void Dispose() => _unsubscribe();
+        public void Dispose()
+        {
+            _unsubscribe();
+        }
     }
 }

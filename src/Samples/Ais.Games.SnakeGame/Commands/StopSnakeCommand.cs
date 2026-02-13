@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 using Ais.ECS.Abstractions.Worlds;
 using Ais.ECS.Extensions;
 using Ais.GameEngine.Extensions.Commands.Abstractions;
@@ -28,7 +24,7 @@ internal sealed class StopSnakeCommand : ICommand
 
             ref var velocity = ref entity.GetComponent<Velocity>(World);
             velocity.DirectionX = 0;
-            velocity.DirectoinY = 0;
+            velocity.DirectionY = 0;
         }
     }
 

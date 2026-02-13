@@ -1,11 +1,15 @@
-﻿using Ais.GameEngine.Core.Abstractions;
-using Ais.GameEngine.Core.Tests.Fixtures;
+﻿using Ais.GameEngine.Core.Tests.Fixtures;
 
 namespace Ais.GameEngine.Core.Tests.GameEngine;
 
 public sealed class GameEngineDisposalTests : IDisposable
 {
     private readonly GameLoopFactoryFixture _fixture = new();
+
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
 
     [Fact(DisplayName = "Проверка ошибка при использовании двигателя после утилизации")]
     public void CreateGameLoop_AfterDispose_ThrowsObjectDisposedException()
@@ -49,10 +53,5 @@ public sealed class GameEngineDisposalTests : IDisposable
         // Act & Assert
         engine.Dispose();
         engine.Dispose();
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

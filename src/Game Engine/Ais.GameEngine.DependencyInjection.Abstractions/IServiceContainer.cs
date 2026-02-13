@@ -1,13 +1,13 @@
 namespace Ais.GameEngine.DependencyInjection.Abstractions;
 
 /// <summary>
-/// Абстракция для DI контейнера, изолирующая зависимость от конкретно фреймворка (Autofac, Unity и т.д.).
-/// Позволяет легко заменить DI реализацию без изменения остального кода.
+///     Абстракция для DI контейнера, изолирующая зависимость от конкретно фреймворка (Autofac, Unity и т.д.).
+///     Позволяет легко заменить DI реализацию без изменения остального кода.
 /// </summary>
 public interface IServiceContainer : IDisposable
 {
     /// <summary>
-    /// Разрешить экземпляр сервиса по заданному типу.
+    ///     Разрешить экземпляр сервиса по заданному типу.
     /// </summary>
     /// <typeparam name="T">Тип сервиса для разрешения.</typeparam>
     /// <returns>Экземпляр сервиса.</returns>
@@ -15,7 +15,7 @@ public interface IServiceContainer : IDisposable
     T Resolve<T>() where T : notnull;
 
     /// <summary>
-    /// Попытаться разрешить сервис, возвращая успешность операции.
+    ///     Попытаться разрешить сервис, возвращая успешность операции.
     /// </summary>
     /// <typeparam name="T">Тип сервиса для разрешения.</typeparam>
     /// <param name="instance">Разрешённый экземпляр сервиса, если успешно.</param>

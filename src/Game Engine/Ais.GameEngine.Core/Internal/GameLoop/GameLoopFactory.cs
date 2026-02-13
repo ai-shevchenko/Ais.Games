@@ -6,20 +6,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using IServiceScopeFactory = Ais.GameEngine.DependencyInjection.Abstractions.IServiceScopeFactory;
+
 namespace Ais.GameEngine.Core.Internal.GameLoop;
 
 internal sealed class GameLoopFactory : IGameLoopFactory
 {
     private readonly IConfiguration _configuration;
-    private readonly IModuleLoader _moduleLoader;
     private readonly ILogger<GameLoopFactory> _logger;
-    private readonly DependencyInjection.Abstractions.IServiceScopeFactory _serviceScopeFactory;
+    private readonly IModuleLoader _moduleLoader;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public GameLoopFactory(
         IConfiguration configuration,
         IModuleLoader moduleLoader,
         ILogger<GameLoopFactory> logger,
-        DependencyInjection.Abstractions.IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory)
     {
         _configuration = configuration;
         _moduleLoader = moduleLoader;
@@ -35,7 +37,7 @@ internal sealed class GameLoopFactory : IGameLoopFactory
 
         var scope = _serviceScopeFactory.CreateScope(name, builder =>
         {
-            builder.ConfigureServices = (services) =>
+            builder.ConfigureServices = services =>
             {
                 foreach (var module in _moduleLoader.GetLoadedModules(name))
                 {

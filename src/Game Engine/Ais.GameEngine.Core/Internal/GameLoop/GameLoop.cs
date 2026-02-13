@@ -8,17 +8,17 @@ using Microsoft.Extensions.Logging;
 namespace Ais.GameEngine.Core.Internal.GameLoop;
 
 /// <summary>
-/// Асинхронная реализация игрового цикла
+///     Асинхронная реализация игрового цикла
 /// </summary>
 internal sealed class GameLoop : IGameLoop
 {
     private const int DefaultStopTimeoutMs = 5000;
-
-    private readonly ILogger<GameLoop> _logger;
-    private readonly IGameStateMachine _stateMachine;
     private readonly IGameContextAccessor _contextAccessor;
     private readonly IGameLoopEventBus _eventBus;
+
+    private readonly ILogger<GameLoop> _logger;
     private readonly SemaphoreSlim _stateLock = new(1, 1);
+    private readonly IGameStateMachine _stateMachine;
 
     private bool _disposed;
     private CancellationTokenSource? _gameLoopCts;
@@ -275,11 +275,9 @@ internal sealed class GameLoop : IGameLoop
     private async Task ChangeStateAsync(GameLoopState state, CancellationToken cancellationToken)
     {
         State = state;
-        await _eventBus.PublishAsync(new GameLoopStateChangedEvent
-        {
-            SourceLoopName = Name,
-            State = state
-        }, cancellationToken).ConfigureAwait(false);
+        await _eventBus
+            .PublishAsync(new GameLoopStateChangedEvent { SourceLoopName = Name, State = state }, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private async Task WaitForStateChangeAsync(
@@ -338,12 +336,7 @@ internal sealed class GameLoop : IGameLoop
 
     private void OnErrorOccurred(Exception ex, string message)
     {
-        var args = new GameLoopErrorEventArgs
-        {
-            LoopName = Name,
-            Exception = ex,
-            ErrorMessage = message
-        };
+        var args = new GameLoopErrorEventArgs { LoopName = Name, Exception = ex, ErrorMessage = message };
         ErrorOccurred?.Invoke(this, args);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
+
 using NSubstitute;
 
 namespace Ais.GameEngine.Core.Tests.Scope;

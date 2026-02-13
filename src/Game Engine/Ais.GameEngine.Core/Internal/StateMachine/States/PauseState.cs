@@ -5,8 +5,8 @@ namespace Ais.GameEngine.Core.Internal.StateMachine.States;
 
 internal sealed class PauseState : GameStateBase
 {
-    private readonly ITimerController _timer;
     private readonly IGameContextAccessor _context;
+    private readonly ITimerController _timer;
     private float _gameScale;
 
     public PauseState(ITimerController timer, IGameContextAccessor context)

@@ -147,8 +147,19 @@ public sealed class GameContextDataStorageTests
 
     private sealed class TestGameState : IGameState
     {
-        public Task EnterAsync(GameContext context, CancellationToken stoppingToken = default) => Task.CompletedTask;
-        public Task ExecuteAsync(GameContext context, CancellationToken stoppingToken = default) => Task.CompletedTask;
-        public Task ExitAsync(GameContext context, CancellationToken stoppingToken = default) => Task.CompletedTask;
+        public Task EnterAsync(GameContext context, CancellationToken stoppingToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task ExecuteAsync(GameContext context, CancellationToken stoppingToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task ExitAsync(GameContext context, CancellationToken stoppingToken = default)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

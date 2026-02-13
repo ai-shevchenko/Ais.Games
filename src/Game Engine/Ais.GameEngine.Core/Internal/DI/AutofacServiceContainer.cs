@@ -1,6 +1,7 @@
 using Ais.GameEngine.DependencyInjection.Abstractions;
 
 using Autofac;
+using Autofac.Core;
 
 namespace Ais.GameEngine.Core.Internal.DI;
 
@@ -20,7 +21,7 @@ internal sealed class AutofacServiceContainer : IServiceContainer
         {
             return _scope.Resolve<T>();
         }
-        catch (Autofac.Core.DependencyResolutionException ex)
+        catch (DependencyResolutionException ex)
         {
             throw new InvalidOperationException(
                 $"Service '{typeof(T).FullName}' is not registered in the DI container.",

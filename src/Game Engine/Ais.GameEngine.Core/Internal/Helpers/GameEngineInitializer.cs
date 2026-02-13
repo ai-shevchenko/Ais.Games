@@ -38,11 +38,11 @@ internal sealed class GameEngineInitializer
     {
         var configuration = new ConfigurationManager();
 
-        configuration.AddJsonFile("gamesettings.json", optional: true, reloadOnChange: true);
+        configuration.AddJsonFile("gamesettings.json", true, true);
 
         if (Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") is { Length: > 0 } env)
         {
-            configuration.AddJsonFile($"gamesettings.{env}.json", optional: true, reloadOnChange: true);
+            configuration.AddJsonFile($"gamesettings.{env}.json", true, true);
         }
 
         configuration

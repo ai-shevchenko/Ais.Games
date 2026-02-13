@@ -13,8 +13,8 @@
   },
   "GameWindowSettings": {
     "Title": "Змейка",
-    "Width": 30,
-    "Height": 30
+    "Width": 40,
+    "Height": 20
   },
   "Serilog": {
     "MinimumLevel": {
@@ -32,12 +32,11 @@
             {
               "Name": "File",
               "Args": {
-                "path": "./Logs/app-.log",
+                "path": "./../../../Logs/app.log",
                 "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
-                "rollingInterval": "Day",
                 "fileSizeLimitBytes": 10485760,
                 "retainedFileCountLimit": 30,
-                "rollOnFileSizeLimit": false
+                "append": false
               }
             }
           ]

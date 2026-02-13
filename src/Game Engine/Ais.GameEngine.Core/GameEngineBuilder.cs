@@ -15,19 +15,19 @@ using Microsoft.Extensions.Logging;
 namespace Ais.GameEngine.Core;
 
 /// <summary>
-/// Построитель для создания и конфигурирования экземпляра игрового движка.
-/// Использует паттерн Builder для удобного и гибкого создания движка.
+///     Построитель для создания и конфигурирования экземпляра игрового движка.
+///     Использует паттерн Builder для удобного и гибкого создания движка.
 /// </summary>
 public sealed class GameEngineBuilder : IGameEngineBuilder
 {
+    private readonly IConfigurationManager _configuration;
     private readonly GameEngineBuilderContext _context;
     private readonly LoggingConfigurator _loggingConfigurator;
     private readonly ModuleEnricherManager _moduleEnricherManager;
     private readonly IModuleLoader _moduleLoader;
-    private readonly IConfigurationManager _configuration;
     private readonly IServiceCollection _services;
-    private readonly GameEngineBuilderSettings _settings;
     private readonly ServicesConfigurator _servicesConfigurator;
+    private readonly GameEngineBuilderSettings _settings;
 
     public GameEngineBuilder(string[] args)
         : this(new GameEngineBuilderSettings { Args = args })

@@ -120,7 +120,9 @@ internal sealed class GameStateMachine : IGameStateMachine
             {
                 await _stateExecutor.ExitAsync(CurrentState, _executionCts!.Token);
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException)
+            {
+            }
         }
 
         if (_executionCts is not null)
@@ -134,7 +136,9 @@ internal sealed class GameStateMachine : IGameStateMachine
             {
                 await _executionTask;
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException)
+            {
+            }
         }
     }
 

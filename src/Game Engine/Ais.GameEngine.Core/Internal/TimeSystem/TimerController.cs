@@ -170,7 +170,9 @@ internal sealed class TimerController : ITimerController
             {
                 timer.Dispose();
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         foreach (var timer in _namedTimers.Values)

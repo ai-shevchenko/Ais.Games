@@ -7,6 +7,11 @@ public sealed class GameLoopEventBusPublishingTests : IDisposable
 {
     private readonly GameLoopEventBusFixture _fixture = new();
 
+    public void Dispose()
+    {
+        _fixture.Dispose();
+    }
+
     [Fact(DisplayName = "Проверка публикация события асинхронно")]
     public async Task PublishAsync_WithSubscriber_CallsHandler()
     {
@@ -90,7 +95,7 @@ public sealed class GameLoopEventBusPublishingTests : IDisposable
         eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>("Loop1", Handler1);
         eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>("Loop2", Handler2);
 
-        var evt = _fixture.CreateTestEvent(sourceLoopName: "SourceLoop", targetLoopName: "Loop1");
+        var evt = _fixture.CreateTestEvent("SourceLoop", "Loop1");
 
         // Act
         await eventBus.PublishAsync(evt);
@@ -123,7 +128,7 @@ public sealed class GameLoopEventBusPublishingTests : IDisposable
         eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>("Loop1", Handler1);
         eventBus.Subscribe<GameLoopEventBusFixture.TestGameLoopEvent>("Loop2", Handler2);
 
-        var evt = _fixture.CreateTestEvent(sourceLoopName: "SourceLoop", targetLoopName: null);
+        var evt = _fixture.CreateTestEvent("SourceLoop", null);
 
         // Act
         await eventBus.PublishAsync(evt);
@@ -156,10 +161,5 @@ public sealed class GameLoopEventBusPublishingTests : IDisposable
 
         // Assert
         Assert.Equal(cts.Token, receivedToken);
-    }
-
-    public void Dispose()
-    {
-        _fixture.Dispose();
     }
 }

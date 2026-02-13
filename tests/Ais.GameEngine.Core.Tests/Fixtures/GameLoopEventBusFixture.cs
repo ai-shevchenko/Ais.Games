@@ -1,11 +1,10 @@
 ﻿using Ais.GameEngine.Core.Abstractions;
-using NSubstitute;
 
 namespace Ais.GameEngine.Core.Tests.Fixtures;
 
 public sealed class GameLoopEventBusFixture : IDisposable
 {
-    public GameLoopEventBusFixture()
+    public void Dispose()
     {
     }
 
@@ -13,15 +12,7 @@ public sealed class GameLoopEventBusFixture : IDisposable
         string sourceLoopName = "TestSource",
         string? targetLoopName = null)
     {
-        return new TestGameLoopEvent
-        {
-            SourceLoopName = sourceLoopName,
-            TargetLoopName = targetLoopName
-        };
-    }
-
-    public void Dispose()
-    {
+        return new TestGameLoopEvent { SourceLoopName = sourceLoopName, TargetLoopName = targetLoopName };
     }
 
     public sealed class TestGameLoopEvent : IGameLoopEvent

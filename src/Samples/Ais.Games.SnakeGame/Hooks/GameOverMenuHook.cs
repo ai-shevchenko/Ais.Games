@@ -1,0 +1,78 @@
+﻿using Ais.GameEngine.Hooks.Abstractions;
+
+namespace Ais.Games.SnakeGame.Hooks;
+
+internal sealed class GameOverMenuHook : BaseHook, IInitialize, IRender, IDestroy
+{
+    private readonly TimeSpan _inputDelay = TimeSpan.FromMilliseconds(10);
+    private readonly GameSession _session;
+
+    private CancellationTokenSource? _cts;
+    private Task? _loopTask;
+
+    public GameOverMenuHook(GameSession session)
+    {
+        _session = session;
+    }
+
+    public void OnDestroy()
+    {
+        _cts?.Cancel();
+        if (_loopTask is not null)
+        {
+            Task.WhenAny(_loopTask).Wait();
+        }
+    }
+
+    public void Initialize()
+    {
+        _cts = new CancellationTokenSource();
+        _loopTask = ReadInputAsync(_cts.Token);
+    }
+
+    public void Render(float alpha)
+    {
+        Console.Clear();
+        Console.CursorVisible = false;
+
+        var message = _session.State switch
+        {
+            GameState.Won => "=== YOU WON! ===",
+            GameState.Lost => "=== GAME OVER ===",
+            GameState.Exit => "=== GOOD BYE ===",
+            _ => "=== GAME OVER ==="
+        };
+
+        var options = new[] { message, "", "1. Play again", "2. Exit game", "", "Use keys 1-2 to choose." };
+
+        var top = 2;
+        for (var i = 0; i < options.Length; i++)
+        {
+            Console.SetCursorPosition(2, top + i);
+            Console.WriteLine(options[i]);
+        }
+    }
+
+    private async Task ReadInputAsync(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            var key = Console.ReadKey(true).Key;
+
+            switch (key)
+            {
+                case ConsoleKey.D1:
+                case ConsoleKey.NumPad1:
+                    _session.SetResult(GameState.Start);
+                    return;
+                case ConsoleKey.D2:
+                case ConsoleKey.NumPad2:
+                case ConsoleKey.Escape:
+                    _session.SetResult(GameState.Exit);
+                    return;
+            }
+
+            await Task.Delay(_inputDelay, token);
+        }
+    }
+}
